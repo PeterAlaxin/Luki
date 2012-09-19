@@ -106,8 +106,13 @@ class Luki_Loader {
 	private static function _Init()
 	{
 		if(empty(self::$_aPath)) {
-			array_unshift(self::$_aPath, dirname(__FILE__) . DIRECTORY_SEPARATOR);
+			$aLukiDirectory = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
+			array_pop($aLukiDirectory);
+			$sLukiDirectory = implode(DIRECTORY_SEPARATOR, $aLukiDirectory). DIRECTORY_SEPARATOR;
+			
+			array_unshift(self::$_aPath, $sLukiDirectory);
 			spl_autoload_register('Luki_Loader::Autoload');
+			unset($aLukiDirectory, $sLukiDirectory);
 		}
 	}
 
