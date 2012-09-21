@@ -38,9 +38,30 @@ class Luki_Config {
 	 * @access private
 	 */
 	private $oConfigAdapter = NULL;
+		
+	/**
+	 * Configuration file
+	 * @var string
+	 * @access private
+	 */
+	private $sFile = '';
 	
 	/**
-	 * Basic constructor
+	 * Default section
+	 * @var string
+	 * @access private
+	 */
+	private $sDefaultSection = '';
+
+	/**
+	 * All sections
+	 * @var array
+	 * @access private
+	 */
+	private $aSections = array();
+	
+	/**
+	 * Constructor
 	 */
 	public function __construct($sConfigFile='')
 	{	
@@ -64,51 +85,172 @@ class Luki_Config {
 		
 		if(is_object($this->oConfigAdapter) and is_a($this->oConfigAdapter, 'Luki_Config_Interface')) {
 			$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
+			$this->sFile = $sConfigFile;
+			
+			$this->aSections = array_keys($this->aConfiguration);
+			if(isset($this->aSections[0])) {
+				$this->sDefaultSection = $this->aSections[0];
+			}
 		}
+		
+		unset($sConfigFile, $sMimeType);
 	}
 	
+	/**
+	 * Get actual configuration
+	 * @return array
+	 */
 	public function getConfiguration()
 	{
-		$aConfiguration = $this->oConfigAdapter->getConfiguration();
-		
-		return $aConfiguration;
+		return $this->aConfiguration;
 	}
 
+	/**
+	 * Get configuration filename
+	 * @return string
+	 */
 	public function getConfigurationFile()
 	{
-		$sFile = $this->oConfigAdapter->getConfigurationFile();
-		
-		return $sFile;
+		return $this->sFile;
 	}
 	
+	/**
+	 * Add new section
+	 * @param type $sSection Section name
+	 * @param type $aValues Array with values
+	 * @return boolean
+	 */
+	public function addSection($sSection='', $aValues=array())
+	{
+		$bReturn = FALSE;
+		
+		if(!empty($sSection) and is_string($sSection) and !in_array($sSection, $this->aSections)) {
+			$this->aConfiguration[$sSection] = array();
+			$this->aSections[] = $sSection;
+			$this->setDefaultSection($sSection);
+			$bReturn = TRUE;
+			
+			if(!empty($aValues) and is_array($aValues)) {
+				$this->addValue($aValues);
+			}
+		}
+		
+		return $bReturn;
+	}
+	
+	/**
+	 * Get full section
+	 * @param string $sSection Section name
+	 * @return array
+	 */
 	public function getSection($sSection='')
 	{
-		$aSection = $this->oConfigAdapter->getSection($sSection);		
+		$sSection = $this->_fillEmptySection($sSection);
+		
+		$aSection = array();
+		if(in_array($sSection, $this->aSections)) {
+			$aSection = $this->aConfiguration[$sSection];
+		}
+		
 		unset($sSection);
 		
 		return $aSection;
 	}
 	
+	/**
+	 * Get all sections
+	 * @return array
+	 */
 	public function getSections()
 	{
-		$aSections = $this->oConfigAdapter->getSections();		
-		
-		return $aSections;
+		return $this->aSections;
 	}
 	
+	/**
+	 * Add value to section
+	 * @param type $sKey Key of new value
+	 * @param type $sValue New value
+	 * @param type $sSection Section name
+	 * @return boolean
+	 */
+	public function addValue($sKey='', $sValue='', $sSection='') {
+		$bReturn = FALSE;
+		
+		if(!empty($sKey)) {
+			if(is_array($sKey)) {
+				$aInsert = $sKey;			
+				$sSection = $sValue;
+			}
+			else {
+				$aInsert = array($sKey => $sValue);
+			}
+			
+			$sSection = $this->_fillEmptySection($sSection);
+	
+			if(in_array($sSection, $this->getSections())) {
+				foreach($aInsert as $sKey => $sValue) {
+					$this->aConfiguration[(string)$sSection][(string)$sKey] = (string)$sValue;
+				}
+				$bReturn = TRUE;
+			}
+		}
+		
+		return $bReturn;
+	}
+	
+	/**
+	 * Get value from configuration
+	 * @param string $sKey Key in section
+	 * @param string $sSection Section name
+	 * @return string
+	 */
 	public function getValue($sKey='', $sSection='')
 	{
-		$xValue = $this->oConfigAdapter->getValue($sKey, $sSection);		
+		$sSection = $this->_fillEmptySection($sSection);
+
+		$xValue = NULL;
+		if(isset($this->aConfiguration[$sSection][$sKey])) {
+			$xValue = $this->aConfiguration[$sSection][$sKey];
+		}
+			
 		unset($sKey, $sSection);
 		
 		return $xValue;
-		
 	}
 	
+	/**
+	 * Set section as default
+	 * @param string $sSection Section name
+	 * @return boolean
+	 */
 	public function setDefaultSection($sSection='')
 	{
-		$this->oConfigAdapter->setDefaultSection($sSection);
+		$bReturn = FALSE;
+		
+		if(!empty($sSection) and in_array($sSection, $this->aSections)) {
+			$this->sDefaultSection = $sSection;
+			$bReturn = TRUE;
+		}
+		
+		unset($sSection);
+		
+		return $bReturn;
 	}	
+
+	/**
+	 * Fill empty section with default section 
+	 * @param string $sSection Section name
+	 * @return string
+	 * @access private
+	 */
+	private function _fillEmptySection($sSection='')
+	{
+		if(empty($sSection) and !empty($this->sDefaultSection)) {
+			$sSection = $this->sDefaultSection;
+		}
+		
+		return $sSection;
+	}
 }
 
 # End of file

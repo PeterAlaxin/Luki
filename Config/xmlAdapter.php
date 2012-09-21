@@ -24,37 +24,20 @@
 class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 
 	private $aConfiguration = array();
-	
-	private $sFile = '';
-	
-	private $sDefaultSection = '';
-	
+
 	public function __construct($sFileName='')
 	{
+		if(is_file($sFileName)) {
+			libxml_use_internal_errors(TRUE);
+			$oXML = simplexml_load_file($sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
+			var_dump($oXML);
+			exit;
+		}
 	}
 	
 	public function getConfiguration()
 	{	
 		return $this->aConfiguration;
-	}
-
-	public function getConfigurationFile() {
-		return $this->sFile;
-	}
-	
-	public function setDefaultSection($sSection='')
-	{
-		
-	}
-	
-	public function getSection($sSection='')
-	{
-		
-	}
-	
-	public function getValue($sKey, $sSection)
-	{
-		
 	}
 
 }

@@ -25,10 +25,5 @@ interface Luki_Config_Interface
 {
 	public function __construct();
 	public function getConfiguration();
-	public function getConfigurationFile();
-	public function setDefaultSection();
-	public function getSection();
-	public function getSections();
-	public function getValue();
 }
 # End of file
