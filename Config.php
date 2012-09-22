@@ -135,7 +135,32 @@ class Luki_Config {
 			}
 		}
 		
+		unset($sSection, $aValues);
+		
 		return $bReturn;
+	}
+	
+	/**
+	 * Delete section
+	 * @param type $sSection Section name
+	 * @return boolean
+	 */
+	public function deleteSection($sSection='')
+	{
+		$bReturn = FALSE;
+		
+		$sSection = $this->_fillEmptySection($sSection);
+		
+		if(in_array($sSection, $this->aSections)) {
+			unset($this->aConfiguration[$sSection]);
+			unset($this->aSections[$sSection]);
+			$bReturn = TRUE;
+		}
+		
+		unset($sSection);
+		
+		return $bReturn;
+
 	}
 	
 	/**
@@ -173,7 +198,8 @@ class Luki_Config {
 	 * @param type $sSection Section name
 	 * @return boolean
 	 */
-	public function addValue($sKey='', $sValue='', $sSection='') {
+	public function addValue($sKey='', $sValue='', $sSection='') 
+	{
 		$bReturn = FALSE;
 		
 		if(!empty($sKey)) {
@@ -194,6 +220,29 @@ class Luki_Config {
 				$bReturn = TRUE;
 			}
 		}
+		
+		unset($sKey, $sValue, $sSection, $aInsert);
+		
+		return $bReturn;
+	}
+
+	/**
+	 * Delete key from section
+	 * @param type $sKey Key from section
+	 * @param type $sSection Section name
+	 * @return boolean
+	 */
+	public function deleteKey($sKey='', $sSection='')
+	{
+		$bReturn = FALSE;
+		
+		$sSection = $this->_fillEmptySection($sSection);
+		if(isset($this->aConfiguration[$sSection][$sKey])) {
+			unset($this->aConfiguration[$sSection][$sKey]);
+			$bReturn = TRUE;
+		}		
+		
+		unset($sKey, $sSection);
 		
 		return $bReturn;
 	}
@@ -218,6 +267,29 @@ class Luki_Config {
 		return $xValue;
 	}
 	
+	/**
+	 * Set value
+	 * @param type $sKey Key in section
+	 * @param type $sValue New value
+	 * @param type $sSection Section name
+	 * @return boolean
+	 */
+	public function setValue($sKey='', $sValue='', $sSection='')
+	{
+		$bReturn = FALSE;
+		
+		$sSection = $this->_fillEmptySection($sSection);
+		
+		if(!empty($sKey) and in_array($sSection, $this->getSections()) and isset($this->aConfiguration[(string)$sSection][(string)$sKey])) {
+			$this->aConfiguration[(string)$sSection][(string)$sKey] = (string)$sValue;
+			$bReturn = TRUE;
+		}
+		
+		unset($sKey, $sValue, $sSection);
+		
+		return $bReturn;		
+	}
+
 	/**
 	 * Set section as default
 	 * @param string $sSection Section name
