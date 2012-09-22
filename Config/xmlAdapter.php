@@ -23,23 +23,52 @@
  */
 class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 
-	private $aConfiguration = array();
+	private $sFileName = '';
 
 	public function __construct($sFileName='')
 	{
 		if(is_file($sFileName)) {
+			$this->sFileName = $sFileName;
+		}
+		
+		unset($sFileName);
+	}
+
+	public function getConfiguration()
+	{
+		if(!empty($this->sFileName)) {
 			libxml_use_internal_errors(TRUE);
-			$oXML = simplexml_load_file($sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
+			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
 			var_dump($oXML);
 			exit;
 		}
 	}
 	
-	public function getConfiguration()
-	{	
-		return $this->aConfiguration;
-	}
+	public function saveConfiguration($aConfiguration, $sFileName='')
+	{
+		$bReturn = FALSE;
+		
+		if(is_array($aConfiguration)) {
+			if(empty($sFileName)) {
+				$sFileName = $this->sFileName;
+			}
 
+			$sOutput = '';
+			foreach($aConfiguration as $sSection => $aSectionValues) {
+				$sOutput .= '[' . $sSection . ']' . chr(10); 
+				foreach($aSectionValues as $sKey => $sValue) {
+					$sOutput .= $sKey . ' = "' . $sValue . '"' . chr(10);
+				}
+				$sOutput .= chr(10); 
+			}
+			
+			if(file_put_contents($sFileName, $sOutput) !== FALSE) { 
+				$bReturn = TRUE;
+			}
+		}
+		
+		return $bReturn;
+	}
 }
 
 # End of file

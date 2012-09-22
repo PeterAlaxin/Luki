@@ -23,12 +23,12 @@
  */
 class Luki_Config_iniAdapter implements Luki_Config_Interface {
 
-	private $aConfiguration = array();
+	private $sFileName = '';
 	
 	public function __construct($sFileName='')
 	{
 		if(is_file($sFileName)) {
-			$this->aConfiguration =  parse_ini_file($sFileName, TRUE);
+			$this->sFileName = $sFileName;
 		}
 		
 		unset($sFileName);
@@ -36,7 +36,37 @@ class Luki_Config_iniAdapter implements Luki_Config_Interface {
 	
 	public function getConfiguration()
 	{
-		return $this->aConfiguration;
+		if(!empty($this->sFileName)) {
+			$aConfiguration =  parse_ini_file($this->sFileName, TRUE);			
+		}
+		
+		return $aConfiguration;
+	}
+	
+	public function saveConfiguration($aConfiguration, $sFileName='')
+	{
+		$bReturn = FALSE;
+		
+		if(is_array($aConfiguration)) {
+			if(empty($sFileName)) {
+				$sFileName = $this->sFileName;
+			}
+
+			$sOutput = '';
+			foreach($aConfiguration as $sSection => $aSectionValues) {
+				$sOutput .= '[' . $sSection . ']' . chr(10); 
+				foreach($aSectionValues as $sKey => $sValue) {
+					$sOutput .= $sKey . ' = "' . $sValue . '"' . chr(10);
+				}
+				$sOutput .= chr(10); 
+			}
+			
+			if(file_put_contents($sFileName, $sOutput) !== FALSE) { 
+				$bReturn = TRUE;
+			}
+		}
+		
+		return $bReturn;
 	}
 }
 

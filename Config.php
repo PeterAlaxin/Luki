@@ -309,6 +309,17 @@ class Luki_Config {
 		return $bReturn;
 	}	
 
+	public function Save($sFileName='')
+	{
+		if(empty($sFileName)) {
+			$sFileName = $this->sFile;
+		}
+		
+		$bReturn = $this->oConfigAdapter->saveConfiguration($this->aConfiguration, $sFileName);
+		
+		return $bReturn;
+	}
+	
 	/**
 	 * Fill empty section with default section 
 	 * @param string $sSection Section name
