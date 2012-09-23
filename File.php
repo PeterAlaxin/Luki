@@ -25,6 +25,11 @@
  */
 class Luki_File {
 
+	/**
+	 * Define mime type for file
+	 * @param string $sFileName
+	 * @return string
+	 */
 	public static function getMimeType($sFileName)
 	{
 		$sMimeType = NULL;
@@ -33,6 +38,8 @@ class Luki_File {
 			$oFileInfo = new finfo(FILEINFO_MIME_TYPE);
 			$sMimeType = $oFileInfo->file($sFileName);
 		}
+		
+		unset($sFileName, $oFileInfo);
 		
 		return $sMimeType;
 	}
