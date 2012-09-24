@@ -35,12 +35,12 @@ class Luki_LoaderTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testAdd()
 	{
-		$sPath = '/var/projects/demo';
+		$sPath = '/var/projects/demo/';
 		
 		Luki_Loader::Add($sPath);
 
 		$aPath = Luki_Loader::getPath();
-			
+		
 		$this->assertContains($sPath, $aPath);
 	}
 
@@ -50,10 +50,9 @@ class Luki_LoaderTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testAutoload()
 	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-			'This test has not been implemented yet.'
-		);
+		$oClass = new Luki_File;
+
+		$this->assertEquals(is_a($oClass, 'Luki_File'), TRUE);
 	}
 
 	/**
