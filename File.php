@@ -29,8 +29,11 @@ class Luki_File {
 	 * Define mime type for file
 	 * @param string $sFileName
 	 * @return string
+	 * @assert (__FILE__) == 'text/x-php'
+	 * @assert ('abc') == NULL
+	 * @assert () == NULL
 	 */
-	public static function getMimeType($sFileName)
+	public static function getMimeType($sFileName='')
 	{
 		$sMimeType = NULL;
 		
