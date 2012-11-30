@@ -43,7 +43,6 @@ class Luki_File {
 		}
 		
 		unset($sFileName, $oFileInfo);
-		
 		return $sMimeType;
 	}
 }

@@ -71,6 +71,7 @@ class Luki_Cache {
 			$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $this->nExpiration);
 		}
 		
+		unset($sKey, $sValue, $aKeyValues);
 		return $bReturn;
 	}
 	
@@ -79,7 +80,6 @@ class Luki_Cache {
 		$sReturn = $this->oCacheAdapter->Get($sKey);
 		
 		unset($sKey);
-		
 		return $sReturn;
 	}
 	
@@ -88,7 +88,6 @@ class Luki_Cache {
 		$sReturn = $this->oCacheAdapter->Delete($sKey);
 		
 		unset($sKey);
-		
 		return $sReturn;
 	}
 	

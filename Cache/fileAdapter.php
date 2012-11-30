@@ -30,8 +30,9 @@ class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 		if(empty($aOptions) or !is_array($aOptions)) {
 			$aOptions = array('path' => '/temp/');
 		}
-		
 		$this->sPath = $aOptions['path'];
+		
+		unset($aOptions);
 	}
 	
 	public function Set($sKey='', $sValue='', $nExpire=0)
@@ -39,38 +40,27 @@ class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 		$aValue = array('expiration' => $nExpire,
 						'created' => time(),
 						'value' => $sValue);
-
+		
 		$xReturn = file_put_contents($this->sPath . $sKey, serialize($aValue), LOCK_EX);
 		$bReturn = (bool)$xReturn;
 		
 		unset($sKey, $sValue, $nExpire, $aValue, $xReturn);
-		
 		return $bReturn;
 	}
 	
 	public function Get($sKey)
 	{
-		# Define
 		$xReturn = FALSE;
 
-		# Is file
 		if(is_file($this->sPath . $sKey)) {
-			# Read content
 			$sContent = file_get_contents($this->sPath . $sKey);
-
-			# Unserialize
 			$aContent = unserialize($sContent);
-
-			# Check expiration
 			if($aContent['expiration'] == 0 or time() < $aContent['created']+$aContent['expiration']) {
 				$xReturn = $aContent['value'];
 			}
 		}
 		
-		# Garbage
 		unset($sKey, $sContent, $aContent);
-		
-		# Return
 		return $xReturn;
 	}
 	
@@ -82,8 +72,7 @@ class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 			$bReturn = unlink($this->sPath . $sKey);
 		}
 
-		unset($sKey);
-		
+		unset($sKey);	
 		return $bReturn;		
 	}
 }

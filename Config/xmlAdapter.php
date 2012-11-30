@@ -96,7 +96,6 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 		}
 		
 		unset($aConfiguration, $sFileName, $oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
-		
 		return $bReturn;
 	}
 }

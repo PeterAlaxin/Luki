@@ -136,7 +136,6 @@ class Luki_Config {
 		}
 		
 		unset($sSection, $aValues);
-		
 		return $bReturn;
 	}
 	
@@ -148,7 +147,6 @@ class Luki_Config {
 	public function deleteSection($sSection='')
 	{
 		$bReturn = FALSE;
-		
 		$sSection = $this->_fillEmptySection($sSection);
 		
 		if(in_array($sSection, $this->aSections)) {
@@ -158,9 +156,7 @@ class Luki_Config {
 		}
 		
 		unset($sSection);
-		
 		return $bReturn;
-
 	}
 	
 	/**
@@ -171,14 +167,13 @@ class Luki_Config {
 	public function getSection($sSection='')
 	{
 		$sSection = $this->_fillEmptySection($sSection);
-		
 		$aSection = array();
+		
 		if(in_array($sSection, $this->aSections)) {
 			$aSection = $this->aConfiguration[$sSection];
 		}
 		
 		unset($sSection);
-		
 		return $aSection;
 	}
 	
@@ -222,7 +217,6 @@ class Luki_Config {
 		}
 		
 		unset($sKey, $sValue, $sSection, $aInsert);
-		
 		return $bReturn;
 	}
 
@@ -243,7 +237,6 @@ class Luki_Config {
 		}		
 		
 		unset($sKey, $sSection);
-		
 		return $bReturn;
 	}
 	
@@ -256,14 +249,13 @@ class Luki_Config {
 	public function getValue($sKey='', $sSection='')
 	{
 		$sSection = $this->_fillEmptySection($sSection);
-
 		$xValue = NULL;
+		
 		if(isset($this->aConfiguration[$sSection][$sKey])) {
 			$xValue = $this->aConfiguration[$sSection][$sKey];
 		}
 			
 		unset($sKey, $sSection);
-		
 		return $xValue;
 	}
 	
@@ -277,7 +269,6 @@ class Luki_Config {
 	public function setValue($sKey='', $sValue='', $sSection='')
 	{
 		$bReturn = FALSE;
-		
 		$sSection = $this->_fillEmptySection($sSection);
 		
 		if(!empty($sKey) and in_array($sSection, $this->getSections()) and isset($this->aConfiguration[(string)$sSection][(string)$sKey])) {
@@ -286,7 +277,6 @@ class Luki_Config {
 		}
 		
 		unset($sKey, $sValue, $sSection);
-		
 		return $bReturn;		
 	}
 
@@ -305,7 +295,6 @@ class Luki_Config {
 		}
 		
 		unset($sSection);
-		
 		return $bReturn;
 	}	
 
@@ -314,9 +303,9 @@ class Luki_Config {
 		if(empty($sFileName)) {
 			$sFileName = $this->sFile;
 		}
-		
 		$bReturn = $this->oConfigAdapter->saveConfiguration($this->aConfiguration, $sFileName);
 		
+		unset($sFileName);
 		return $bReturn;
 	}
 	

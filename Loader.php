@@ -39,13 +39,6 @@ class Luki_Loader {
 	}
 
 	/**
-	 * Disable clone
-	 */
-	private function __clone()
-	{
-	}
-
-	/**
 	 * Initialize loader
 	 * @param string $sPath
 	 * @uses Luki_Loader::_Init Initialize loader
@@ -76,7 +69,6 @@ class Luki_Loader {
 	public static function Autoload($sClassName = '')
 	{
 		self::_Init();
-
 		$sClassFile = preg_replace('/_/', '/', $sClassName) . '.php';
 		
 		foreach(self::$_aPath as $sPath) {
@@ -100,6 +92,13 @@ class Luki_Loader {
 	}
 	
 	/**
+	 * Disable clone
+	 */
+	private function __clone()
+	{
+	}
+
+	/**
 	 * First time initialization
 	 */
 	private static function _Init()
@@ -111,6 +110,7 @@ class Luki_Loader {
 			
 			array_unshift(self::$_aPath, $sLukiDirectory);
 			spl_autoload_register('Luki_Loader::Autoload');
+			
 			unset($aLukiDirectory, $sLukiDirectory);
 		}
 	}

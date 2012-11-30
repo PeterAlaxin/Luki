@@ -83,7 +83,6 @@ class Luki_Config_iniAdapter implements Luki_Config_Interface {
 		}
 		
 		unset($aConfiguration, $sFileName, $sOutput, $sSection, $aSectionValues, $sKey, $sValue);
-		
 		return $bReturn;
 	}
 }

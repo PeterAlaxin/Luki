@@ -31,9 +31,10 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 			$aOptions = array('server' => 'localhost'
 							, 'port' => '11211');
 		}
-		
 		$this->oMemcache = new Memcache;
 		$this->oMemcache->connect($aOptions['server'], $aOptions['port']);
+		
+		unset($aOptions);
 	}
 	
 	public function Set($sKey='', $sValue='', $nExpire=0)
@@ -42,7 +43,6 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 		$bReturn = $this->oMemcache->set($sKey, $sValue, MEMCACHE_COMPRESSED, $nExpire);
 		
 		unset($sKey, $sValue, $nExpire);
-		
 		return $bReturn;
 	}
 	
@@ -52,7 +52,6 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 		$sReturn = unserialize($sValue);
 		
 		unset($sKey, $sValue);
-		
 		return $sReturn;		
 	}
 	
@@ -61,7 +60,6 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 		$bReturn = $this->oMemcache->delete($sKey);
 		
 		unset($sKey);
-		
 		return $bReturn;		
 	}
 }
