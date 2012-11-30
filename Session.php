@@ -23,8 +23,10 @@
  *
  * @package Luki
  */
-class Session extends Basic
+class Luki_Session
 {
+	public static $aLimiters = array('public', 'private_no_expire', 'private', 'nocache');
+	
 	/**
 	 * Start session
 	 *
@@ -33,6 +35,10 @@ class Session extends Basic
 	 */
 	static public function Start($sType = 'nocache')
 	{
+		if(!in_array($sType, self::$aLimiters)) {
+			$sType = 'nocache';
+		}
+		
 		session_cache_limiter($sType);
 		session_set_cookie_params(0, "/", NULL, FALSE, TRUE);
 
@@ -70,11 +76,11 @@ class Session extends Basic
 	 */
 	static public function Destroy()
 	{
+		$bReturn = FALSE;
 		$sSessionName = session_name();
   		$sSessionCookie = session_get_cookie_params();
   
 		self::Restart();
-
 		if(session_destroy()) {
 			setcookie($sSessionName
 					, false
@@ -83,9 +89,11 @@ class Session extends Basic
 					, $sSessionCookie['domain']
 					, $sSessionCookie['secure']
 						);		
+			$bReturn = TRUE;
 		}
 
 		unset($sSessionCookie, $sSessionName);
+		return $bReturn;
 	}
 }
 
