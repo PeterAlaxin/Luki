@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Config Adapter interface
  *
@@ -21,10 +22,13 @@
  * 
  * @package Luki
  */
-interface Luki_Config_Interface
-{
+interface Luki_Config_Interface {
+
 	public function __construct();
+
 	public function getConfiguration();
+
 	public function saveConfiguration($aConfiguration, $sFileName);
 }
+
 # End of file

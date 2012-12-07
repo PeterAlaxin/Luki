@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File class
  *
@@ -33,18 +34,19 @@ class Luki_File {
 	 * @assert ('abc') == NULL
 	 * @assert () == NULL
 	 */
-	public static function getMimeType($sFileName='')
+	public static function getMimeType($sFileName = '')
 	{
 		$sMimeType = NULL;
-		
+
 		if(is_file($sFileName)) {
 			$oFileInfo = new finfo(FILEINFO_MIME_TYPE);
 			$sMimeType = $oFileInfo->file($sFileName);
 		}
-		
+
 		unset($sFileName, $oFileInfo);
 		return $sMimeType;
 	}
+
 }
 
 # End of file

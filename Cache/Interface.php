@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cache Adapter interface
  *
@@ -21,11 +22,15 @@
  * 
  * @package Luki
  */
-interface Luki_Cache_Interface
-{
+interface Luki_Cache_Interface {
+
 	public function __construct($aOptions);
+
 	public function Set($sKey, $sValue, $nExpire);
+
 	public function Get($sKey);
+
 	public function Delete($sKey);
 }
+
 # End of file

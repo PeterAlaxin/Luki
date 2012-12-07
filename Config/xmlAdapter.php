@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Config xml adapter
  *
@@ -29,12 +30,12 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 	 * Constructor
 	 * @param type $sFileName
 	 */
-	public function __construct($sFileName='')
+	public function __construct($sFileName = '')
 	{
 		if(is_file($sFileName)) {
 			$this->sFileName = $sFileName;
 		}
-		
+
 		unset($sFileName);
 	}
 
@@ -45,7 +46,7 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 	public function getConfiguration()
 	{
 		$aConfiguration = array();
-		
+
 		if(!empty($this->sFileName)) {
 			libxml_use_internal_errors(TRUE);
 			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
@@ -56,17 +57,17 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 
 		return $aConfiguration;
 	}
-	
+
 	/**
 	 * Save configuration to specific file
 	 * @param array $aConfiguration Configuration
 	 * @param string $sFileName File to store configuration
 	 * @return boolean
 	 */
-	public function saveConfiguration($aConfiguration, $sFileName='')
+	public function saveConfiguration($aConfiguration, $sFileName = '')
 	{
 		$bReturn = FALSE;
-		
+
 		if(is_array($aConfiguration)) {
 			if(empty($sFileName)) {
 				$sFileName = $this->sFileName;
@@ -78,26 +79,27 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 			$oElement = $oConfiguration->createElement('configuration');
 			$oConfiguration->appendChild($oElement);
 
-			foreach($aConfiguration as $sSection => $aSectionValues) {
+			foreach ($aConfiguration as $sSection => $aSectionValues) {
 				$oSection = $oConfiguration->createElement($sSection);
 				$oConfiguration->documentElement->appendChild($oSection);
 
-				foreach($aSectionValues as $sKey => $sValue) {
+				foreach ($aSectionValues as $sKey => $sValue) {
 					$oKey = $oConfiguration->createElement($sKey, $sValue);
 					$oSection->appendChild($oKey);
 				}
-				
-				$sOutput = $oConfiguration->saveXML(); 
+
+				$sOutput = $oConfiguration->saveXML();
 			}
-			
-			if(file_put_contents($sFileName, $sOutput) !== FALSE) { 
+
+			if(file_put_contents($sFileName, $sOutput) !== FALSE) {
 				$bReturn = TRUE;
 			}
 		}
-		
+
 		unset($aConfiguration, $sFileName, $oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
 		return $bReturn;
 	}
+
 }
 
 # End of file

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File chache adapter
  *
@@ -24,30 +25,31 @@
 class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 
 	private $sPath;
-	
-	public function __construct($aOptions=array())
+
+	public function __construct($aOptions = array())
 	{
 		if(empty($aOptions) or !is_array($aOptions)) {
 			$aOptions = array('path' => '/temp/');
 		}
 		$this->sPath = $aOptions['path'];
-		
+
 		unset($aOptions);
 	}
-	
-	public function Set($sKey='', $sValue='', $nExpire=0)
+
+	public function Set($sKey = '', $sValue = '', $nExpire = 0)
 	{
-		$aValue = array('expiration' => $nExpire,
-						'created' => time(),
-						'value' => $sValue);
-		
+		$aValue = array(
+			'expiration' => $nExpire,
+			'created' => time(),
+			'value' => $sValue);
+
 		$xReturn = file_put_contents($this->sPath . $sKey, serialize($aValue), LOCK_EX);
-		$bReturn = (bool)$xReturn;
-		
+		$bReturn = (bool) $xReturn;
+
 		unset($sKey, $sValue, $nExpire, $aValue, $xReturn);
 		return $bReturn;
 	}
-	
+
 	public function Get($sKey)
 	{
 		$xReturn = FALSE;
@@ -55,26 +57,27 @@ class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 		if(is_file($this->sPath . $sKey)) {
 			$sContent = file_get_contents($this->sPath . $sKey);
 			$aContent = unserialize($sContent);
-			if($aContent['expiration'] == 0 or time() < $aContent['created']+$aContent['expiration']) {
+			if($aContent['expiration'] == 0 or time() < $aContent['created'] + $aContent['expiration']) {
 				$xReturn = $aContent['value'];
 			}
 		}
-		
+
 		unset($sKey, $sContent, $aContent);
 		return $xReturn;
 	}
-	
+
 	public function Delete($sKey)
 	{
 		$bReturn = FALSE;
-		
+
 		if(is_file($this->sPath . $sKey)) {
 			$bReturn = unlink($this->sPath . $sKey);
 		}
 
-		unset($sKey);	
-		return $bReturn;		
+		unset($sKey);
+		return $bReturn;
 	}
+
 }
 
 # End of file

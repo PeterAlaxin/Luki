@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Security class
  *
@@ -9,7 +10,7 @@
  *
  * @author Peter Alaxin, <alaxin@almex.sk>
  * @copyright (c) 2009, Almex spol. s r.o.
- ** @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
  * @subpackage Class
@@ -21,17 +22,16 @@
  *
  * @package Luki
  */
-class Luki_Security 
-{
-	private static $aChars = array(1 => '1234567890',
-								   2 => 'abcdefghijklmnopqrstuvwxyz',
-								   3 => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-								   4 => '@#$%^&*');
-	
+class Luki_Security {
+
+	private static $aChars = array(
+		1 => '1234567890',
+		2 => 'abcdefghijklmnopqrstuvwxyz',
+		3 => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+		4 => '@#$%^&*');
 	private static $sSalt = 'DefaultSalt-ChangeMe';
-	
 	private static $sAlgorithm = 'sha256';
-	
+
 	/**
 	 * Generate secure password
 	 *
@@ -39,15 +39,16 @@ class Luki_Security
 	 * @param integer $nLevel Password level
 	 * @return string New password
 	 */
-	public static function generatePassword($nLenght=8, $nLevel=4)
+	public static function generatePassword($nLenght = 8, $nLevel = 4)
 	{
 		$sReturn = '';
 		$nLevelNow = 1;
-		$aUsedLevels = array(1 => FALSE
-							,2 => FALSE
-							,3 => FALSE
-							,4 => FALSE
-								);
+		$aUsedLevels = array(
+			1 => FALSE,
+			2 => FALSE,
+			3 => FALSE,
+			4 => FALSE
+		);
 
 		if($nLenght < 4) {
 			$nLenght = 4;
@@ -59,9 +60,9 @@ class Luki_Security
 			$nLevel = 4;
 		}
 
-		while(strlen($sReturn) < $nLenght) {
+		while (strlen($sReturn) < $nLenght) {
 
-			while(TRUE) {
+			while (TRUE) {
 				$nLevelNow = rand(1, $nLevel);
 				if(strlen($sReturn) < $nLevel) {
 					if(!$aUsedLevels[$nLevelNow]) {
@@ -72,15 +73,15 @@ class Luki_Security
 					break;
 				}
 			}
-	
+
 			$aUsedLevels[$nLevelNow] = TRUE;
 			$sChars = self::$aChars[$nLevelNow];
 			$nCharsLength = (strlen($sChars) - 1);
-	        $sChar = $sChars{rand(0, $nCharsLength)};
+			$sChar = $sChars{rand(0, $nCharsLength)};
 
-	        if (0 == strlen($sReturn) or $sChar != $sReturn{strlen($sReturn) - 1}) {
-	        	$sReturn .=  $sChar;
-	        }
+			if(0 == strlen($sReturn) or $sChar != $sReturn{strlen($sReturn) - 1}) {
+				$sReturn .= $sChar;
+			}
 		}
 
 		unset($nLenght, $nLevel, $aUsedLevels, $nLevelNow, $sChars, $nCharsLength, $sChar);
@@ -92,17 +93,17 @@ class Luki_Security
 	 * 
 	 * @param string $sSalt
 	 */
-	public static function setSalt($sSalt='') 
+	public static function setSalt($sSalt = '')
 	{
 		if(empty($sSalt)) {
 			$sSalt = self::generatePassword(32);
 		}
-		
-		self::$sSalt = (string)$sSalt;
-		
+
+		self::$sSalt = (string) $sSalt;
+
 		unset($sSalt);
 	}
-	
+
 	/**
 	 * Get Salt for SHA2
 	 * @return type
@@ -111,19 +112,19 @@ class Luki_Security
 	{
 		return self::$sSalt;
 	}
-		
+
 	/**
 	 * Set hashing algorithm
 	 * 
 	 * @param string $sAlgo
 	 */
-	public static function setAlgorithm($sAlgorithm='sha256')
+	public static function setAlgorithm($sAlgorithm = 'sha256')
 	{
-		self::$sAlgorithm = (string)$sAlgorithm;
-		
+		self::$sAlgorithm = (string) $sAlgorithm;
+
 		unset($sAlgorithm);
 	}
-	
+
 	/**
 	 * Get used hashing algorithm
 	 * @return string
@@ -132,18 +133,18 @@ class Luki_Security
 	{
 		return self::$sAlgorithm;
 	}
-			
+
 	/**
 	 * SHA2 hash
 	 * 
 	 * @param string Any data
 	 * @return string Hash
 	 */
-	static function SHA2($sString='')
+	static function SHA2($sString = '')
 	{
 		$sHashed = '';
-		
-		if(!empty($sString)) {	
+
+		if(!empty($sString)) {
 			if(function_exists('hash') and in_array(self::$sAlgorithm, hash_algos())) {
 				$sHashed = hash_hmac(self::$sAlgorithm, $sString, self::$sSalt);
 			}
@@ -151,9 +152,9 @@ class Luki_Security
 				$sHashed = sha1(self::$sSalt . $sString);
 			}
 		}
-		
+
 		unset($sString);
-        return $sHashed;
+		return $sHashed;
 	}
 
 }

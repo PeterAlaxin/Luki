@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Loader class
  *
@@ -36,6 +37,7 @@ class Luki_Loader {
 	 */
 	protected function __construct()
 	{
+		
 	}
 
 	/**
@@ -57,7 +59,7 @@ class Luki_Loader {
 				array_unshift(self::$_aPath, $sPath);
 			}
 		}
-		
+
 		unset($sPath);
 	}
 
@@ -70,15 +72,15 @@ class Luki_Loader {
 	{
 		self::_Init();
 		$sClassFile = preg_replace('/_/', '/', $sClassName) . '.php';
-		
-		foreach(self::$_aPath as $sPath) {
+
+		foreach (self::$_aPath as $sPath) {
 			$sClassFileWithPath = $sPath . $sClassFile;
 			if(is_file($sClassFileWithPath) and is_readable($sClassFileWithPath)) {
 				require_once($sClassFileWithPath);
 				break;
 			}
 		}
-		
+
 		unset($sClassName, $sClassFile, $sClassFileWithPath);
 	}
 
@@ -90,12 +92,13 @@ class Luki_Loader {
 	{
 		return self::$_aPath;
 	}
-	
+
 	/**
 	 * Disable clone
 	 */
 	private function __clone()
 	{
+		
 	}
 
 	/**
@@ -106,11 +109,11 @@ class Luki_Loader {
 		if(empty(self::$_aPath)) {
 			$aLukiDirectory = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
 			array_pop($aLukiDirectory);
-			$sLukiDirectory = implode(DIRECTORY_SEPARATOR, $aLukiDirectory). DIRECTORY_SEPARATOR;
-			
+			$sLukiDirectory = implode(DIRECTORY_SEPARATOR, $aLukiDirectory) . DIRECTORY_SEPARATOR;
+
 			array_unshift(self::$_aPath, $sLukiDirectory);
 			spl_autoload_register('Luki_Loader::Autoload');
-			
+
 			unset($aLukiDirectory, $sLukiDirectory);
 		}
 	}

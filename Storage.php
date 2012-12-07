@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Storage class
  *
@@ -9,7 +10,7 @@
  *
  * @author Peter Alaxin, <alaxin@almex.sk>
  * @copyright (c) 2009, Almex spol. s r.o.
- ** @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
  * @subpackage Class
@@ -23,8 +24,8 @@
  *
  * @package Luki
  */
-class Luki_Storage
-{
+class Luki_Storage {
+
 	/**
 	 * Flag for installed storage
 	 *
@@ -39,7 +40,7 @@ class Luki_Storage
 	 * @param mixed $xValue Variable value
 	 * @uses Storage::_Init() Initialization storage
 	 */
-	public static function Set($sName='', $xValue='')
+	public static function Set($sName = '', $xValue = '')
 	{
 		$bReturn = FALSE;
 
@@ -47,7 +48,7 @@ class Luki_Storage
 			self::$_storage[$sName] = $xValue;
 			$bReturn = TRUE;
 		}
-		
+
 		unset($sName, $xValue);
 		return $bReturn;
 	}
@@ -59,14 +60,14 @@ class Luki_Storage
 	 * @return mixed Variable value
 	 * @uses Storage::isSaved() Check if variable defined
 	 */
-	public static function Get($sName='')
+	public static function Get($sName = '')
 	{
 		$xReturn = NULL;
-		
+
 		if(self::isSaved($sName)) {
 			$xReturn = self::$_storage[$sName];
 		}
-		
+
 		unset($sName);
 		return $xReturn;
 	}
@@ -76,17 +77,17 @@ class Luki_Storage
 	 *
 	 * @param string $sName Variable name
 	 */
-	public static function isSaved($sName='')
-    {
+	public static function isSaved($sName = '')
+	{
 		$bReturn = FALSE;
-		
+
 		if(!empty($sName) and is_string($sName) and isset(self::$_storage[$sName])) {
 			$bReturn = TRUE;
 		}
 
 		unset($sName);
 		return $bReturn;
-    }
+	}
 
 }
 
