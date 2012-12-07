@@ -29,6 +29,10 @@ class Luki_Time
 	
 	public static $sTimeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
 	
+	private static $nStart = 0;
+	
+	private static $nStop = 0;
+	
 	/**
 	 * Set output time format
 	 * 
@@ -89,6 +93,62 @@ class Luki_Time
 		
 		unset($dDateTime);
 		return $sMicro;
+	}
+	
+	/**
+	 * Start stopwatch
+	 * 
+	 * @return float 
+	 */
+	public static function stopwatchStart()
+	{
+		self::$nStart = self::explodeMicrotime();
+		
+		return self::$nStart;
+	}
+
+	/**
+	 * Get time when stopwatch started
+	 * 
+	 * @return float
+	 */
+	public static function getStopwatchStart()
+	{
+		return self::$nStart;
+	}
+	
+	/**
+	 * Stop stopwatch
+	 * 
+	 * @return float
+	 */
+	public static function stopwatchStop()
+	{
+		self::$nStop = self::explodeMicrotime();
+
+		return self::$nStop;
+	}
+	
+	/**
+	 * Get time when stopwatch stoped
+	 * 
+	 * @return float
+	 */
+	public static function getStopwatchStop()
+	{
+		return self::$nStop;
+	}
+	
+	/**
+	 * Return stopwatch time in seconds
+	 * 
+	 * @return float
+	 */
+	public static function getStopwatch()
+	{
+		$nStopWatch = self::$nStop-self::$nStart;
+		
+		return $nStopWatch;
 	}
 }
 
