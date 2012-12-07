@@ -21,8 +21,8 @@
  *
  * @package Luki
  */
-class Luki_Security {
-	
+class Luki_Security 
+{
 	private static $aChars = array(1 => '1234567890',
 								   2 => 'abcdefghijklmnopqrstuvwxyz',
 								   3 => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
