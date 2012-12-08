@@ -28,8 +28,7 @@ class Luki_Time {
 
 	public static $sFormat = 'H:i:s';
 	public static $sTimeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
-	private static $nStart = 0;
-	private static $nStop = 0;
+	private static $aSections = array();
 
 	/**
 	 * Set output time format
@@ -98,11 +97,20 @@ class Luki_Time {
 	 * 
 	 * @return float 
 	 */
-	public static function stopwatchStart()
+	public static function stopwatchStart($sSection = 'default')
 	{
-		self::$nStart = self::explodeMicrotime();
-
-		return self::$nStart;
+		$nReturn = FALSE;
+		
+		if(!empty($sSection)) {
+			self::$aSections[$sSection] = array(
+				'start' => self::explodeMicrotime(),
+				'stop' => 0,
+				'result' => 0);
+			$nReturn = self::$aSections[$sSection]['start'];
+		}
+		
+		unset($sSection);
+		return $nReturn;
 	}
 
 	/**
@@ -110,9 +118,16 @@ class Luki_Time {
 	 * 
 	 * @return float
 	 */
-	public static function getStopwatchStart()
+	public static function getStopwatchStart($sSection = 'default')
 	{
-		return self::$nStart;
+		$nReturn = FALSE;
+		
+		if(!empty(self::$aSections[$sSection])) {
+			$nReturn = self::$aSections[$sSection]['start'];
+		}
+		
+		unset($sSection);
+		return $nReturn;
 	}
 
 	/**
@@ -120,11 +135,18 @@ class Luki_Time {
 	 * 
 	 * @return float
 	 */
-	public static function stopwatchStop()
+	public static function stopwatchStop($sSection = 'default')
 	{
-		self::$nStop = self::explodeMicrotime();
-
-		return self::$nStop;
+		$nReturn = FALSE;
+		
+		if(!empty(self::$aSections[$sSection])) {
+			self::$aSections[$sSection]['stop'] = self::explodeMicrotime();
+			self::$aSections[$sSection]['result'] = self::$aSections[$sSection]['stop'] - self::$aSections[$sSection]['start'];
+			$nReturn = self::$aSections[$sSection]['stop'];
+		}
+		
+		unset($sSection);
+		return $nReturn;
 	}
 
 	/**
@@ -132,9 +154,16 @@ class Luki_Time {
 	 * 
 	 * @return float
 	 */
-	public static function getStopwatchStop()
+	public static function getStopwatchStop($sSection = 'default')
 	{
-		return self::$nStop;
+		$nReturn = FALSE;
+		
+		if(!empty(self::$aSections[$sSection])) {
+			$nReturn = self::$aSections[$sSection]['stop'];
+		}
+		
+		unset($sSection);
+		return $nReturn;
 	}
 
 	/**
@@ -142,11 +171,16 @@ class Luki_Time {
 	 * 
 	 * @return float
 	 */
-	public static function getStopwatch()
+	public static function getStopwatch($sSection = 'default')
 	{
-		$nStopWatch = self::$nStop - self::$nStart;
-
-		return $nStopWatch;
+		$nReturn = FALSE;
+		
+		if(!empty(self::$aSections[$sSection])) {
+			$nReturn = self::$aSections[$sSection]['result'];
+		}
+		
+		unset($sSection);
+		return $nReturn;
 	}
 
 }
