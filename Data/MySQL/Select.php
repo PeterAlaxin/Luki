@@ -33,6 +33,7 @@ class Luki_Data_MySQL_Select {
 	const WHERE = 'where';
 	const ORDER = 'order';
 	const LIMIT = 'limit';
+	const UNION = 'union';
 		
 	private $oParent = NULL;
 	
@@ -61,7 +62,8 @@ class Luki_Data_MySQL_Select {
 		'limit' => array(
 			'from' => 0,
 			'count' => 0
-			)
+			),
+		'union' => array()
 	);
 
 	public function __construct($oParent)
@@ -281,6 +283,16 @@ class Luki_Data_MySQL_Select {
 		return $this;
 	}
 
+	public function union($aSQL) {
+		
+		if(is_array($aSQL)) {
+			$this->aSelect['union'] = $aSQL;
+		}
+		
+		unset($aSQL);
+		return $this;
+	}
+	
 	private function _addTable($sTable)
 	{
 		if(is_array($sTable)) {
@@ -335,98 +347,120 @@ class Luki_Data_MySQL_Select {
 	
 	private function _finalizeSelect()
 	{
-		$sSQL = 'SELECT ';
-		
-		#<editor-fold defaultstate="collapsed" desc="Distinct">
-		$sSQL .= $this->aSelect['distinct'] . ' ';
-		$sSQL .= chr(13);
-		#</editor-fold>
-		
-		#<editor-fold defaultstate="collapsed" desc="Cache">
-		if(!empty($this->aSelect['cache'])) {
-			$sSQL .= $this->aSelect['cache'] . ' ';
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		
-		#<editor-fold defaultstate="collapsed" desc="Calc rows">
-		if(!empty($this->aSelect['calc'])) {
-			$sSQL .= $this->aSelect['calc'] . ' ';
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		
-		#<editor-fold defaultstate="collapsed" desc="Columns">
-		$sColumns = '';
-		foreach($this->aSelect['columns'] as $sTable => $aColumns) {
-			$aColumns = (array)$aColumns;
+		#<editor-fold defaultstate="collapsed" desc="Union">
+		if(!empty($this->aSelect['union'])) {
+			$sSQL = '';
 			
-			foreach($aColumns as $sAlias => $sColumn) {
-				if(!empty($sColumns)) {
-					$sColumns .= ', ' . chr(13);
+			foreach($this->aSelect['union'] as $nKey => $oSelect) {
+				if($nKey > 0) {
+					$sSQL .= ' UNION ' . chr(13);
 				}
-				
-				if(FALSE === strstr($sColumn, '(')) {
-					$sColumns .= $this->_quote($sTable) . '.';
-					if('*' == $sColumn) {
-						$sColumns .= $sColumn;
+				$sSQL .= ' (' . (string)$oSelect . ')' . chr(13);
+			}
+		}
+		#</editor-fold>
+		
+		#<editor-fold defaultstate="collapsed" desc="Single Select">
+		else {
+			$sSQL = 'SELECT ';
+
+			#<editor-fold defaultstate="collapsed" desc="Distinct">
+			$sSQL .= $this->aSelect['distinct'] . ' ';
+			$sSQL .= chr(13);
+			#</editor-fold>
+
+			#<editor-fold defaultstate="collapsed" desc="Cache">
+			if(!empty($this->aSelect['cache'])) {
+				$sSQL .= $this->aSelect['cache'] . ' ';
+				$sSQL .= chr(13);
+			}
+			#</editor-fold>
+
+			#<editor-fold defaultstate="collapsed" desc="Calc rows">
+			if(!empty($this->aSelect['calc'])) {
+				$sSQL .= $this->aSelect['calc'] . ' ';
+				$sSQL .= chr(13);
+			}
+			#</editor-fold>
+
+			#<editor-fold defaultstate="collapsed" desc="Columns">
+			$sColumns = '';
+			foreach($this->aSelect['columns'] as $sTable => $aColumns) {
+				$aColumns = (array)$aColumns;
+
+				foreach($aColumns as $sAlias => $sColumn) {
+					if(!empty($sColumns)) {
+						$sColumns .= ', ' . chr(13);
+					}
+
+					if(FALSE === strstr($sColumn, '(')) {
+						$sColumns .= $this->_quote($sTable) . '.';
+						if('*' == $sColumn) {
+							$sColumns .= $sColumn;
+						}
+						else {
+							$sColumns .= $this->_quote($sColumn);						
+						}
 					}
 					else {
-						$sColumns .= $this->_quote($sColumn);						
+						$sColumns .= $sColumn;					
+					}
+
+					if($sAlias != $sColumn) {
+						$sColumns .= ' AS ' . $this->_quote($sAlias);
 					}
 				}
-				else {
-					$sColumns .= $sColumn;					
-				}
-				
-				if($sAlias != $sColumn) {
-					$sColumns .= ' AS ' . $this->_quote($sAlias);
-				}
 			}
-		}
-		$sSQL .= $sColumns . chr(13);
-		#</editor-fold>
+			$sSQL .= $sColumns . chr(13);
+			#</editor-fold>
 		
+			$sSQL .= ' FROM ';
+		}
+		#</editor-fold>
+
 		#<editor-fold defaultstate="collapsed" desc="From">
-		$sSQL .= ' FROM ';
-		foreach($this->aSelect['from'] as $sAlias => $sRealTable) {
-			$sSQL .= $this->_quote($sRealTable);
-
-			if($sRealTable != $sAlias) {
-				$sSQL .= ' AS ' . $this->_quote($sAlias);
-			}
-			break;
-		}
-		$sSQL .= chr(13);
-		#</editor-fold>
-
-		#<editor-fold defaultstate="collapsed" desc="Join">
-		foreach($this->aSelect['join'] as $aJoin) {
-			
-			switch($aJoin['type']) {
-				case 'left':
-					$sSQL .= ' LEFT JOIN ';
-					break;
-				case 'right':
-					$sSQL .= ' RIGHT JOIN ';
-					break;
-				case 'inner':
-				default:
-					$sSQL .= ' INNER JOIN ';
-			}
-
-			foreach($aJoin['table'] as $sAlias => $sRealTable) {
+		if(!empty($this->aSelect['from'])) {
+			foreach($this->aSelect['from'] as $sAlias => $sRealTable) {
 				$sSQL .= $this->_quote($sRealTable);
-		
+
 				if($sRealTable != $sAlias) {
 					$sSQL .= ' AS ' . $this->_quote($sAlias);
 				}
 				break;
 			}
-			
-			$sSQL .= ' ON ' . $aJoin['condition'];
+			$sSQL .= chr(13);
 		}
-		$sSQL .= chr(13);		
+		#</editor-fold>
+
+		#<editor-fold defaultstate="collapsed" desc="Join">
+		if(!empty($this->aSelect['join'])) {
+			foreach($this->aSelect['join'] as $aJoin) {
+
+				switch($aJoin['type']) {
+					case 'left':
+						$sSQL .= ' LEFT JOIN ';
+						break;
+					case 'right':
+						$sSQL .= ' RIGHT JOIN ';
+						break;
+					case 'inner':
+					default:
+						$sSQL .= ' INNER JOIN ';
+				}
+
+				foreach($aJoin['table'] as $sAlias => $sRealTable) {
+					$sSQL .= $this->_quote($sRealTable);
+
+					if($sRealTable != $sAlias) {
+						$sSQL .= ' AS ' . $this->_quote($sAlias);
+					}
+					break;
+				}
+
+				$sSQL .= ' ON ' . $aJoin['condition'];
+			}
+			$sSQL .= chr(13);		
+		}
 		#</editor-fold>
 	
 		#<editor-fold defaultstate="collapsed" desc="Where">
