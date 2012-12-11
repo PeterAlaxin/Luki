@@ -22,13 +22,11 @@
  * 
  * @package Luki
  */
-class Luki_Data_MySQL_mysqlAdapter implements Luki_Data_Interface {
+class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Luki_Data_Interface {
 
-	private $rConnection = NULL;
-	
-	private $sSelectClass = 'Luki_Data_MySQL_Select';
+	public $sSelectClass = 'Luki_Data_MySQL_Select';
 
-	private $sResultClass = 'Luki_Data_MySQL_mysqlResult';
+	public $sResultClass = 'Luki_Data_MySQL_mysqlResult';
 	
 	public function __construct($aOptions)
 	{
@@ -54,17 +52,13 @@ class Luki_Data_MySQL_mysqlAdapter implements Luki_Data_Interface {
 		unset($aOptions);
 	}
 	
-	public function Select()
-	{
-		$oSelect = new $this->sSelectClass($this);
-		
-		return $oSelect;
-	}
-	
 	public function Query($sSQL)
 	{
 		$oResult = mysql_query((string)$sSQL, $this->rConnection);
-		$oResult = new $this->sResultClass($oResult);
+		
+		if(is_resource($oResult)) {
+			$oResult = new $this->sResultClass($oResult);
+		}
 		
 		unset($sSQL);
 		return $oResult;

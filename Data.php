@@ -46,6 +46,14 @@ class Luki_Data {
 		return $oSelect;
 	}
 
+	public function Insert($sTable, $aValues)
+	{
+		$nLastID = $this->oDataAdapter->Insert($sTable, $aValues);
+		
+		unset($sTable, $aValues);
+		return $nLastID;
+	}
+	
 	public function Query($sSelect)
 	{
 		$oResult = $this->oDataAdapter->Query($sSelect);
@@ -54,6 +62,13 @@ class Luki_Data {
 		return $oResult;
 	}
 
+	public function getLastID($sTable='')
+	{
+		$nLastID = $this->oDataAdapter->getLastID($sTable);
+		
+		unset($sTable);
+		return $nLastID;
+	}
 }
 
 # End of file

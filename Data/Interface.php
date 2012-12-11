@@ -30,6 +30,10 @@ interface Luki_Data_Interface {
 
 	public function Select();
 
+	public function Insert($sTable, $aValues);
+
+	public function getLastID($sTable);
+	
 	public function escapeString($sString);
 }
 
