@@ -24,12 +24,6 @@
  */
 class Luki_Data_MySQL_Adapter {
 
-	public $rConnection = NULL;
-	
-	public $sSelectClass = '';
-
-	public $sResultClass = '';
-	
 	public $aLastID = array();
 	
 	public $nLastID = 0;

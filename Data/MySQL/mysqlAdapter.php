@@ -24,6 +24,8 @@
  */
 class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Luki_Data_Interface {
 
+	public $rConnection = NULL;
+	
 	public $sSelectClass = 'Luki_Data_MySQL_Select';
 
 	public $sResultClass = 'Luki_Data_MySQL_mysqlResult';

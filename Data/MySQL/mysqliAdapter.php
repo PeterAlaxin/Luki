@@ -24,25 +24,22 @@
  */
 class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements Luki_Data_Interface {
 
+	public $oMySQL = NULL;
+	
 	public $sSelectClass = 'Luki_Data_MySQL_Select';
 
 	public $sResultClass = 'Luki_Data_MySQL_mysqliResult';
 	
 	public function __construct($aOptions)
 	{
-		$this->rConnection = mysqli_init();
-		
-		mysqli_options($this->rConnection, MYSQLI_OPT_LOCAL_INFILE, TRUE);
-		
-		mysqli_real_connect(
-			$this->rConnection, 
+		$this->oMySQL = new mysqli(
 			$aOptions['server'], 
 			$aOptions['user'], 
 			$aOptions['password'], 
 			$aOptions['database']);
-
-		if(mysqli_connect_errno() > 0) {
-			echo 'Connection error';
+		
+		if(!empty($this->oMySQL->connect_error)) {
+			echo 'Connection error: ' . $this->oMySQL->connect_error;
 			exit;
 		}
 		
@@ -55,7 +52,7 @@ class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements L
 	
 	public function Query($sSQL)
 	{
-		$oResult = mysqli_query($this->rConnection, (string)$sSQL);
+		$oResult = $this->oMySQL->query((string)$sSQL);
 
 		if(is_a($oResult, 'mysqli_result')) {
 			$oResult = new $this->sResultClass($oResult);
@@ -67,20 +64,20 @@ class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements L
 	
 	public function escapeString($sString)
 	{
-		$sString = mysqli_real_escape_string($this->rConnection, $sString);
+		$sString = $this->oMySQL->real_escape_string($sString);
 		
 		return $sString;
 	}
 	
 	public function saveLastID($sTable)
 	{
-		$this->nLastID = mysqli_insert_id($this->rConnection);
+		$this->nLastID = $this->oMySQL->insert_id;
 		$this->aLastID[$sTable] = $this->nLastID;
 	}
 	
 	public function saveUpdated($sTable)
 	{
-		$this->nUpdated = mysqli_affected_rows($this->rConnection);
+		$this->nUpdated = $this->oMySQL->affected_rows;
 		$this->aUpdated[$sTable] = $this->nUpdated;
 	}
 }
