@@ -62,6 +62,14 @@ class Luki_Data {
 		return $bResult;
 	}
 	
+	public function Delete($sTable, $aWhere=NULL)
+	{
+		$bResult = $this->oDataAdapter->Delete($sTable, $aWhere);
+		
+		unset($sTable, $aWhere);
+		return $bResult;
+	}
+	
 	public function Query($sSelect)
 	{
 		$oResult = $this->oDataAdapter->Query($sSelect);
@@ -84,6 +92,14 @@ class Luki_Data {
 		
 		unset($sTable);
 		return $nUpdated;
+	}
+
+	public function getDeleted($sTable='')
+	{
+		$nDeleted = $this->oDataAdapter->getDeleted($sTable);
+		
+		unset($sTable);
+		return $nDeleted;
 	}
 }
 

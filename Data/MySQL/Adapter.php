@@ -32,6 +32,10 @@ class Luki_Data_MySQL_Adapter {
 	
 	public $nUpdated = 0;
 
+	public $aDeleted = array();
+	
+	public $nDeleted = 0;
+
 	public function Select()
 	{
 		$oSelect = new $this->sSelectClass($this);
@@ -85,7 +89,7 @@ class Luki_Data_MySQL_Adapter {
 				
 				foreach($aWhere as $sKey => $sValue) {
 					if(!$bFirst) {
-						$sSQL .= ', ';
+						$sSQL .= ' AND ';
 					}
 
 					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
@@ -101,6 +105,40 @@ class Luki_Data_MySQL_Adapter {
 		}
 
 		unset($sTable, $aValues, $aWhere, $bFirst, $sSQL, $sKey, $sValue);
+		return $bResult;
+	}
+	
+	public function Delete($sTable, $aWhere)
+	{
+		$bResult = FALSE;
+		
+		if(!empty($sTable)) {
+					
+			$bFirst = TRUE;
+			$sSQL = 'DELETE FROM `' . $sTable . '`';
+
+			if(!empty($aWhere)) {
+				$bFirst = TRUE;
+				$sSQL .= ' WHERE ';
+				
+				foreach($aWhere as $sKey => $sValue) {
+					if(!$bFirst) {
+						$sSQL .= ' AND ';
+					}
+
+					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
+				}
+			
+			}
+			
+			$bResult = $this->Query($sSQL);
+		}
+		
+		if(FALSE !== $bResult) {
+			$this->saveDeleted($sTable);
+		}
+
+		unset($sTable, $aWhere, $bFirst, $sSQL, $sKey, $sValue);
 		return $bResult;
 	}
 	
@@ -132,6 +170,21 @@ class Luki_Data_MySQL_Adapter {
 		
 		unset($sTable);
 		return $nUpdated;
+	}
+	
+	public function getDeleted($sTable='')
+	{
+		$nDeleted = FALSE;
+		
+		if(empty($sTable)) {
+			$nDeleted = $this->nDeleted;
+		}
+		elseif(isset($this->aDeleted[$sTable])) {
+			$nDeleted = $this->aDeleted[$sTable];
+		}
+		
+		unset($sTable);
+		return $nDeleted;
 	}
 	
 }

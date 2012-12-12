@@ -80,6 +80,12 @@ class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements L
 		$this->nUpdated = $this->oMySQL->affected_rows;
 		$this->aUpdated[$sTable] = $this->nUpdated;
 	}
+	
+	public function saveDeleted($sTable)
+	{
+		$this->nDeleted = $this->oMySQL->affected_rows;
+		$this->aDeleted[$sTable] = $this->nDeleted;
+	}
 }
 
 # End of file

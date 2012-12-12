@@ -84,6 +84,12 @@ class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Lu
 		$this->nUpdated = mysql_affected_rows($this->rConnection);
 		$this->aUpdated[$sTable] = $this->nUpdated;
 	}
+	
+	public function saveDeleted($sTable)
+	{
+		$this->nDeleted = mysql_affected_rows($this->rConnection);
+		$this->aDeleted[$sTable] = $this->nDeleted;
+	}
 }
 
 # End of file
