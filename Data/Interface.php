@@ -32,9 +32,17 @@ interface Luki_Data_Interface {
 
 	public function Insert($sTable, $aValues);
 
+	public function Update($sTable, $aValues, $sWhere);
+
 	public function getLastID($sTable);
-	
+
+	public function getUpdated($sTable);
+
 	public function escapeString($sString);
+	
+	public function saveLastID($sTable);
+	
+	public function saveUpdated($sTable);
 }
 
 # End of file

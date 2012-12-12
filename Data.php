@@ -54,6 +54,14 @@ class Luki_Data {
 		return $nLastID;
 	}
 	
+	public function Update($sTable, $aValues, $aWhere=NULL)
+	{
+		$bResult = $this->oDataAdapter->Update($sTable, $aValues, $aWhere);
+		
+		unset($sTable, $aValues, $aWhere);
+		return $bResult;
+	}
+	
 	public function Query($sSelect)
 	{
 		$oResult = $this->oDataAdapter->Query($sSelect);
@@ -68,6 +76,14 @@ class Luki_Data {
 		
 		unset($sTable);
 		return $nLastID;
+	}
+
+	public function getUpdated($sTable='')
+	{
+		$nUpdated = $this->oDataAdapter->getUpdated($sTable);
+		
+		unset($sTable);
+		return $nUpdated;
 	}
 }
 

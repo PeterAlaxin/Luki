@@ -70,6 +70,18 @@ class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Lu
 		
 		return $sString;
 	}
+	
+	public function saveLastID($sTable)
+	{
+		$this->nLastID = mysql_insert_id($this->rConnection);
+		$this->aLastID[$sTable] = $this->nLastID;
+	}
+	
+	public function saveUpdated($sTable)
+	{
+		$this->nUpdated = mysql_affected_rows($this->rConnection);
+		$this->aUpdated[$sTable] = $this->nUpdated;
+	}
 }
 
 # End of file
