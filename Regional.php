@@ -190,6 +190,14 @@ class Luki_Regional {
 		return $aMonths;
 	}
 
+	public static function setLocale($sLang)
+	{
+		setlocale(LC_ALL, $sLang);
+		setlocale(LC_NUMERIC, 'C');
+
+		unset($sLang);
+	}
+
 }
 
 # End of file

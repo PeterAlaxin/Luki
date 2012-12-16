@@ -77,6 +77,7 @@ class Luki_Config {
 
 			# INI configuration
 			case 'text/x-pascal':
+			case 'text/plain':
 				$this->oConfigAdapter = new Luki_Config_iniAdapter($sConfigFile);
 				break;
 

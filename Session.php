@@ -34,7 +34,7 @@ class Luki_Session {
 	 * @return string Actual Session ID
 	 * @uses PROGRAM Program name for Session name
 	 */
-	static public function Start($sType = 'nocache')
+	public static function Start($sType = 'nocache')
 	{
 		if(!in_array($sType, self::$aLimiters)) {
 			$sType = 'nocache';
@@ -56,7 +56,7 @@ class Luki_Session {
 	 * @return array Old and new Session ID
 	 * @uses Session::Start() Define first session
 	 */
-	static public function Restart()
+	public static function Restart()
 	{
 		if(!isset($_SESSION)) {
 			self::Start();
@@ -75,7 +75,7 @@ class Luki_Session {
 	 *
 	 * @uses Session::Restart() Destroy existing session and create new
 	 */
-	static public function Destroy()
+	public static function Destroy()
 	{
 		$bReturn = FALSE;
 		$sSessionName = session_name();
