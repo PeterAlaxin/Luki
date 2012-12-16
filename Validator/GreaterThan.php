@@ -24,9 +24,9 @@
  */
 class Luki_Validator_GreaterThan extends Luki_Validator_Factory {
 
-	public $sMessage = 'The value "%value%" not greater then "%max%"!';
+	public $sMessage = 'The value "%value%" not greater then "%min%"!';
 	
-	public $max = 0;
+	public $min = 0;
 	
 	/**
 	 * Validation
@@ -38,13 +38,13 @@ class Luki_Validator_GreaterThan extends Luki_Validator_Factory {
 	{
 		$bReturn = FALSE;
 
-		if($xValue > $this->max) {
+		if($xValue > $this->min) {
 			$this->sError = '';
 			$bReturn = TRUE;
 		}
 		else {
 			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-			$this->sError = preg_replace('/%max%/', $this->max, $this->sError);
+			$this->sError = preg_replace('/%min%/', $this->min, $this->sError);
 		}
 
 		unset($xValue);
