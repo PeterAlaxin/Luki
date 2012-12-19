@@ -24,16 +24,15 @@
  */
 class Luki_Navigation_Format_Crumb implements Luki_Navigation_Format_Interface {
 
-	private $sFormat = '<a href="%url%" title="%title%" class="%class%">%label%</a>';
-	
+	private $sFormat = '<a href="%url%" title="%title%" class="%class%" target="%target%">%label%</a>';
+	private $oNavigation = NULL;	
 	private $aUsed = array(
 		'label',
 		'title',
-		'class'
+		'class',
+		'target'
 		);
-	
-	private $oNavigation = NULL;
-	
+		
 	public function __construct($oNavigation)
 	{
 		$this->oNavigation = $oNavigation;

@@ -65,6 +65,11 @@ class Luki_Navigation {
 		unset($nID, $oItem);
 		return $oFoundItem;
 	}
+	
+	public function getNavigation()
+	{
+		return $this->aNavigation;
+	}
 
 }
 

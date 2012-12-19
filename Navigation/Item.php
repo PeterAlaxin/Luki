@@ -31,9 +31,10 @@ class Luki_Navigation_Item {
 		'crumb' => '',
 		'title' => '',
 		'url' => '',
+		'target' => '_self',
 		'class' => '',
-		'visible' => TRUE,
-		'active' => FALSE,
+		'hidden' => '',
+		'active' => '',
 		'controller' => '',
 		'action' => '',
 	);
@@ -52,7 +53,7 @@ class Luki_Navigation_Item {
 
 	public function __call($sMethod, $aParam)
 	{
-		if(!empty($aParam[0])) {
+		if(!empty($aParam[0]) or in_array($aParam[0], array(0, FALSE, '')) ) {
 			$this->aItem[$sMethod] = $aParam[0];
 		}
 
@@ -101,6 +102,11 @@ class Luki_Navigation_Item {
 
 		unset($nID, $oItem);
 		return $oFoundItem;
+	}
+
+	public function getNavigation()
+	{
+		return $this->aNavigation;
 	}
 
 }
