@@ -39,7 +39,7 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 		unset($aOptions);
 	}
 
-	public function Set($sKey = '', $sValue = '', $nExpire = 0)
+	public function Set($sKey, $sValue = '', $nExpire = 0)
 	{
 		$sValue = serialize($sValue);
 		$bReturn = $this->oMemcache->set($sKey, $sValue, MEMCACHE_COMPRESSED, $nExpire);

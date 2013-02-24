@@ -10,3 +10,4 @@
  */
 require_once('/var/projects/Luki/Loader.php');
 require_once('/var/projects/Luki/Config/Interface.php');
+require_once('/var/projects/Luki/Cache/Interface.php');

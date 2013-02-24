@@ -32,6 +32,11 @@ class Luki_Cache {
 	 * @access private
 	 */
 	private $oCacheAdapter = NULL;
+	
+	/**
+	 * Default expiration
+	 * @var int
+	 */
 	private $nExpiration = 0;
 
 	public function __construct(Luki_Cache_Interface $oAdapter)
@@ -43,9 +48,15 @@ class Luki_Cache {
 
 	public function setExpiration($nNewExpiration = 0)
 	{
-		$this->nExpiration = (int) $nNewExpiration;
+		$bReturn = FALSE;
+		
+		if(is_int($nNewExpiration)) {
+			$this->nExpiration = (int)$nNewExpiration;
+			$bReturn = TRUE;
+		}
 
 		unset($nNewExpiration);
+		return $bReturn;
 	}
 
 	public function getExpiration()
@@ -53,7 +64,7 @@ class Luki_Cache {
 		return $this->nExpiration;
 	}
 
-	public function Set($sKey = '', $sValue = '')
+	public function Set($sKey, $sValue = '')
 	{
 		if(is_array($sKey)) {
 			$aKeyValues = $sKey;

@@ -29,22 +29,24 @@ class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
 	public function __construct($aOptions = array())
 	{
 		if(empty($aOptions) or !is_array($aOptions)) {
-			$aOptions = array('path' => '/temp/');
+			$aOptions = array('path' => '/tmp/');
 		}
 		$this->sPath = $aOptions['path'];
 
 		unset($aOptions);
 	}
 
-	public function Set($sKey = '', $sValue = '', $nExpire = 0)
+	public function Set($sKey, $sValue = '', $nExpire = 0)
 	{
-		$aValue = array(
-			'expiration' => $nExpire,
-			'created' => time(),
-			'value' => $sValue);
+		$bReturn = FALSE;
+		$aValue = array('expiration' => $nExpire,
+						'created' => time(),
+						'value' => $sValue);
 
 		$xReturn = file_put_contents($this->sPath . $sKey, serialize($aValue), LOCK_EX);
-		$bReturn = (bool) $xReturn;
+		if(FALSE !== $xReturn) {
+			$bReturn = TRUE;			
+		}
 
 		unset($sKey, $sValue, $nExpire, $aValue, $xReturn);
 		return $bReturn;
