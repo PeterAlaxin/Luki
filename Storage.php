@@ -40,11 +40,11 @@ class Luki_Storage {
 	 * @param mixed $xValue Variable value
 	 * @uses Storage::_Init() Initialization storage
 	 */
-	public static function Set($sName = '', $xValue = '')
+	public static function Set($sName, $xValue = '')
 	{
 		$bReturn = FALSE;
 
-		if(!empty($sName) and is_string($sName)) {
+		if(is_string($sName)) {
 			self::$_storage[$sName] = $xValue;
 			$bReturn = TRUE;
 		}
@@ -60,7 +60,7 @@ class Luki_Storage {
 	 * @return mixed Variable value
 	 * @uses Storage::isSaved() Check if variable defined
 	 */
-	public static function Get($sName = '')
+	public static function Get($sName)
 	{
 		$xReturn = NULL;
 
@@ -77,11 +77,11 @@ class Luki_Storage {
 	 *
 	 * @param string $sName Variable name
 	 */
-	public static function isSaved($sName = '')
+	public static function isSaved($sName)
 	{
 		$bReturn = FALSE;
 
-		if(!empty($sName) and is_string($sName) and isset(self::$_storage[$sName])) {
+		if(is_string($sName) and isset(self::$_storage[$sName])) {
 			$bReturn = TRUE;
 		}
 
