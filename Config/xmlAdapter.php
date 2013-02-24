@@ -25,79 +25,97 @@
 class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 
 	private $sFileName = '';
+	private $aConfiguration = array();
 
 	/**
 	 * Constructor
 	 * @param type $sFileName
 	 */
-	public function __construct($sFileName = '')
+	public function __construct($sFileName)
 	{
 		if(is_file($sFileName)) {
 			$this->sFileName = $sFileName;
+
+			libxml_use_internal_errors(TRUE);
+			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
+			$this->aConfiguration = json_decode(json_encode($oXML), TRUE);
+
+			unset($oXML);
 		}
 
 		unset($sFileName);
 	}
 
 	/**
-	 * Read configuration file
+	 * Get configuration
 	 * @return array
 	 */
 	public function getConfiguration()
 	{
-		$aConfiguration = array();
-
-		if(!empty($this->sFileName)) {
-			libxml_use_internal_errors(TRUE);
-			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
-			$aConfiguration = json_decode(json_encode($oXML), TRUE);
-
-			unset($oXML);
-		}
-
-		return $aConfiguration;
+		return $this->aConfiguration;
 	}
 
 	/**
-	 * Save configuration to specific file
-	 * @param array $aConfiguration Configuration
-	 * @param string $sFileName File to store configuration
+	 * Save configuration to file
+	 * 
 	 * @return boolean
 	 */
-	public function saveConfiguration($aConfiguration, $sFileName = '')
+	public function saveConfiguration()
 	{
 		$bReturn = FALSE;
 
-		if(is_array($aConfiguration)) {
-			if(empty($sFileName)) {
-				$sFileName = $this->sFileName;
+		$oConfiguration = new DOMDocument('1.0', 'UTF-8');
+		$oConfiguration->preserveWhiteSpace = false;
+		$oConfiguration->formatOutput = true;
+		$oElement = $oConfiguration->createElement('configuration');
+		$oConfiguration->appendChild($oElement);
+
+		foreach ($this->aConfiguration as $sSection => $aSectionValues) {
+			$oSection = $oConfiguration->createElement($sSection);
+			$oConfiguration->documentElement->appendChild($oSection);
+
+			foreach ($aSectionValues as $sKey => $sValue) {
+				$oKey = $oConfiguration->createElement($sKey, $sValue);
+				$oSection->appendChild($oKey);
 			}
 
-			$oConfiguration = new DOMDocument('1.0', 'UTF-8');
-			$oConfiguration->preserveWhiteSpace = false;
-			$oConfiguration->formatOutput = true;
-			$oElement = $oConfiguration->createElement('configuration');
-			$oConfiguration->appendChild($oElement);
-
-			foreach ($aConfiguration as $sSection => $aSectionValues) {
-				$oSection = $oConfiguration->createElement($sSection);
-				$oConfiguration->documentElement->appendChild($oSection);
-
-				foreach ($aSectionValues as $sKey => $sValue) {
-					$oKey = $oConfiguration->createElement($sKey, $sValue);
-					$oSection->appendChild($oKey);
-				}
-
-				$sOutput = $oConfiguration->saveXML();
-			}
-
-			if(file_put_contents($sFileName, $sOutput) !== FALSE) {
-				$bReturn = TRUE;
-			}
+			$sOutput = $oConfiguration->saveXML();
 		}
 
-		unset($aConfiguration, $sFileName, $oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
+		if(file_put_contents($this->sFileName, $sOutput) !== FALSE) {
+			$bReturn = TRUE;
+		}
+
+		unset($oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
 		return $bReturn;
+	}
+
+	public function getFilename() {
+		return $this->sFileName;		
+	}
+
+	public function setConfiguration($aConfiguration)
+	{
+		$bReturn = FALSE;
+		if(is_array($aConfiguration)) {
+			$this->aConfiguration = $aConfiguration;
+			$bReturn = TRUE;
+		}
+
+		unset($aConfiguration);
+		return $bReturn;		
+	}
+
+	public function setFilename($sFileName)
+	{
+		$bReturn = FALSE;
+		if(!empty($sFileName)) {
+			$this->sFileName = $sFileName;
+			$bReturn = TRUE;
+		}
+
+		unset($sFileName);
+		return $bReturn;		
 	}
 
 }

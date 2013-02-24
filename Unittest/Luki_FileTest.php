@@ -37,7 +37,7 @@ class Luki_FileTest extends PHPUnit_Framework_TestCase {
 	public function testGetMimeType()
 	{
 		$this->assertEquals(
-			'text/x-php', Luki_File::getMimeType(__FILE__)
+			'text/x-c++', Luki_File::getMimeType(__FILE__)
 		);
 	}
 

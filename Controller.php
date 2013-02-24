@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * Controller class
+ *
+ * Luki framework
+ * Date 6.1.2013
+ *
+ * @version 3.0.0
+ *
+ * @author Peter Alaxin, <alaxin@almex.sk>
+ * @copyright (c) 2009, Almex spol. s r.o.
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ *
+ * @package Luki
+ * @subpackage Class
+ * @filesource
+ */
+
+/**
+ * Controller class
+ *
+ * MVC Controller
+ *
+ * @package Luki
+ */
+class Luki_Controller {
+
+	private $oView = NULL;
+	private $aModels = array();
+	private $sOutput = '';
+	private $aData = array();
+	private $aModelMethods = array();
+
+	function __construct()
+	{
+		$aRouteToController = explode('_', get_class($this));
+
+		if(!empty($aRouteToController[0]) and !empty($aRouteToController[1])) {
+			$this->setView($aRouteToController[0] . '_view_' . $aRouteToController[1]);
+			$this->addModel($aRouteToController[0] . '_model_' . $aRouteToController[1]);
+		}
+
+		unset($aRouteToController);
+	}
+
+	public function __call($sName = '', $aArguments = array())
+	{
+		$xReturn = NULL;
+
+		foreach ($this->aModelMethods as $sModel => $aMethods) {
+			if(in_array($sName, $aMethods)) {
+				$xReturn = call_user_func_array(array($this->aModels[$sModel], $sName), $aArguments);
+				break;
+			}
+		}
+
+		unset($sName, $aArguments, $sModel, $aMethods);
+		return $xReturn;
+	}
+
+	public function preDispatch()
+	{
+		return $this;
+	}
+
+	public function postDispatch()
+	{
+		$this->makeView();
+
+		return $this;
+	}
+
+	public function Set($sKey, $xValue = '')
+	{
+		$this->aData[$sKey] = $xValue;
+
+		unset($sKey, $xValue);
+		return $this;
+	}
+
+	public function Get($sKey)
+	{
+		$xReturn = NULL;
+
+		if(isset($this->aData[$sKey])) {
+			$xReturn = $this->aData[$sKey];
+		}
+
+		unset($sKey);
+		return $xReturn;
+	}
+
+	public function addModel($sModel)
+	{
+		$sModelClassFileWithPath = Luki_Loader::isClass($sModel);
+
+		if(!empty($sModelClassFileWithPath)) {
+			$this->aModels[$sModel] = new $sModel;
+			$this->aModelMethods[$sModel] = get_class_methods($this->aModels[$sModel]);
+		}
+
+		unset($sModel, $sModelClassFileWithPath);
+		return $this;
+	}
+
+	public function removeModel($sModel)
+	{
+		if(isset($this->aModels[$sModel])) {
+			unset($this->aModels[$sModel], $this->aModelMethods[$sModel]);
+		}
+
+		unset($sModel);
+		return $this;
+	}
+
+	public function setView($sView)
+	{
+		$sViewClassFileWithPath = Luki_Loader::isClass($sView);
+
+		if(!empty($sViewClassFileWithPath)) {
+			$this->oView = new $sView($sViewClassFileWithPath);
+		}
+
+		unset($sView);
+		return $this;
+	}
+
+	public function makeView()
+	{
+		if(is_a($this->oView, 'Luki_View')) {
+			$this->sOutput = $this->oView->fillValues($this->aData)
+										 ->Render();
+		}
+
+		return $this;
+	}
+
+	public function getOutput()
+	{
+		return $this->sOutput;
+	}
+
+	public function Show($bExit = TRUE)
+	{
+		echo $this->makeView()
+				  ->getOutput();
+
+		if($bExit) {
+			exit;
+		}
+
+		unset($bExit);
+		return $this;
+	}
+
+}
+
+# End of file

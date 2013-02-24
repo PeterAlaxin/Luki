@@ -70,18 +70,33 @@ class Luki_Loader {
 	 */
 	public static function Autoload($sClassName = '')
 	{
+		$sClassFileWithPath = self::isClass($sClassName);
+
+		if(!empty($sClassFileWithPath)) {
+			require_once($sClassFileWithPath);
+		}
+
+		unset($sClassName, $sClassFileWithPath);
+	}
+
+	public static function isClass($sClassName = '')
+	{
 		self::_Init();
+		
+		$sReturn = NULL;
 		$sClassFile = preg_replace('/_/', '/', $sClassName) . '.php';
 
 		foreach (self::$_aPath as $sPath) {
 			$sClassFileWithPath = $sPath . $sClassFile;
+			
 			if(is_file($sClassFileWithPath) and is_readable($sClassFileWithPath)) {
-				require_once($sClassFileWithPath);
+				$sReturn = $sClassFileWithPath;
 				break;
 			}
 		}
 
 		unset($sClassName, $sClassFile, $sClassFileWithPath);
+		return $sReturn;
 	}
 
 	/**

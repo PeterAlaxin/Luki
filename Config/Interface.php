@@ -24,11 +24,17 @@
  */
 interface Luki_Config_Interface {
 
-	public function __construct();
+	public function __construct($sFileName);
+
+	public function setFilename($sFileName);
+
+	public function getFilename();
+
+	public function setConfiguration($aConfiguration);
 
 	public function getConfiguration();
 
-	public function saveConfiguration($aConfiguration, $sFileName);
+	public function saveConfiguration();
 }
 
 # End of file

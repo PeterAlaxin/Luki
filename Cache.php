@@ -34,13 +34,11 @@ class Luki_Cache {
 	private $oCacheAdapter = NULL;
 	private $nExpiration = 0;
 
-	public function __construct($sAdapter = 'memory', $aOptions = array())
+	public function __construct(Luki_Cache_Interface $oAdapter)
 	{
-		$sAdapterClass = 'Luki_Cache_' . $sAdapter . 'Adapter';
+		$this->oCacheAdapter = $oAdapter;
 
-		$this->oCacheAdapter = new $sAdapterClass($aOptions);
-
-		unset($sAdapter, $sAdapterClass);
+		unset($oAdapter);
 	}
 
 	public function setExpiration($nNewExpiration = 0)

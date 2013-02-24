@@ -41,13 +41,6 @@ class Luki_Config {
 	private $oConfigAdapter = NULL;
 
 	/**
-	 * Configuration file
-	 * @var string
-	 * @access private
-	 */
-	private $sFile = '';
-
-	/**
 	 * Default section
 	 * @var string
 	 * @access private
@@ -64,38 +57,17 @@ class Luki_Config {
 	/**
 	 * Constructor
 	 */
-	public function __construct($sConfigFile = '')
+	public function __construct(Luki_Config_Interface $oConfigAdapter)
 	{
-		$sMimeType = Luki_File::getMimeType($sConfigFile);
+		$this->oConfigAdapter = $oConfigAdapter;
+		$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
+		$this->aSections = array_keys($this->aConfiguration);
 
-		switch ($sMimeType) {
-
-			# XML configuration
-			case 'application/xml':
-				$this->oConfigAdapter = new Luki_Config_xmlAdapter($sConfigFile);
-				break;
-
-			# INI configuration
-			case 'text/x-pascal':
-			case 'text/plain':
-				$this->oConfigAdapter = new Luki_Config_iniAdapter($sConfigFile);
-				break;
-
-			# Wrong file
-			default:
+		if(isset($this->aSections[0])) {
+			$this->sDefaultSection = $this->aSections[0];
 		}
 
-		if(is_object($this->oConfigAdapter) and is_a($this->oConfigAdapter, 'Luki_Config_Interface')) {
-			$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
-			$this->sFile = $sConfigFile;
-
-			$this->aSections = array_keys($this->aConfiguration);
-			if(isset($this->aSections[0])) {
-				$this->sDefaultSection = $this->aSections[0];
-			}
-		}
-
-		unset($sConfigFile, $sMimeType);
+		unset($oConfigAdapter);
 	}
 
 	/**
@@ -113,7 +85,7 @@ class Luki_Config {
 	 */
 	public function getConfigurationFile()
 	{
-		return $this->sFile;
+		return $this->oConfigAdapter->getFilename();
 	}
 
 	/**
@@ -153,7 +125,7 @@ class Luki_Config {
 
 		if(in_array($sSection, $this->aSections)) {
 			unset($this->aConfiguration[$sSection]);
-			unset($this->aSections[$sSection]);
+			$this->aSections = array_keys($this->aConfiguration);
 			$bReturn = TRUE;
 		}
 
@@ -210,12 +182,14 @@ class Luki_Config {
 
 			$sSection = $this->_fillEmptySection($sSection);
 
-			if(in_array($sSection, $this->getSections())) {
-				foreach ($aInsert as $sKey => $sValue) {
-					$this->aConfiguration[(string) $sSection][(string) $sKey] = (string) $sValue;
-				}
-				$bReturn = TRUE;
+			if(!in_array($sSection, $this->getSections())) {
+				$this->addSection($sSection);
 			}
+			
+			foreach ($aInsert as $sKey => $sValue) {
+				$this->aConfiguration[(string) $sSection][(string) $sKey] = (string) $sValue;
+			}
+			$bReturn = TRUE;
 		}
 
 		unset($sKey, $sValue, $sSection, $aInsert);
@@ -271,13 +245,34 @@ class Luki_Config {
 	public function setValue($sKey = '', $sValue = '', $sSection = '')
 	{
 		$bReturn = FALSE;
-		$sSection = $this->_fillEmptySection($sSection);
-
-		if(!empty($sKey) and in_array($sSection, $this->getSections()) and isset($this->aConfiguration[(string) $sSection][(string) $sKey])) {
-			$this->aConfiguration[(string) $sSection][(string) $sKey] = (string) $sValue;
-			$bReturn = TRUE;
+		$bError = FALSE;
+		
+		if(is_array($sKey)) {
+			$aUpdate = $sKey;
+			$sSection = $sValue;
+		}
+		else {
+			$aUpdate = array($sKey => $sValue);
 		}
 
+		$sSection = $this->_fillEmptySection($sSection);
+
+		if(in_array($sSection, $this->getSections())) {
+			foreach ($aUpdate as $sKey => $sValue) {
+				if(!isset($this->aConfiguration[(string)$sSection][(string)$sKey])) {
+					$bError = TRUE;
+					break;
+				}				
+			}
+			
+			if(!$bError) {
+				foreach ($aUpdate as $sKey => $sValue) {
+					$this->aConfiguration[(string)$sSection][(string)$sKey] = $sValue;
+				}
+				$bReturn = TRUE;
+			}
+		}
+		
 		unset($sKey, $sValue, $sSection);
 		return $bReturn;
 	}
@@ -300,12 +295,27 @@ class Luki_Config {
 		return $bReturn;
 	}
 
+	/**
+	 * Get default section 
+	 * 
+	 * @return string
+	 */
+	public function getDefaultSection()
+	{
+		return $this->sDefaultSection;
+	}
+
 	public function Save($sFileName = '')
 	{
-		if(empty($sFileName)) {
-			$sFileName = $this->sFile;
+		$bReturn = FALSE;
+
+		if(!empty($sFileName)) {
+			$this->oConfigAdapter->setFilename($sFileName);
 		}
-		$bReturn = $this->oConfigAdapter->saveConfiguration($this->aConfiguration, $sFileName);
+
+		if($this->oConfigAdapter->setConfiguration($this->aConfiguration)) {
+			$bReturn = $this->oConfigAdapter->saveConfiguration();
+		}
 
 		unset($sFileName);
 		return $bReturn;

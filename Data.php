@@ -31,12 +31,11 @@ class Luki_Data {
 	/**
 	 * Data constructor
 	 */
-	public function __construct($aOptions)
+	public function __construct(Luki_Data_Interface $oDataAdapter)
 	{
-		$sAdapterClass = 'Luki_Data_' . $aOptions['adapter'] . 'Adapter';
-		$this->oDataAdapter = new $sAdapterClass($aOptions);
+		$this->oDataAdapter = $oDataAdapter;
 
-		unset($aOptions);
+		unset($oDataAdapter);
 	}
 
 	public function Select()
