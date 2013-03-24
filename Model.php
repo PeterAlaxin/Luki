@@ -26,16 +26,11 @@ abstract class Luki_Model {
 	
 	public $aData = array();
 	
-	public function addData($sName, $xData)
+	public function addData($sName, Luki_Data_Interface $oDataAdapter)
 	{
-		if(is_array($xData)) {
-			$this->aData[$sName] = new Luki_Data($xData);
-		}
-		elseif(is_a($xData, 'Luki_Data')) {
-			$this->aData[$sName] = $xData;
-		}
+		$this->aData[$sName] = new Luki_Data($oDataAdapter);
 		
-		unset($sName, $xData);
+		unset($sName, $oDataAdapter);
 		return $this;
 	}
 	
@@ -51,6 +46,20 @@ abstract class Luki_Model {
 		return $oReturn;
 	}
 	
+	public function getAdapter($aOptions) 
+	{
+		$oAdapter = FALSE;
+
+		if(!empty($aOptions['adapter'])) {
+			$sAdapterName = 'Luki_Data_' . $aOptions['adapter'] . 'Adapter';
+		
+			if(Luki_Loader::isClass($sAdapterName)) {
+				$oAdapter = new $sAdapterName($aOptions);
+			}
+		}
+		
+		return $oAdapter;
+	}
 }
 
 # End of file

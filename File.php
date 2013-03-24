@@ -47,6 +47,20 @@ class Luki_File {
 		return $sMimeType;
 	}
 
+	public static function getFilesInDirectory($sDirectory) 
+	{
+		$aFiles = array();
+		$oDir = dir($sDirectory); 
+		
+		while(($sDir = $oDir->read()) !== false) {
+			if($sDir != '.' and $sDir != '..') {
+				$aFiles[] = $sDir; 
+			}	
+		} 
+		asort($aFiles);
+		
+		return $aFiles;
+	}
 }
 
 # End of file

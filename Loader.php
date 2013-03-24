@@ -99,6 +99,25 @@ class Luki_Loader {
 		return $sReturn;
 	}
 
+	public static function isFile($sFileName = '')
+	{
+		self::_Init();
+		
+		$sReturn = NULL;
+		
+		foreach (self::$_aPath as $sPath) {
+			$sClassFileWithPath = $sPath . $sFileName;
+			
+			if(is_file($sClassFileWithPath) and is_readable($sClassFileWithPath)) {
+				$sReturn = $sClassFileWithPath;
+				break;
+			}
+		}
+
+		unset($sFileName, $sClassFileWithPath);
+		return $sReturn;
+	}
+
 	/**
 	 * Get searched path array 
 	 * @return array

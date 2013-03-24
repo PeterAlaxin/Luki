@@ -26,19 +26,20 @@
  */
 class Luki_Controller {
 
-	private $oView = NULL;
-	private $aModels = array();
-	private $sOutput = '';
-	private $aData = array();
-	private $aModelMethods = array();
-
+	protected $bRender = TRUE;
+	protected $aModels = array();
+	protected $sOutput = '';
+	protected $aData = array();
+	protected $aModelMethods = array();
+	protected $sTemplateName = '';
+	
 	function __construct()
 	{
 		$aRouteToController = explode('_', get_class($this));
 
 		if(!empty($aRouteToController[0]) and !empty($aRouteToController[1])) {
-			$this->setView($aRouteToController[0] . '_view_' . $aRouteToController[1]);
 			$this->addModel($aRouteToController[0] . '_model_' . $aRouteToController[1]);
+			$this->sTemplateName = Luki_Loader::isFile($aRouteToController[0] . '/template/' . $aRouteToController[1] . '.twig');
 		}
 
 		unset($aRouteToController);
@@ -66,8 +67,10 @@ class Luki_Controller {
 
 	public function postDispatch()
 	{
-		$this->makeView();
-
+		if($this->bRender) {
+			$this->Render();
+		}
+		
 		return $this;
 	}
 
@@ -114,28 +117,27 @@ class Luki_Controller {
 		return $this;
 	}
 
-	public function setView($sView)
+	public function noRender()
 	{
-		$sViewClassFileWithPath = Luki_Loader::isClass($sView);
-
-		if(!empty($sViewClassFileWithPath)) {
-			$this->oView = new $sView($sViewClassFileWithPath);
-		}
-
-		unset($sView);
+		$this->bRender = FALSE;
+		
 		return $this;
 	}
-
-	public function makeView()
+	
+	public function Render($sTemplateName = NULL, $aData = NULL)
 	{
-		if(is_a($this->oView, 'Luki_View')) {
-			$this->sOutput = $this->oView->fillValues($this->aData)
-										 ->Render();
+		if(empty($sTemplateName)) {
+			$sTemplateName = $this->sTemplateName;
 		}
-
-		return $this;
+		
+		if(is_null($aData)) {
+			$aData = $this->aData;
+		}
+		
+		$oTemplate = new Luki_Template($sTemplateName, $aData);
+		$this->sOutput = $oTemplate->Render();
 	}
-
+	
 	public function getOutput()
 	{
 		return $this->sOutput;
@@ -143,7 +145,7 @@ class Luki_Controller {
 
 	public function Show($bExit = TRUE)
 	{
-		echo $this->makeView()
+		echo $this->Render()
 				  ->getOutput();
 
 		if($bExit) {
