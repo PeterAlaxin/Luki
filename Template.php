@@ -45,7 +45,7 @@ class Luki_Template {
 	 * @uses Template::_transformConstants() Transform constants
 	 */
 	function __construct($sTemplate, $aData)
-	{
+	{		
 		$this->sTemplate = $sTemplate;
 		$this->aData = (array)$aData;
 				
@@ -72,6 +72,8 @@ class Luki_Template {
 	{
 		$this->sTwig = file_get_contents($this->sTemplate);
 		
+		$this->_clearComments();
+		
 		$sClass = $this->_begin();
 		$sClass .= $this->_defineFilters();
 		$this->_defineVariables();
@@ -80,6 +82,15 @@ class Luki_Template {
 		$sClass .= $this->_end();
 		
 		file_put_contents($this->sNewClass , $sClass);
+	}
+	
+	private function _clearComments()
+	{
+		preg_match_all('|{# (.*) #}|U', $this->sTwig, $aMatches, PREG_SET_ORDER);
+
+		foreach($aMatches as $aMatch) {
+			$this->sTwig = str_replace($aMatch[0], '', $this->sTwig);
+		}
 	}
 	
 	private function _begin()
