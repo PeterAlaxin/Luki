@@ -24,6 +24,11 @@
  */
 class Luki_Template {
 
+	const EOL = "\n";
+	const EOL2 = "\n\n";
+	const TAB = "\t";
+	const TAB2 = "\t\t";
+
 	protected $sTwigPath = '/var/projects/demo/data/';
 	protected $sTemplate = '';
 	protected $sClass = '';
@@ -100,25 +105,20 @@ class Luki_Template {
 
 	private function _begin()
 	{
-		$t = chr(9);
-		$tt = chr(9) . chr(9);
-		$n = chr(10);
-		$nn = chr(10) . chr(10);
-
-		$sBegin = '<?php' . $n;
-		$sBegin .= 'class ' . $this->sClass . $n;
-		$sBegin .= '{' . $nn;
-		$sBegin .= $t . 'protected $aFilters = array();' . $nn;
-		$sBegin .= $t . 'protected $aData = array();' . $nn;
-		$sBegin .= $t . 'public function __construct($aData)' . $n;
-		$sBegin .= $t . '{' . $n;
-		$sBegin .= $tt . '$this->aData = $aData;' . $n;
-		$sBegin .= $tt . '$this->_defineFilters();' . $n;
-		$sBegin .= $t . '}' . $nn;
-		$sBegin .= $t . 'public function Render()' . $n;
-		$sBegin .= $t . '{' . $n;
-		$sBegin .= $tt . 'echo $this->_mainBlock();' . $n;
-		$sBegin .= $t . '}' . $nn;
+		$sBegin = '<?php' . self::EOL;
+		$sBegin .= 'class ' . $this->sClass . self::EOL;
+		$sBegin .= '{' . self::EOL2;
+		$sBegin .= self::TAB . 'protected $aFilters = array();' . self::EOL2;
+		$sBegin .= self::TAB . 'protected $aData = array();' . self::EOL2;
+		$sBegin .= self::TAB . 'public function __construct($aData)' . self::EOL;
+		$sBegin .= self::TAB . '{' . self::EOL;
+		$sBegin .= self::TAB2 . '$this->aData = $aData;' . self::EOL;
+		$sBegin .= self::TAB2 . '$this->_defineFilters();' . self::EOL;
+		$sBegin .= self::TAB . '}' . self::EOL2;
+		$sBegin .= self::TAB . 'public function Render()' . self::EOL;
+		$sBegin .= self::TAB . '{' . self::EOL;
+		$sBegin .= self::TAB2 . 'echo $this->_mainBlock();' . self::EOL;
+		$sBegin .= self::TAB . '}' . self::EOL2;
 
 		return $sBegin;
 	}
@@ -132,23 +132,18 @@ class Luki_Template {
 
 	private function _defineFilters()
 	{
-		$t = chr(9);
-		$tt = chr(9) . chr(9);
-		$n = chr(10);
-		$nn = chr(10) . chr(10);
-
-		$sFilters = $t . 'private function _defineFilters()' . $n;
-		$sFilters .= $t . '{' . $n;
+		$sFilters = self::TAB . 'private function _defineFilters()' . self::EOL;
+		$sFilters .= self::TAB . '{' . self::EOL;
 
 		$aFiles = Luki_File::getFilesInDirectory(__DIR__ . '/Template/Filter');
 
 		foreach ($aFiles as $sFile) {
 			$sFile = preg_replace('/.php/', '', $sFile);
 			$sFilter = strtolower($sFile);
-			$sFilters .= $tt . '$this->aFilters["' . $sFilter . '"] = new Luki_Template_Filter_' . $sFile . ';' . $n;
+			$sFilters .= self::TAB2 . '$this->aFilters["' . $sFilter . '"] = new Luki_Template_Filter_' . $sFile . ';' . self::EOL;
 			$this->aFilters[] = $sFilter;
 		}
-		$sFilters .= $t . '}' . $nn;
+		$sFilters .= self::TAB . '}' . self::EOL2;
 
 		unset($aFiles, $sFile, $sFilter);
 		return $sFilters;
@@ -156,19 +151,14 @@ class Luki_Template {
 
 	private function _defineBlocks()
 	{
-		$t = chr(9);
-		$tt = chr(9) . chr(9);
-		$n = chr(10);
-		$nn = chr(10) . chr(10);
-
 		$this->_explodeBlock('main', $this->sTwig);
 
 		$sBlocks = '';
 		foreach ($this->aBlocks as $sName => $aBlock) {
-			$sBlocks .= $t . 'private function _' . $sName . 'Block()' . $n;
-			$sBlocks .= $t . '{' . $n;
-			$sBlocks .= $tt . $aBlock['code'] . $n;
-			$sBlocks .= $t . '}' . $nn;
+			$sBlocks .= self::TAB . 'private function _' . $sName . 'Block()' . self::EOL;
+			$sBlocks .= self::TAB . '{' . self::EOL;
+			$sBlocks .= self::TAB2 . $aBlock['code'] . self::EOL;
+			$sBlocks .= self::TAB . '}' . self::EOL2;
 		}
 
 		unset($sName, $aBlock);

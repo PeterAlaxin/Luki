@@ -24,6 +24,11 @@
  */
 class Luki_Template_Variable {
 
+	const EOL = "\n";
+	const EOL2 = "\n\n";
+	const TAB = "\t";
+	const TAB2 = "\t\t";
+
 	protected $sContent = '';
 	protected $sVariable = '';
 	protected $sFunctionName = '';
@@ -145,13 +150,8 @@ class Luki_Template_Variable {
 
 	private function _prepareFunction()
 	{
-		$t = chr(9);
-		$tt = chr(9) . chr(9);
-		$n = chr(10);
-		$nn = chr(10) . chr(10);
-
-		$sFunction = $t . 'private function _' . $this->sFunctionName . '($xValue)' . $n;
-		$sFunction .= $t . '{' . $n;
+		$sFunction = self::TAB . 'private function _' . $this->sFunctionName . '($xValue)' . self::EOL;
+		$sFunction .= self::TAB . '{' . self::EOL;
 		foreach ($this->aFilters as $sFilter) {
 
 			preg_match_all('|(.*)\((.*)\)|U', $sFilter, $aMatches, PREG_SET_ORDER);
@@ -160,22 +160,22 @@ class Luki_Template_Variable {
 #				if(!in_array($sFilter, $this->aFilters)) {
 #					continue;
 #				}
-				$sFunction .= $tt . '$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);' . $n;
+				$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);' . self::EOL;
 			}
 			else {
 #				if(!in_array($aMatches[0][1], $this->aFilters)) {
 #					continue;
 #				}
 				if(empty($aMatches[0][2])) {
-					$sFunction .= $tt . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);' . $n;
+					$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);' . self::EOL;
 				}
 				else {
-					$sFunction .= $tt . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');' . $n;
+					$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');' . self::EOL;
 				}
 			}
 		}
-		$sFunction .= $tt . 'return $xValue;' . $n;
-		$sFunction .= $t . '}' . $nn;
+		$sFunction .= self::TAB2 . 'return $xValue;' . self::EOL;
+		$sFunction .= self::TAB . '}' . self::EOL2;
 
 		$this->sFunction = $sFunction;
 
