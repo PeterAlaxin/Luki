@@ -93,8 +93,8 @@ class Luki_Template_Variable {
 
 	private function _transformVariable()
 	{
-		# Array
 		preg_match('/^[\[{](.*)[\]}]$/', $this->sVariable, $aMatches);
+
 		if(count($aMatches) > 0) {
 			$aNewItems = array();
 			$aItems = explode(', ', $aMatches[1]);
