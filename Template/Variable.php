@@ -114,6 +114,7 @@ class Luki_Template_Variable {
 
 			$sVariable = preg_replace('/[\[{]/', 'array(', $this->sVariable);
 			$sVariable = preg_replace('/' . $aMatches[1] . '/', implode(', ', $aNewItems), $sVariable);
+			
 			$this->sTransformedVariable = preg_replace('/[\]}]/', ')', $sVariable);
 		}
 		else {
