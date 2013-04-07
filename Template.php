@@ -61,9 +61,9 @@ class Luki_Template {
 		$this->sClass = 'twig_' . implode('', array_slice(explode(' ', $sClass), -1));
 		$this->sNewClass = $this->sTwigPath . preg_replace('/_/', '/', $this->sClass) . '.php';
 
-#		if(!file($this->sNewClass) or filectime($this->sTemplate) > filectime($this->sNewClass)) {
-		$this->_generateTemplate();
-#		}
+		if(!file($this->sNewClass) or filectime($this->sTemplate) > filectime($this->sNewClass)) {
+			$this->_generateTemplate();
+		}
 
 		unset($sTemplate, $aData, $sClass);
 	}
@@ -82,7 +82,6 @@ class Luki_Template {
 
 		$sClass = $this->_begin();
 		$sClass .= $this->_defineFilters();
-		$this->_defineVariables();
 		$sClass .= $this->_defineBlocks();
 		$sClass .= $this->_defineFunctions();
 		$sClass .= $this->_end();
@@ -151,41 +150,60 @@ class Luki_Template {
 
 	private function _defineBlocks()
 	{
-		$this->_explodeBlock('main', $this->sTwig);
+		$sMainBlock = $this->_parseBlocks($this->sTwig);
+		$this->aBlocks['main'] = new Luki_Template_Block($sMainBlock);
 
 		$sBlocks = '';
-		foreach ($this->aBlocks as $sName => $aBlock) {
+		foreach ($this->aBlocks as $sName => $oBlock) {
 			$sBlocks .= self::TAB . 'private function _' . $sName . 'Block()' . self::EOL;
 			$sBlocks .= self::TAB . '{' . self::EOL;
-			$sBlocks .= self::TAB2 . $aBlock['code'] . self::EOL;
+			$sBlocks .= self::TAB2 . ' ?>' . $oBlock->getContent() . '<?php ' . self::EOL;
 			$sBlocks .= self::TAB . '}' . self::EOL2;
+			
+			$this->aVariables = array_merge($this->aVariables, $oBlock->getVariables());
 		}
 
-		unset($sName, $aBlock);
+		unset($sName, $oBlock, $sMainBlock);
 		return $sBlocks;
 	}
 
-	private function _explodeBlock($sName, $sBlock)
+	private function _parseBlocks($sBlock)
 	{
-		$this->aBlocks[$sName] = array('source' => $sBlock);
-
-		foreach ($this->aVariables as $oVariable) {
-			$sBlock = str_replace('{{ ' . $oVariable->getContent() . ' }}', $oVariable->getCode(), $sBlock);
+		preg_match_all('|({% block (.*) %})|U', $sBlock, $aStartMatches, PREG_SET_ORDER);
+		preg_match_all('|({% endblock(.*) %})|U', $sBlock, $aEndMatches, PREG_SET_ORDER);
+		
+		if(count($aStartMatches) != count($aEndMatches)) {
+			echo 'Template error';
+			exit;
 		}
 
-		$this->aBlocks[$sName]['code'] = ' ?>' . $sBlock . '<?php ';
+		while(count($aStartMatches) > 0) {
+			foreach($aStartMatches as $aBlock) {
+				preg_match_all('|({% block ' . $aBlock[2] . ' %})([\s\S]*)({% endblock(.*) %})|U', $sBlock, $aBlockMatches, PREG_SET_ORDER);
+		
+				foreach($aBlockMatches as $aSubBlock) {
+					if(0 === preg_match_all('/{% block (.*) %}/', $aSubBlock[2])) {
+						$this->aBlocks[$aBlock[2]] = new Luki_Template_Block($aSubBlock);
+						$sBlock = str_replace( $aSubBlock[0], '<?php $this->_' . $aBlock[2] . 'Block(); ?>', $sBlock);
+					}
+				}
+			}
+	
+			preg_match_all('|({% block (.*) %})|U', $sBlock, $aStartMatches, PREG_SET_ORDER);
+		}
 
-		unset($sName, $sBlock, $oVariable);
+		return $sBlock;
 	}
-
+	
 	private function _defineFunctions()
 	{
 		$sFunctions = '';
 
 		foreach ($this->aVariables as $oVariable) {
+			
 			$sFunctionName = $oVariable->getFunctionName();
 
-			if(!in_array($sFunctionName, $this->aFunctions)) {
+			if(!empty($sFunctionName) and !in_array($sFunctionName, $this->aFunctions)) {
 				$sFunctions .= $oVariable->getFunction();
 				$this->aFunctions[] = $sFunctionName;
 			}
@@ -193,17 +211,6 @@ class Luki_Template {
 
 		unset($oVariable, $sFunctionName);
 		return $sFunctions;
-	}
-
-	private function _defineVariables()
-	{
-		preg_match_all('|{{ (.*) }}|U', $this->sTwig, $aMatches, PREG_SET_ORDER);
-
-		foreach ($aMatches as $aVariable) {
-			$this->aVariables[] = new Luki_Template_Variable($aVariable[1]);
-		}
-
-		unset($aMatches, $aVariable);
 	}
 
 }
