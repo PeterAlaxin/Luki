@@ -24,58 +24,61 @@
  */
 class Luki_Template_Block {
 
-	protected $aBlock;
-	protected $sContent = '';
-	protected $sTransformedContent = '';
-	protected $aVariables = array();
+    protected $aBlock;
+    protected $sContent = '';
+    protected $sTransformedContent = '';
+    protected $aVariables = array();
 
-	public function __construct($Block)
-	{
-		$this->aBlock = $Block;
-		
-		if(is_array($Block)) {
-			$this->sContent = $Block[2];
-		}
-		else {
-			$this->sContent = $Block;			
-		}
-		
-		$this->_defineVariables();
-		$this->_transformVariables();
+    public function __construct($Block)
+    {
+        $this->aBlock = $Block;
 
-		unset($Block);
-	}
+        if(is_array($Block)) {
+            $this->sContent = $Block[2];
+        }
+        else {
+            $this->sContent = $Block;
+        }
 
-	public function getContent()
-	{
-		return $this->sTransformedContent;
-	}
+        $this->_defineVariables();
+        $this->_transformVariables();
 
-	public function getVariables()
-	{
-		return $this->aVariables;
-	}
+        unset($Block);
+    }
 
-	private function _defineVariables()
-	{
-		preg_match_all('|{{ (.*) }}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+    public function getContent()
+    {
+        return $this->sTransformedContent;
+    }
 
-		foreach ($aMatches as $aVariable) {
-			$this->aVariables[] = new Luki_Template_Variable($aVariable[1]);
-		}
+    public function getVariables()
+    {
+        return $this->aVariables;
+    }
 
-		unset($aMatches, $aVariable);
-	}
-	
-	private function _transformVariables()
-	{
-		$this->sTransformedContent = $this->sContent;
-		foreach ($this->aVariables as $oVariable) {
-			$this->sTransformedContent = str_replace('{{ ' . $oVariable->getContent() . ' }}', $oVariable->getCode(), $this->sTransformedContent);
-		}
+    private function _defineVariables()
+    {
+        $aMatches = array();
+        preg_match_all('/{{ ((block)(\()(.*)(\))|(.*)) }}/U', $this->sContent, $aMatches, PREG_SET_ORDER);
 
-		unset($oVariable);
-	}
+        foreach ($aMatches as $aVariable) {
+            if(empty($aVariable[2])) {
+                $this->aVariables[] = new Luki_Template_Variable($aVariable[1]);
+            }
+        }
+
+        unset($aMatches, $aVariable);
+    }
+
+    private function _transformVariables()
+    {
+        $this->sTransformedContent = $this->sContent;
+        foreach ($this->aVariables as $oVariable) {
+            $this->sTransformedContent = str_replace('{{ ' . $oVariable->getContent() . ' }}', $oVariable->getCode(), $this->sTransformedContent);
+        }
+
+        unset($oVariable);
+    }
 
 }
 

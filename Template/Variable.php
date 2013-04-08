@@ -24,163 +24,161 @@
  */
 class Luki_Template_Variable {
 
-	const EOL = "\n";
-	const EOL2 = "\n\n";
-	const TAB = "\t";
-	const TAB2 = "\t\t";
+    protected $sContent = '';
+    protected $sVariable = '';
+    protected $sFunctionName = '';
+    protected $sFunction = '';
+    protected $sTransformedVariable = '';
+    protected $sCode = '';
+    protected $aFilters = array();
 
-	protected $sContent = '';
-	protected $sVariable = '';
-	protected $sFunctionName = '';
-	protected $sFunction = '';
-	protected $sTransformedVariable = '';
-	protected $sCode = '';
-	protected $aFilters = array();
+    public function __construct($sContent)
+    {
+        $this->sContent = $sContent;
 
-	public function __construct($sContent)
-	{
-		$this->sContent = $sContent;
+        $this->_prepareFilters();
+        $this->_transformVariable();
+        $this->_prepareCode();
 
-		$this->_prepareFilters();
-		$this->_transformVariable();
-		$this->_prepareCode();
+        unset($sContent);
+    }
 
-		unset($sContent);
-	}
+    public function getCode()
+    {
+        return $this->sCode;
+    }
 
-	public function getCode()
-	{
-		return $this->sCode;
-	}
+    public function getContent()
+    {
+        return $this->sContent;
+    }
 
-	public function getContent()
-	{
-		return $this->sContent;
-	}
+    public function getFunctionName()
+    {
+        return $this->sFunctionName;
+    }
 
-	public function getFunctionName()
-	{
-		return $this->sFunctionName;
-	}
+    public function getFunction()
+    {
+        $this->_prepareFunction();
 
-	public function getFunction()
-	{
-		$this->_prepareFunction();
+        return $this->sFunction;
+    }
 
-		return $this->sFunction;
-	}
+    private function _prepareFilters()
+    {
+        if(strpos($this->sContent, '|')) {
+            $this->aFilters = explode('|', $this->sContent);
+            $this->sVariable = array_shift($this->aFilters);
 
-	private function _prepareFilters()
-	{
-		if(strpos($this->sContent, '|')) {
-			$this->aFilters = explode('|', $this->sContent);
-			$this->sVariable = array_shift($this->aFilters);
+            $this->_prepareFunctionName();
+        }
+        else {
+            $this->sVariable = $this->sContent;
+        }
+    }
 
-			$this->_prepareFunctionName();
-		}
-		else {
-			$this->sVariable = $this->sContent;
-		}
-	}
+    private function _prepareFunctionName()
+    {
+        $sFilters = implode('|', $this->aFilters);
+        $this->sFunctionName = 'fnc_' . sha1($sFilters);
 
-	private function _prepareFunctionName()
-	{
-		$sFilters = implode('|', $this->aFilters);
-		$this->sFunctionName = 'fnc_' . sha1($sFilters);
+        unset($sFilters);
+    }
 
-		unset($sFilters);
-	}
+    private function _transformVariable()
+    {
+        $aMatches = array();
+        preg_match('/^[\[{](.*)[\]}]$/', $this->sVariable, $aMatches);
 
-	private function _transformVariable()
-	{
-		preg_match('/^[\[{](.*)[\]}]$/', $this->sVariable, $aMatches);
+        if(count($aMatches) > 0) {
+            $aNewItems = array();
+            $aItems = explode(', ', $aMatches[1]);
 
-		if(count($aMatches) > 0) {
-			$aNewItems = array();
-			$aItems = explode(', ', $aMatches[1]);
+            foreach ($aItems as $Item) {
+                if(strpos($Item, ': ')) {
+                    $aSubItems = explode(': ', $Item);
 
-			foreach ($aItems as $Item) {
-				if(strpos($Item, ': ')) {
-					$aSubItems = explode(': ', $Item);
+                    $aNewItems[] = $this->_stringToVariable($aSubItems[0]) .
+                        ' => ' .
+                        $this->_stringToVariable($aSubItems[1]);
+                }
+                else {
+                    $aNewItems[] = $this->_stringToVariable($Item);
+                }
+            }
 
-					$aNewItems[] = $this->_stringToVariable($aSubItems[0]) .
-						' => ' .
-						$this->_stringToVariable($aSubItems[1]);
-				}
-				else {
-					$aNewItems[] = $this->_stringToVariable($Item);
-				}
-			}
+            $sVariable = preg_replace('/[\[{]/', 'array(', $this->sVariable);
+            $sVariableArray = preg_replace('/' . $aMatches[1] . '/', implode(', ', $aNewItems), $sVariable);
+            $this->sTransformedVariable = preg_replace('/[\]}]/', ')', $sVariableArray);
+        }
+        else {
+            $this->sTransformedVariable = $this->_stringToVariable($this->sVariable);
+        }
 
-			$sVariable = preg_replace('/[\[{]/', 'array(', $this->sVariable);
-			$sVariable = preg_replace('/' . $aMatches[1] . '/', implode(', ', $aNewItems), $sVariable);
-			$this->sTransformedVariable = preg_replace('/[\]}]/', ')', $sVariable);
-		}
-		else {
-			$this->sTransformedVariable = $this->_stringToVariable($this->sVariable);
-		}
+        unset($aMatches, $aNewItems, $aItems, $Item, $aSubItems, $sVariable, $sVariableArray);
+    }
 
-		unset($aMatches, $aNewItems, $aItems, $Item, $aSubItems, $sVariable);
-	}
+    private function _stringToVariable($sString)
+    {
+        if(!preg_match('/[\'"]/', $sString) and !is_numeric($sString)) {
+            $sString = '$this->aData["' . $sString . '"]';
+        }
 
-	private function _stringToVariable($sString)
-	{
-		if(!preg_match('/[\'"]/', $sString) and !is_numeric($sString)) {
-			$sString = '$this->aData["' . $sString . '"]';
-		}
+        return $sString;
+    }
 
-		return $sString;
-	}
+    private function _prepareCode()
+    {
+        $sCode = '<?php echo ';
+        if(!empty($this->aFilters)) {
+            $sCode .= '$this->_' . $this->sFunctionName . '(' . $this->sTransformedVariable . ');';
+        }
+        else {
+            $sCode .= $this->sTransformedVariable . ';';
+        }
+        $sCode .= ' ?>';
 
-	private function _prepareCode()
-	{
-		$sCode = '<?php echo ';
-		if(!empty($this->aFilters)) {
-			$sCode .= '$this->_' . $this->sFunctionName . '(' . $this->sTransformedVariable . ');';
-		}
-		else {
-			$sCode .= $this->sTransformedVariable . ';';
-		}
-		$sCode .= ' ?>';
+        $this->sCode = $sCode;
 
-		$this->sCode = $sCode;
+        unset($sCode);
+    }
 
-		unset($sCode);
-	}
+    private function _prepareFunction()
+    {
+        $aMatches = array();
 
-	private function _prepareFunction()
-	{
-		$sFunction = self::TAB . 'private function _' . $this->sFunctionName . '($xValue)' . self::EOL;
-		$sFunction .= self::TAB . '{' . self::EOL;
-		foreach ($this->aFilters as $sFilter) {
+        $sFunction = Luki_Template::phpRow('private function _' . $this->sFunctionName . '($xValue)');
+        $sFunction .= Luki_Template::phpRow('{');
+        foreach ($this->aFilters as $sFilter) {
 
-			preg_match_all('|(.*)\((.*)\)|U', $sFilter, $aMatches, PREG_SET_ORDER);
+            preg_match_all('|(.*)\((.*)\)|U', $sFilter, $aMatches, PREG_SET_ORDER);
 
-			if(empty($aMatches)) {
+            if(empty($aMatches)) {
 #				if(!in_array($sFilter, $this->aFilters)) {
 #					continue;
 #				}
-				$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);' . self::EOL;
-			}
-			else {
+                $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);', 2);
+            }
+            else {
 #				if(!in_array($aMatches[0][1], $this->aFilters)) {
 #					continue;
 #				}
-				if(empty($aMatches[0][2])) {
-					$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);' . self::EOL;
-				}
-				else {
-					$sFunction .= self::TAB2 . '$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');' . self::EOL;
-				}
-			}
-		}
-		$sFunction .= self::TAB2 . 'return $xValue;' . self::EOL;
-		$sFunction .= self::TAB . '}' . self::EOL2;
+                if(empty($aMatches[0][2])) {
+                    $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);', 2);
+                }
+                else {
+                    $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');', 2);
+                }
+            }
+        }
+        $sFunction .= Luki_Template::phpRow('return $xValue;', 2);
+        $sFunction .= Luki_Template::phpRow('}', 1, 2);
 
-		$this->sFunction = $sFunction;
+        $this->sFunction = $sFunction;
 
-		unset($sFunction, $sFilter, $aMatches);
-	}
+        unset($sFunction, $sFilter, $aMatches);
+    }
 
 }
 
