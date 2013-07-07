@@ -60,6 +60,19 @@ class Luki_Url {
 		return $sLink;
 	}
 
+    /**
+	 * Reload page
+	 *
+	 * @param string Link to reload
+	 * @param integer Response number
+	 */
+	static public function Reload($sLink = '', $nResponse = 302)
+	{
+		if(!empty($sLink)) {
+    		header('Location: ' . $sLink, TRUE, $nResponse);
+        	exit;
+        }
+	}
 }
 
 # End of file
