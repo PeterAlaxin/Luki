@@ -61,7 +61,7 @@ class Luki_Config {
 	{
 		$this->oConfigAdapter = $oConfigAdapter;
 		$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
-		$this->aSections = array_keys($this->aConfiguration);
+		$this->aSections = $this->oConfigAdapter->getSections();
 
 		if(isset($this->aSections[0])) {
 			$this->sDefaultSection = $this->aSections[0];

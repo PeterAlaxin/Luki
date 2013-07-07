@@ -22,10 +22,7 @@
  * 
  * @package Luki
  */
-class Luki_Config_yamlAdapter implements Luki_Config_Interface {
-
-	private $sFileName = '';
-	private $aConfiguration = array();
+class Luki_Config_yamlAdapter extends Luki_Config_basicAdapter {
 
 	/**
 	 * Constructor
@@ -33,22 +30,14 @@ class Luki_Config_yamlAdapter implements Luki_Config_Interface {
 	 */
 	public function __construct($sFileName)
 	{
+        parent::__construct($sFileName);
+        
 		if(is_file($sFileName)) {
-			$this->sFileName = $sFileName;
             $sConfigContent = file_get_contents($this->sFileName);
 			$this->aConfiguration = yaml_parse($sConfigContent);
 		}
 
 		unset($sFileName, $sConfigContent);
-	}
-
-	/**
-	 * Read configuration file
-	 * @return array
-	 */
-	public function getConfiguration()
-	{
-		return $this->aConfiguration;
 	}
 
 	/**
@@ -69,34 +58,6 @@ class Luki_Config_yamlAdapter implements Luki_Config_Interface {
 
 		unset($sOutput);
 		return $bReturn;
-	}
-
-	public function getFilename() {
-		return $this->sFileName;		
-	}
-
-	public function setConfiguration($aConfiguration)
-	{
-		$bReturn = FALSE;
-		if(is_array($aConfiguration)) {
-			$this->aConfiguration = $aConfiguration;
-			$bReturn = TRUE;
-		}
-
-		unset($aConfiguration);
-		return $bReturn;		
-	}
-
-	public function setFilename($sFileName)
-	{
-		$bReturn = FALSE;
-		if(!empty($sFileName)) {
-			$this->sFileName = $sFileName;
-			$bReturn = TRUE;
-		}
-
-		unset($sFileName);
-		return $bReturn;		
 	}
 
 }

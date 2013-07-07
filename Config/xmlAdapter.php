@@ -22,10 +22,7 @@
  * 
  * @package Luki
  */
-class Luki_Config_xmlAdapter implements Luki_Config_Interface {
-
-	private $sFileName = '';
-	private $aConfiguration = array();
+class Luki_Config_xmlAdapter extends Luki_Config_basicAdapter implements Luki_Config_Interface {
 
 	/**
 	 * Constructor
@@ -33,9 +30,9 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 	 */
 	public function __construct($sFileName)
 	{
+        parent::__construct($sFileName);
+        
 		if(is_file($sFileName)) {
-			$this->sFileName = $sFileName;
-
 			libxml_use_internal_errors(TRUE);
 			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
 			$this->aConfiguration = json_decode(json_encode($oXML), TRUE);
@@ -44,15 +41,6 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 		}
 
 		unset($sFileName);
-	}
-
-	/**
-	 * Get configuration
-	 * @return array
-	 */
-	public function getConfiguration()
-	{
-		return $this->aConfiguration;
 	}
 
 	/**
@@ -88,34 +76,6 @@ class Luki_Config_xmlAdapter implements Luki_Config_Interface {
 
 		unset($oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
 		return $bReturn;
-	}
-
-	public function getFilename() {
-		return $this->sFileName;		
-	}
-
-	public function setConfiguration($aConfiguration)
-	{
-		$bReturn = FALSE;
-		if(is_array($aConfiguration)) {
-			$this->aConfiguration = $aConfiguration;
-			$bReturn = TRUE;
-		}
-
-		unset($aConfiguration);
-		return $bReturn;		
-	}
-
-	public function setFilename($sFileName)
-	{
-		$bReturn = FALSE;
-		if(!empty($sFileName)) {
-			$this->sFileName = $sFileName;
-			$bReturn = TRUE;
-		}
-
-		unset($sFileName);
-		return $bReturn;		
 	}
 
 }

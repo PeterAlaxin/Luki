@@ -29,6 +29,8 @@ interface Luki_Config_Interface {
 	public function setFilename($sFileName);
 
 	public function getFilename();
+    
+	public function getSections();
 
 	public function setConfiguration($aConfiguration);
 

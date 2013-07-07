@@ -22,10 +22,7 @@
  * 
  * @package Luki
  */
-class Luki_Config_iniAdapter implements Luki_Config_Interface {
-
-	private $sFileName = '';
-	private $aConfiguration = array();
+class Luki_Config_iniAdapter extends Luki_Config_basicAdapter implements Luki_Config_Interface {
 
 	/**
 	 * Constructor
@@ -33,21 +30,13 @@ class Luki_Config_iniAdapter implements Luki_Config_Interface {
 	 */
 	public function __construct($sFileName)
 	{
+        parent::__construct($sFileName);
+        
 		if(is_file($sFileName)) {
-			$this->sFileName = $sFileName;
 			$this->aConfiguration = parse_ini_file($this->sFileName, TRUE);
 		}
 
 		unset($sFileName);
-	}
-
-	/**
-	 * Read configuration file
-	 * @return array
-	 */
-	public function getConfiguration()
-	{
-		return $this->aConfiguration;
 	}
 
 	/**
@@ -75,34 +64,6 @@ class Luki_Config_iniAdapter implements Luki_Config_Interface {
 
 		unset($sOutput, $sSection, $aSectionValues, $sKey, $sValue);
 		return $bReturn;
-	}
-
-	public function getFilename() {
-		return $this->sFileName;		
-	}
-
-	public function setConfiguration($aConfiguration)
-	{
-		$bReturn = FALSE;
-		if(is_array($aConfiguration)) {
-			$this->aConfiguration = $aConfiguration;
-			$bReturn = TRUE;
-		}
-
-		unset($aConfiguration);
-		return $bReturn;		
-	}
-
-	public function setFilename($sFileName)
-	{
-		$bReturn = FALSE;
-		if(!empty($sFileName)) {
-			$this->sFileName = $sFileName;
-			$bReturn = TRUE;
-		}
-
-		unset($sFileName);
-		return $bReturn;		
 	}
 
 }
