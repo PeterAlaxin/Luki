@@ -67,7 +67,13 @@ class Luki_Template {
     public function Render()
     {
         $oTemplateClass = new $this->sClass($this->aData);
+        
+        ob_start();
         $oTemplateClass->Render();
+        $sOutput = ob_get_contents();
+        ob_end_clean();
+        
+        return $sOutput;
     }
 
     private function _generateTemplate()
@@ -115,7 +121,7 @@ class Luki_Template {
         $this->sClassContent .= self::phpRow('}', 1, 2);
         $this->sClassContent .= self::phpRow('public function Render()');
         $this->sClassContent .= self::phpRow('{');
-        $this->sClassContent .= self::phpRow('echo $this->_mainBlock();', 2);
+        $this->sClassContent .= self::phpRow('$this->_mainBlock();', 2);
         $this->sClassContent .= self::phpRow('}', 1, 2);
     }
 
