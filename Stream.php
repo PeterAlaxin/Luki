@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\File;
+
 /**
  * Stream class
  *
  * @package Luki
  */
-class Luki_Stream {
+class Stream {
 
 	private static $aMimeTypes = array(
 		'323' => 'text/h323',
@@ -234,7 +238,7 @@ class Luki_Stream {
 	public static function streamFile($sFile = NULL)
 	{
 		if(!empty($sFile) and is_file($sFile)) {
-			$sMimeType = Luki_File::getMimeType($sFile);
+			$sMimeType = File::getMimeType($sFile);
 			$sContent = file_get_contents($sFile);
 			$sFileName = basename($sFile);
 		}

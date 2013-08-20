@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Log\Writer;
+
+use Luki\Log\Writer\basicInterface;
+
 /**
  * Xml Log Writer
  * 
  * @package Luki
  */
-class Luki_Log_Writer_Xml implements Luki_Log_Writer_Interface {
+class Xml implements basicInterface {
 
 	private $sFile = NULL;
 
@@ -33,11 +37,11 @@ class Luki_Log_Writer_Xml implements Luki_Log_Writer_Interface {
 		$this->sFile = $sFile;
 		
 		if(is_file($sFile)) {
-			$this->oFile = new SimpleXMLElement($sFile, LIBXML_NOERROR, TRUE);
+			$this->oFile = new \SimpleXMLElement($sFile, LIBXML_NOERROR, TRUE);
 		}
 		else {
 			$sFile = '<?xml version="1.0" encoding="UTF-8"?><items></items>';
-			$this->oFile = new SimpleXMLElement($sFile);			
+			$this->oFile = new \SimpleXMLElement($sFile);			
 		}
 		
 		unset($sFile);

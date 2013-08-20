@@ -17,12 +17,14 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * URL class for SEO
  *
  * @package Luki
  */
-class Luki_Url {
+class Url {
 
 	/**
 	 * Make link
@@ -47,13 +49,13 @@ class Luki_Url {
 		elseif(is_array($xLink)) {
 
 			foreach ($xLink as $xLinkPart) {
-				$sLink .= Luki_Url::makeLink($xLinkPart) . '/';
+				$sLink .= self::makeLink((string) $xLinkPart) . '/';
 			}
 
 			unset($xLinkPart);
 		}
 		else {
-			$sLink = Luki_Url::makeLink((string) $xLink);
+			$sLink = self::makeLink((string) $xLink);
 		}
 
 		unset($xLink);

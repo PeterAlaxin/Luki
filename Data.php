@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Data\basicInterface;
+
 /**
  * Data class
  *
@@ -24,19 +28,26 @@
  *
  * @package Luki
  */
-class Luki_Data {
+class Data {
 
 	private $oDataAdapter = NULL;
 
 	/**
 	 * Data constructor
 	 */
-	public function __construct(Luki_Data_Interface $oDataAdapter)
+	public function __construct(basicInterface $oDataAdapter)
 	{
 		$this->oDataAdapter = $oDataAdapter;
 
 		unset($oDataAdapter);
 	}
+
+    public static function findAdapter($sAdapter)
+    {
+        $sAdapter = __NAMESPACE__ . '\Data\\' . $sAdapter . 'Adapter';
+        
+        return $sAdapter;
+    }
 
 	public function Select()
 	{

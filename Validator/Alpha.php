@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Alpha validator
  * 
  * @package Luki
  */
-class Luki_Validator_Alpha extends Luki_Validator_Factory {
+class Alpha extends basicFactory {
 
 	public $sValidator = '/^[a-zA-ZáäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ]*$/';
 	

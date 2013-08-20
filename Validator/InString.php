@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * InString validator
  * 
  * @package Luki
  */
-class Luki_Validator_InString extends Luki_Validator_Factory {
+class InString extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not in the test string!';
 		

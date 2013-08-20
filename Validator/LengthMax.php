@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * LengthMax validator
  * 
  * @package Luki
  */
-class Luki_Validator_LengthMax extends Luki_Validator_Factory {
+class LengthMax extends basicFactory {
 
 	public $sMessage = 'The length is greater then "%max%"!';
 		

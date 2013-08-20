@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * ICO validator
  * 
  * @package Luki
  */
-class Luki_Validator_Ico extends Luki_Validator_Factory {
+class Ico extends basicFactory {
 
 	public $sValidator = '/^[0-9\ ]{8,10}$/';
 	

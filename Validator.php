@@ -17,18 +17,19 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * Validation aggregation class
  *
  * @package Luki
  */
-class Luki_Validator {
+class Validator {
 
 	private static $sError = '';
 
 	public static function isValid($xValue, $sValidator, $aOptions = array(), $sMessage = '')
 	{
-		$sValidator = 'Luki_Validator_' . $sValidator;
 		$oValidator = new $sValidator($aOptions);
 		self::$sError = '';
 

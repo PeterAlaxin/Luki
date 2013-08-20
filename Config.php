@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Config\basicInterface;
+
 /**
  * Config class
  *
@@ -24,7 +28,7 @@
  *
  * @package Luki
  */
-class Luki_Config {
+class Config {
 
 	/**
 	 * Search path array 
@@ -57,7 +61,7 @@ class Luki_Config {
 	/**
 	 * Constructor
 	 */
-	public function __construct(Luki_Config_Interface $oConfigAdapter)
+	public function __construct(basicInterface $oConfigAdapter)
 	{
 		$this->oConfigAdapter = $oConfigAdapter;
 		$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
@@ -69,6 +73,15 @@ class Luki_Config {
 
 		unset($oConfigAdapter);
 	}
+
+    public static function findAdapter($sFile)
+    {
+        $aFileInfo = pathinfo($sFile);
+        $sAdapter = __NAMESPACE__ . '\Config\\' . $aFileInfo['extension'] . 'Adapter';
+        
+        unset($aFileInfo);
+        return $sAdapter;
+    }
 
 	/**
 	 * Get actual configuration

@@ -17,22 +17,24 @@
  * @filesource
  */
 
+namespace Luki\Data\MySQL;
+
+use Luki\Data\MySQL\basicAdapter;
+use Luki\Data\MySQL\Select as Select;
+use Luki\Data\MySQL\mysqliResult as Result;
+
 /**
  * MySQLi data adapter
  * 
  * @package Luki
  */
-class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements Luki_Data_Interface {
+class mysqliAdapter extends basicAdapter {
 
 	public $oMySQL = NULL;
 	
-	public $sSelectClass = 'Luki_Data_MySQL_Select';
-
-	public $sResultClass = 'Luki_Data_MySQL_mysqliResult';
-	
 	public function __construct($aOptions)
 	{
-		$this->oMySQL = new mysqli(
+		$this->oMySQL = new \mysqli(
 			$aOptions['server'], 
 			$aOptions['user'], 
 			$aOptions['password'], 
@@ -50,12 +52,24 @@ class Luki_Data_MySQL_mysqliAdapter extends Luki_Data_MySQL_Adapter implements L
 		unset($aOptions);
 	}
 	
+    public function __destruct()
+    {
+        $this->oMySQL->close();
+    }
+    
+	public function Select()
+	{
+		$oSelect = new Select($this);
+		
+		return $oSelect;
+	}
+	
 	public function Query($sSQL)
 	{
 		$oResult = $this->oMySQL->query((string)$sSQL);
 
 		if(is_a($oResult, 'mysqli_result')) {
-			$oResult = new $this->sResultClass($oResult);
+			$oResult = new Result($oResult);
 		}
 		
 		unset($sSQL);

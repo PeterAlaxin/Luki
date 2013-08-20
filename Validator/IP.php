@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * IP validator
  * 
  * @package Luki
  */
-class Luki_Validator_IP extends Luki_Validator_Factory {
+class IP extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not valid IPv4 or IPv6 address!';
 	

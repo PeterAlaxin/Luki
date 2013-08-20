@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Email validator
  * 
  * @package Luki
  */
-class Luki_Validator_Email extends Luki_Validator_Factory {
+class Email extends basicFactory {
 
 	public $sValidator = '/^([a-z0-9\+\._\/&!][-a-z0-9\+\._\/&!]*)@(([a-z0-9][-a-z0-9]*\.)([-a-z0-9]+\.)*[a-z]{2,})$/i';
 	

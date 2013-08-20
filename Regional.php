@@ -17,12 +17,14 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * Regional class
  *
  * @package Luki
  */
-class Luki_Regional {
+class Regional {
 
 	public static $sFormat = '%x';
 

@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Cache\basicInterface;
+
 /**
  * Cache class
  *
@@ -24,7 +28,7 @@
  *
  * @package Luki
  */
-class Luki_Cache {
+class Cache {
 
 	/**
 	 * Chache adapter
@@ -39,12 +43,19 @@ class Luki_Cache {
 	 */
 	private $nExpiration = 0;
 
-	public function __construct(Luki_Cache_Interface $oAdapter)
+	public function __construct(basicInterface $oAdapter)
 	{
 		$this->oCacheAdapter = $oAdapter;
 
 		unset($oAdapter);
 	}
+
+    public static function findAdapter($sType)
+    {
+        $sAdapter = __NAMESPACE__ . '\Cache\\' . $sType . 'Adapter';
+        
+        return $sAdapter;
+    }
 
 	public function setExpiration($nNewExpiration = 0)
 	{

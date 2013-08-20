@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * LengthMin validator
  * 
  * @package Luki
  */
-class Luki_Validator_LengthMin extends Luki_Validator_Factory {
+class LengthMin extends basicFactory {
 
 	public $sMessage = 'The length is less then "%min%"!';
 		

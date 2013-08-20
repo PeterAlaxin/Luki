@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Cache;
+
+use Luki\Cache\basicInterface;
+
 /**
  * Memory chache adapter
  * 
  * @package Luki
  */
-class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
+class memoryAdapter implements basicInterface {
 
 	private $oMemcache;
 
@@ -33,7 +37,7 @@ class Luki_Cache_memoryAdapter implements Luki_Cache_Interface {
 				'server' => 'localhost',
 				'port' => '11211');
 		}
-		$this->oMemcache = new Memcache;
+		$this->oMemcache = new \Memcache;
 		$this->oMemcache->connect($aOptions['server'], $aOptions['port']);
 
 		unset($aOptions);

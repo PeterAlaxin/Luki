@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Log\Writer;
+
+use Luki\Log\Writer\basicInterface;
+
 /**
  * File Log Writer
  * 
  * @package Luki
  */
-class Luki_Log_Writer_File implements Luki_Log_Writer_Interface {
+class File implements basicInterface {
 
 	private $sFile = NULL;
 	

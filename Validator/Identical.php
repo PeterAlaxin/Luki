@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Identical validator
  * 
  * @package Luki
  */
-class Luki_Validator_Identical extends Luki_Validator_Factory {
+class Identical extends basicFactory {
 
 	public $sMessage = 'The value "%value%" not identical as "%token%"!';
 	

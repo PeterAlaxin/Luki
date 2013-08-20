@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Navigation\Format;
+
+use Luki\Navigation\Format\basicInterface;
+
 /**
  * Crumb Navigation Format
  * 
  * @package Luki
  */
-class Luki_Navigation_Format_Crumb implements Luki_Navigation_Format_Interface {
+class Crumb implements basicInterface {
 
 	private $sFormat = '<a href="%url%" title="%title%" class="%class%" target="%target%">%label%</a>';
 	private $oNavigation = NULL;	

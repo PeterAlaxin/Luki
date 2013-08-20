@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Log\Format;
+
+use Luki\Log\Format\basicInterface;
+
 /**
  * Simple Log Format
  * 
  * @package Luki
  */
-class Luki_Log_Format_Simple implements Luki_Log_Format_Interface {
+class Simple implements basicInterface {
 
 	private $sFormat = '';
 	

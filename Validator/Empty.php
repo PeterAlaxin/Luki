@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Empty validator
  * 
  * @package Luki
  */
-class Luki_Validator_Empty extends Luki_Validator_Factory {
+class Empty extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not empty!';
 	

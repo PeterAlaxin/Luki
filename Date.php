@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Time;
+
 /**
  * Date class
  *
@@ -24,7 +28,7 @@
  *
  * @package Luki
  */
-class Luki_Date {
+class Date {
 
 	public static $sFormat = 'Y-m-d';
 	public static $sDateValidator = '/^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$/';
@@ -109,7 +113,7 @@ class Luki_Date {
 		}
 
 		$xReturn = FALSE;
-		$oInterval = new DateInterval('P0D');
+		$oInterval = new \DateInterval('P0D');
 		$oInterval->d = $oInterval->d + (int) $nDay;
 
 		$oDate = date_create($dDate);
@@ -147,7 +151,7 @@ class Luki_Date {
 		}
 
 		$xReturn = FALSE;
-		$oInterval = new DateInterval('P0M');
+		$oInterval = new \DateInterval('P0M');
 		$oInterval->m = $oInterval->m + (int) $nMonth;
 
 		$oDate = date_create($dDate);
@@ -185,7 +189,7 @@ class Luki_Date {
 		}
 
 		$xReturn = FALSE;
-		$oInterval = new DateInterval('P0Y');
+		$oInterval = new \DateInterval('P0Y');
 		$oInterval->y = $oInterval->y + $nYear;
 
 		$oDate = date_create($dDate);
@@ -432,7 +436,7 @@ class Luki_Date {
 				$aDateTime[1] = '00:00:00';
 			}
 
-			if(1 === preg_match(Luki_Time::$sTimeValidator, $aDateTime[1])) {
+			if(1 === preg_match(Time::$sTimeValidator, $aDateTime[1])) {
 				$aTime = explode(':', $aDateTime[1]);
 				$sMicro = mktime($aTime[0], $aTime['1'], $aTime[2], $aDate[1], $aDate[2], $aDate[0]);
 			}

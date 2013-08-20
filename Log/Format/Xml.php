@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Log\Format;
+
+use Luki\Log\Format\basicInterface;
+
 /**
  * Xml Log Format
  * 
  * @package Luki
  */
-class Luki_Log_Format_Xml implements Luki_Log_Format_Interface {
+class Xml implements basicInterface {
 
 	public function __construct($sFormat='')
 	{

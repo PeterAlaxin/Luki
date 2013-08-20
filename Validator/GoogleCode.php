@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Google analytics code validator
  * 
  * @package Luki
  */
-class Luki_Validator_GoogleCode extends Luki_Validator_Factory {
+class GoogleCode extends basicFactory {
 
 	public $sValidator = '/^UA-([0-9]{7,8})-([0-9]{1,2})$/';
 	

@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Digit validator
  * 
  * @package Luki
  */
-class Luki_Validator_Digit extends Luki_Validator_Factory {
+class Digit extends basicFactory {
 
 	public $sValidator = '/^[0-9]*$/';
 	

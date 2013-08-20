@@ -17,18 +17,20 @@
  * @filesource
  */
 
+namespace Luki\Data\MySQL;
+
+use Luki\Data\MySQL\basicAdapter;
+use Luki\Data\MySQL\Select as Select;
+use Luki\Data\MySQL\mysqlResult as Result;
+
 /**
  * MySQL data adapter
  * 
  * @package Luki
  */
-class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Luki_Data_Interface {
+class mysqlAdapter extends basicAdapter {
 
 	public $rConnection = NULL;
-	
-	public $sSelectClass = 'Luki_Data_MySQL_Select';
-
-	public $sResultClass = 'Luki_Data_MySQL_mysqlResult';
 	
 	public function __construct($aOptions)
 	{
@@ -53,13 +55,25 @@ class Luki_Data_MySQL_mysqlAdapter extends Luki_Data_MySQL_Adapter implements Lu
 		
 		unset($aOptions);
 	}
+    
+    public function __destruct()
+    {
+        mysql_close($this->rConnection);
+    }
+    	
+	public function Select()
+	{
+		$oSelect = new Select($this);
+		
+		return $oSelect;
+	}
 	
 	public function Query($sSQL)
 	{
 		$oResult = mysql_query((string)$sSQL, $this->rConnection);
 		
 		if(is_resource($oResult)) {
-			$oResult = new $this->sResultClass($oResult);
+			$oResult = new Result($oResult);
 		}
 		
 		unset($sSQL);

@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * InArray validator
  * 
  * @package Luki
  */
-class Luki_Validator_InArray extends Luki_Validator_Factory {
+class InArray extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not in the test array!';
 		

@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Data\MySQL;
+
+use Luki\Data\MySQL\Result as Result;
+
 /**
  * MySQL Result Iterator class
  *
  * @package Luki
  */
-class Luki_Data_MySQL_mysqlResult extends Luki_Data_MySQL_Result implements Iterator {
+class mysqlResult extends Result implements Iterator {
 
 	/**
 	 * Constructor

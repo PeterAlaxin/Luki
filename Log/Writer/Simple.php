@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Log\Writer;
+
+use Luki\Log\Writer\basicInterface;
+
 /**
  * Simple Log Writer
  * 
  * @package Luki
  */
-class Luki_Log_Writer_Simple implements Luki_Log_Writer_Interface {
+class Simple implements basicInterface {
 
 
 	public function __construct($sFile='')

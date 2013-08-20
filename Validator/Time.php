@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Time validator
  * 
  * @package Luki
  */
-class Luki_Validator_Time extends Luki_Validator_Factory {
+class Time extends basicFactory {
 
 	public $sValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
 	

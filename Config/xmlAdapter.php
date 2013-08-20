@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Config;
+
+use Luki\Config\basicAdapter;
+
 /**
  * Config xml adapter
  * 
  * @package Luki
  */
-class Luki_Config_xmlAdapter extends Luki_Config_basicAdapter implements Luki_Config_Interface {
+class xmlAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
@@ -32,15 +36,11 @@ class Luki_Config_xmlAdapter extends Luki_Config_basicAdapter implements Luki_Co
 	{
         parent::__construct($sFileName);
         
-		if(is_file($sFileName)) {
-			libxml_use_internal_errors(TRUE);
-			$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
-			$this->aConfiguration = json_decode(json_encode($oXML), TRUE);
+		libxml_use_internal_errors(TRUE);
+		$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
+		$this->aConfiguration = json_decode(json_encode($oXML), TRUE);
 
-			unset($oXML);
-		}
-
-		unset($sFileName);
+		unset($sFileName, $oXML);
 	}
 
 	/**
@@ -50,8 +50,6 @@ class Luki_Config_xmlAdapter extends Luki_Config_basicAdapter implements Luki_Co
 	 */
 	public function saveConfiguration()
 	{
-		$bReturn = FALSE;
-
 		$oConfiguration = new DOMDocument('1.0', 'UTF-8');
 		$oConfiguration->preserveWhiteSpace = false;
 		$oConfiguration->formatOutput = true;
@@ -70,9 +68,7 @@ class Luki_Config_xmlAdapter extends Luki_Config_basicAdapter implements Luki_Co
 			$sOutput = $oConfiguration->saveXML();
 		}
 
-		if(file_put_contents($this->sFileName, $sOutput) !== FALSE) {
-			$bReturn = TRUE;
-		}
+        $bReturn = $this->saveToFile($sOutput);
 
 		unset($oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
 		return $bReturn;

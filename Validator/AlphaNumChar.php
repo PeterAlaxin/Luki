@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * AlphaNumChar validator
  * 
  * @package Luki
  */
-class Luki_Validator_AlphaNumChar extends Luki_Validator_Factory {
+class AlphaNumChar extends basicFactory {
 
 	public $sValidator = '/[\r\n\+\-\*\\\.\,\:\;\%\(\)\/\?\!\&\=\_\@\#\$\^\{\}\"\'\|\`\<\>\~áäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ]*/';
 	

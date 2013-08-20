@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * RecordNoExist validator
  * 
  * @package Luki
  */
-class Luki_Validator_RecordNoExist extends Luki_Validator_Factory {
+class RecordNoExist extends basicFactory {
 
 	public $sMessage = 'The record with ID="%value%" exists!';
 

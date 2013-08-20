@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * File class
  *
@@ -24,7 +26,7 @@
  *
  * @package Luki
  */
-class Luki_File {
+class File {
 
 	/**
 	 * Define mime type for file
@@ -39,7 +41,7 @@ class Luki_File {
 		$sMimeType = NULL;
 
 		if(is_file($sFileName)) {
-			$oFileInfo = new finfo(FILEINFO_MIME_TYPE);
+			$oFileInfo = new \finfo(FILEINFO_MIME_TYPE);
 			$sMimeType = $oFileInfo->file($sFileName);
 		}
 

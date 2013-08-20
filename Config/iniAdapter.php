@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Config;
+
+use Luki\Config\basicAdapter;
+
 /**
  * Config ini adapter
  * 
  * @package Luki
  */
-class Luki_Config_iniAdapter extends Luki_Config_basicAdapter implements Luki_Config_Interface {
+class iniAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
@@ -32,9 +36,7 @@ class Luki_Config_iniAdapter extends Luki_Config_basicAdapter implements Luki_Co
 	{
         parent::__construct($sFileName);
         
-		if(is_file($sFileName)) {
-			$this->aConfiguration = parse_ini_file($this->sFileName, TRUE);
-		}
+		$this->aConfiguration = parse_ini_file($this->sFileName, TRUE);
 
 		unset($sFileName);
 	}
@@ -47,8 +49,6 @@ class Luki_Config_iniAdapter extends Luki_Config_basicAdapter implements Luki_Co
 	 */
 	public function saveConfiguration()
 	{
-		$bReturn = FALSE;
-
 		$sOutput = '';
 		foreach ($this->aConfiguration as $sSection => $aSectionValues) {
 			$sOutput .= '[' . $sSection . ']' . chr(10);
@@ -58,9 +58,7 @@ class Luki_Config_iniAdapter extends Luki_Config_basicAdapter implements Luki_Co
 			$sOutput .= chr(10);
 		}
 
-		if(file_put_contents($this->sFileName, $sOutput) !== FALSE) {
-			$bReturn = TRUE;
-		}
+        $bReturn = $this->saveToFile($sOutput);
 
 		unset($sOutput, $sSection, $aSectionValues, $sKey, $sValue);
 		return $bReturn;

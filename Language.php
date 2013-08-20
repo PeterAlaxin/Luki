@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Config;
+
 /**
  * Language class
  *
  * @package Luki
  */
-class Luki_Language {
+class Language {
 
 	private $sLanguagesPath = NULL;
 	private $aLanguages = array();
@@ -83,12 +87,16 @@ class Luki_Language {
 
 	public function addToLanguages($sName, $sFile)
 	{
+        $sAdapter = Config::findAdapter($sFile);
+        
 		if(is_file($sFile)) {
-			$this->aLanguages[$sName] = new Luki_Config($sFile);
+            $oAdapter = new $sAdapter($sFile);
 		}
 		elseif(is_file($this->sLanguagesPath . PATH_SEPARATOR . $sFile)) {
-			$this->aLanguages[$sName] = new Luki_Config($this->sLanguagesPath . PATH_SEPARATOR . $sFile);
+            $oAdapter = new $sAdapter($this->sLanguagesPath . PATH_SEPARATOR . $sFile);
 		}
+
+        $this->aLanguages[$sName] = new Config($oAdapter);
 
 		unset($sName, $sFile);
 	}

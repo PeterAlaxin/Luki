@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Date validator
  * 
  * @package Luki
  */
-class Luki_Validator_Date extends Luki_Validator_Factory {
+class Date extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not valid date!';
 

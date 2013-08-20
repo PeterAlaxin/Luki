@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Phone validator
  * 
  * @package Luki
  */
-class Luki_Validator_Phone extends Luki_Validator_Factory {
+class Phone extends basicFactory {
 
 	public $sValidator = '/^[+]?[0-9\ \/]*$/';
 	

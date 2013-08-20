@@ -17,12 +17,22 @@
  * @filesource
  */
 
+namespace Luki\Config;
+
+use Luki\Config\basicInterface;
+
 /**
  * Basic config adapter
  * 
  * @package Luki
  */
-class Luki_Config_basicAdapter implements Luki_Config_Interface {
+abstract class basicAdapter implements basicInterface {
+
+    const FILE_NOT_EXISTS = 'File "%s" does not exists!';
+
+    const FILE_NOT_READABLE = 'File "%s" is not readable!';
+    
+    const CONFIGURATION_NOT_SAVED = 'File "%s" not saved!';
 
     /**
      * File name
@@ -42,9 +52,22 @@ class Luki_Config_basicAdapter implements Luki_Config_Interface {
 	 */
 	public function __construct($sFileName)
 	{
-		if(is_file($sFileName)) {
-			$this->sFileName = $sFileName;
-		}
+        try {
+            if(is_file($sFileName)) {
+                if(is_readable($sFileName)) {
+                    $this->sFileName = $sFileName;
+                }
+                else {
+                    throw new \Exception(sprintf(self::FILE_NOT_READABLE, $sFileName));
+                }
+            }
+            else {
+                throw new \Exception(sprintf(self::FILE_NOT_EXISTS, $sFileName));
+            }
+        }
+        catch (\Exception $oException) {
+            exit($oException->getMessage());
+        }
 
 		unset($sFileName);
 	}
@@ -120,6 +143,24 @@ class Luki_Config_basicAdapter implements Luki_Config_Interface {
 		unset($sFileName);
 		return $bReturn;		
 	}
+    
+    public function saveToFile($sOutput)
+    {
+        try {
+            $bReturn = FALSE;
+            if(file_put_contents($this->sFileName, $sOutput) !== FALSE) {
+                $bReturn = TRUE;
+            }
+            else {
+                throw new \Exception(sprintf(self::CONFIGURATION_NOT_SAVED, $this->sFileName));
+            }
+        }
+        catch (\Exception $oException) {
+            exit($oException->getMessage());
+        }
+        
+        return $bReturn;
+    }
 
 }
 

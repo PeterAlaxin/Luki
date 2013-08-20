@@ -17,14 +17,19 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\File;
+use Luki\Template\Block;
+
 /**
  * Template class
  *
  * @package Luki
  */
-class Luki_Template {
+class Template {
 
-    protected $sTwigPath = '/var/projects/demo/data/';
+    protected $sTwigPath = '/var/projects/demo/data/twig/';
     protected $sTemplate = '';
     protected $sClass = '';
     protected $sClassContent = '';
@@ -52,9 +57,10 @@ class Luki_Template {
         $this->aData = (array) $aData;
 
         $sTemplateWithoutTwig = preg_replace('/.twig/', '', $sTemplate);
-        $sTemplateWithoutTemplate = preg_replace('/\/template\//', '', $sTemplateWithoutTwig);
-        $sClass = ucwords(preg_replace('/\//', ' ', $sTemplateWithoutTemplate));
-        $this->sClass = 'twig_' . implode('', array_slice(explode(' ', $sClass), -1));
+        $sTemplateWithoutTemplate = preg_replace('/\/template/', '', $sTemplateWithoutTwig);
+        $sClass = ucwords(preg_replace('/\//', ' ', $sTemplateWithoutTemplate));  
+        
+        $this->sClass = implode('', array_slice(explode(' ', $sClass), -2));
         $this->sNewClass = $this->sTwigPath . preg_replace('/_/', '/', $this->sClass) . '.php';
 
         #  if(!file($this->sNewClass) or filectime($this->sTemplate) > filectime($this->sNewClass)) {
@@ -135,12 +141,12 @@ class Luki_Template {
         $this->sClassContent .= self::phpRow('private function _defineFilters()');
         $this->sClassContent .= self::phpRow('{');
 
-        $aFiles = Luki_File::getFilesInDirectory(__DIR__ . '/Template/Filter');
+        $aFiles = File::getFilesInDirectory(__DIR__ . '/Template/Filters');
 
         foreach ($aFiles as $sFile) {
             $sFile = preg_replace('/.php/', '', $sFile);
             $sFilter = strtolower($sFile);
-            $this->sClassContent .= self::phpRow('$this->aFilters["' . $sFilter . '"] = new Luki_Template_Filter_' . $sFile . ';', 2);
+            $this->sClassContent .= self::phpRow('$this->aFilters["' . $sFilter . '"] = new Luki\\Template\\Filters\\' . $sFile . ';', 2);
             $this->aFilters[] = $sFilter;
         }
         $this->sClassContent .= self::phpRow('}', 1, 2);
@@ -153,12 +159,12 @@ class Luki_Template {
         $this->sClassContent .= self::phpRow('private function _defineFunctions()');
         $this->sClassContent .= self::phpRow('{');
 
-        $aFiles = Luki_File::getFilesInDirectory(__DIR__ . '/Template/Function');
+        $aFiles = File::getFilesInDirectory(__DIR__ . '/Template/Functions');
 
         foreach ($aFiles as $sFile) {
             $sFile = preg_replace('/.php/', '', $sFile);
             $sFunction = strtolower($sFile);
-            $this->sClassContent .= self::phpRow('$this->aFunctions["' . $sFunction . '"] = new Luki_Template_Function_' . $sFile . ';', 2);
+            $this->sClassContent .= self::phpRow('$this->aFunctions["' . $sFunction . '"] = new Luki\\Template\\Functions\\' . $sFile . ';', 2);
         }
         $this->sClassContent .= self::phpRow('}', 1, 2);
 
@@ -168,7 +174,7 @@ class Luki_Template {
     private function _defineBlocks()
     {
         $sMainBlock = $this->_parseBlocks($this->sTwig);
-        $this->aBlocks['main'] = new Luki_Template_Block($sMainBlock);
+        $this->aBlocks['main'] = new Block($sMainBlock);
 
         foreach ($this->aBlocks as $sName => $oBlock) {
             $this->sClassContent .= self::phpRow('private function _' . $sName . 'Block()');
@@ -201,8 +207,8 @@ class Luki_Template {
                 preg_match_all('|({% block ' . $aBlock[2] . ' %})([\s\S]*)({% endblock(.*) %})|U', $sBlock, $aBlockMatches, PREG_SET_ORDER);
 
                 foreach ($aBlockMatches as $aSubBlock) {
-                    if(0 === preg_match_all('/{% block (.*) %}/', $aSubBlock[2])) {
-                        $this->aBlocks[$aBlock[2]] = new Luki_Template_Block($aSubBlock);
+                    if(0 === preg_match_all('/{% block (.*) %}/', $aSubBlock[2], $aSubBlockMatches)) {
+                        $this->aBlocks[$aBlock[2]] = new Block($aSubBlock);
                         $sBlock = str_replace($aSubBlock[0], '<?php $this->_' . $aBlock[2] . 'Block(); ?>', $sBlock);
                     }
                 }

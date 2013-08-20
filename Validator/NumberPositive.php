@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Positive number validator
  * 
  * @package Luki
  */
-class Luki_Validator_NumberPositive extends Luki_Validator_Factory {
+class NumberPositive extends basicFactory {
 
 	public $sValidator = '/^[0-9]*[.]?[0-9]*$/';
 	

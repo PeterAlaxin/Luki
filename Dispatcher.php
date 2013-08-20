@@ -17,12 +17,17 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Config;
+use Luki\Request;
+
 /**
  * Dispatcher class
  *
  * @package Luki
  */
-class Luki_Dispatcher {
+class Dispatcher {
     
     private $oCrumb;
     
@@ -37,13 +42,13 @@ class Luki_Dispatcher {
 	/**
 	 * Constructor
 	 */
-	public function __construct(Luki_Dispatcher_Crumb $oCrumb, Luki_Config $oConfig)
+	public function __construct(Request $oRequest, Config $oConfig)
 	{
-        $this->oCrumb = $oCrumb;
+        $this->oCrumb = $oRequest;
         $this->oConfig = $oConfig;
-        $this->aCrumb = $oCrumb->getCrumb();
+        $this->aCrumb = $oRequest->getCrumb();
         
-        unset($oConfig, $oCrumb);
+        unset($oConfig, $oRequest);
     }
     
     public function Dispatch()
@@ -86,7 +91,7 @@ class Luki_Dispatcher {
     
     private function _prepareController($aRoute)
     {
-     	$sController = $aRoute['modul'] . '_' . $aRoute['controller'];
+     	$sController = $aRoute['modul'] . '\\' . $aRoute['controller'];
 		$this->oControler = new $sController;
         
         $aMethods = get_class_methods(get_class($this->oControler));

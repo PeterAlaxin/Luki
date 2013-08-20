@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Length validator
  * 
  * @package Luki
  */
-class Luki_Validator_Length extends Luki_Validator_Factory {
+class Length extends basicFactory {
 
 	public $sMessage = 'The length is not equal "%equal%"!';
 	

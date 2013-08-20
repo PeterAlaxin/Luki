@@ -17,16 +17,20 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Navigation\Item;
+
 /**
  * Navigation class
  *
  * @package Luki
  */
-class Luki_Navigation {
+class Navigation {
 
 	private $aNavigation = array();
 
-	public function addItem($oItem)
+	public function addItem(Item $oItem)
 	{
 		$nParent = $oItem->parent;
 		

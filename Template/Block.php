@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Template;
+
+use Luki\Template\Variable;
+
 /**
  * Template Block class
  *
  * @package Luki
  */
-class Luki_Template_Block {
+class Block {
 
     protected $aBlock;
     protected $sContent = '';
@@ -63,7 +67,7 @@ class Luki_Template_Block {
 
         foreach ($aMatches as $aVariable) {
             if(empty($aVariable[2])) {
-                $this->aVariables[] = new Luki_Template_Variable($aVariable[1]);
+                $this->aVariables[] = new Variable($aVariable[1]);
             }
         }
 

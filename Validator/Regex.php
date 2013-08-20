@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Regex validator
  * 
  * @package Luki
  */
-class Luki_Validator_Regex extends Luki_Validator_Factory {
+class Regex extends basicFactory {
 
 	public $sMessage = 'The value "%value%" does not match regular expression "%regex%"!';
 

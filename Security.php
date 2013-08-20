@@ -17,12 +17,14 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * Security class
  *
  * @package Luki
  */
-class Luki_Security {
+class Security {
 
 	private static $aChars = array(
 		1 => '1234567890',

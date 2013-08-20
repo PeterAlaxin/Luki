@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Psc validator
  * 
  * @package Luki
  */
-class Luki_Validator_Psc extends Luki_Validator_Factory {
+class Psc extends basicFactory {
 
 	public $sValidator = '/^[0-9]{3}[ ]?[0-9]{2}$/';
 	

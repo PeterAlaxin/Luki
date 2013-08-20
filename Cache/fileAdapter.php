@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Cache;
+
+use Luki\Cache\basicInterface;
+
 /**
  * File chache adapter
  * 
  * @package Luki
  */
-class Luki_Cache_fileAdapter implements Luki_Cache_Interface {
+class fileAdapter implements basicInterface {
 
 	private $sPath;
 

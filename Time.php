@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Date;
+
 /**
  * Time class
  *
@@ -24,10 +28,12 @@
  *
  * @package Luki
  */
-class Luki_Time {
+class Time {
 
 	public static $sFormat = 'H:i:s';
+    
 	public static $sTimeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
+    
 	private static $aSections = array();
 
 	/**
@@ -78,7 +84,7 @@ class Luki_Time {
 
 	public static function DateTimeToFormat($dDateTime, $sFormat = 'r')
 	{
-		$dDate = Luki_Date::DateTimeToFormat($dDateTime, $sFormat);
+		$dDate = Date::DateTimeToFormat($dDateTime, $sFormat);
 
 		unset($dDateTime, $sFormat);
 		return $dDate;
@@ -86,7 +92,7 @@ class Luki_Time {
 
 	public static function DateTimeToMicrotime($dDateTime)
 	{
-		$sMicro = Luki_Date::DateTimeToMicrotime($dDateTime);
+		$sMicro = Date::DateTimeToMicrotime($dDateTime);
 
 		unset($dDateTime);
 		return $sMicro;
@@ -97,13 +103,17 @@ class Luki_Time {
 	 * 
 	 * @return float 
 	 */
-	public static function stopwatchStart($sSection = 'default')
+	public static function stopwatchStart($sSection = 'default', $aMicrotime = NULL)
 	{
 		$nReturn = FALSE;
-		
+        
 		if(!empty($sSection)) {
+            if(empty($aMicrotime)) {
+                $aMicrotime = self::explodeMicrotime();
+            }
+            
 			self::$aSections[$sSection] = array(
-				'start' => self::explodeMicrotime(),
+				'start' => $aMicrotime,
 				'stop' => 0,
 				'result' => 0);
 			$nReturn = self::$aSections[$sSection]['start'];

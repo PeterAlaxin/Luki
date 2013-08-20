@@ -17,12 +17,17 @@
  * @filesource
  */
 
+namespace Luki\Navigation\Format;
+
+use Luki\Navigation;
+use Luki\Navigation\Format\basicInterface;
+
 /**
  * Menu Navigation Format
  * 
  * @package Luki
  */
-class Luki_Navigation_Format_Menu implements Luki_Navigation_Format_Interface {
+class Menu implements basicInterface {
 
 	private $sParentLevel = 'ul';
 	private $sParentString = '<%ParentLevel% id="%ParentID%" class="%ParentClass%">%Content%</%ParentLevel%>';
@@ -54,7 +59,7 @@ class Luki_Navigation_Format_Menu implements Luki_Navigation_Format_Interface {
 		'class' => 'sClass',
 	);
 
-	public function __construct($oNavigation)
+	public function __construct(Navigation $oNavigation)
 	{
 		$this->oNavigation = $oNavigation;
 

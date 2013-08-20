@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Navigation;
+
+use Luki\Url;
+
 /**
  * Navigation Item
  * 
  * @package Luki
  */
-class Luki_Navigation_Item {
+class Item {
 
 	private $aItem = array(
 		'id' => 0,
@@ -44,11 +48,19 @@ class Luki_Navigation_Item {
 	 * Constructor
 	 * @param int $nID
 	 */
-	public function __construct($nID)
+	public function __construct($nID, $sLabel='', $sUrl = '')
 	{
 		$this->aItem['id'] = (int) $nID;
+        
+        if(!empty($sLabel)) {
+            $this->label($sLabel);
+        }
 
-		unset($nID);
+        if(!empty($sUrl)) {
+            $this->crumb($sUrl);
+        }
+
+		unset($nID, $sLabel, $sUrl);
 	}
 
 	public function __call($sMethod, $aParam)
@@ -58,7 +70,7 @@ class Luki_Navigation_Item {
 		}
 
 		if('label' == $sMethod) {
-			$this->aItem['crumb'] = Luki_Url::makeLink($aParam[0]);
+			$this->aItem['crumb'] = Url::makeLink($aParam[0]);
 		}
 
 		unset($sMethod, $aParam);

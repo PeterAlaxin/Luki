@@ -17,6 +17,10 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Storage;
+
 /**
  * Session class
  *
@@ -24,9 +28,12 @@
  *
  * @package Luki
  */
-class Luki_Session {
+class Session {
 
-	public static $aLimiters = array('public', 'private_no_expire', 'private', 'nocache');
+	public static $aLimiters = array('public', 
+      'private_no_expire', 
+      'private', 
+      'nocache');
 
 	/**
 	 * Start session
@@ -46,6 +53,10 @@ class Luki_Session {
 		session_start();
 		$sID = session_id();
 
+        if(Storage::isProfiler()) {
+            Storage::Profiler()->Add('Session', $sID);
+        }
+        
 		unset($sType);
 		return $sID;
 	}
@@ -67,7 +78,11 @@ class Luki_Session {
 		session_regenerate_id(TRUE);
 		$aReturn['new'] = session_id();
 
-		return $aReturn;
+        if(Storage::isProfiler()) {
+            Storage::Profiler()->Add('Session', $aReturn['new']);
+        }
+
+        return $aReturn;
 	}
 
 	/**
@@ -92,8 +107,12 @@ class Luki_Session {
 				$sSessionCookie['secure']
 			);
 			$bReturn = TRUE;
-		}
 
+            if(Storage::isProfiler()) {
+                Storage::Profiler()->Add('Session', session_id());
+            }
+		}
+        
 		unset($sSessionCookie, $sSessionName);
 		return $bReturn;
 	}

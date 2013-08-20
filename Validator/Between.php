@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Between validator
  * 
  * @package Luki
  */
-class Luki_Validator_Between extends Luki_Validator_Factory {
+class Between extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not between "%min%" and "%max%"!';
 	

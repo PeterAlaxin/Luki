@@ -17,6 +17,11 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Loader;
+use Luki\Template;
+
 /**
  * Controller class
  *
@@ -24,7 +29,7 @@
  *
  * @package Luki
  */
-class Luki_Controller {
+class Controller {
 
 	protected $bRender = TRUE;
 	protected $aModels = array();
@@ -35,11 +40,11 @@ class Luki_Controller {
 	
 	function __construct()
 	{
-		$aRouteToController = explode('_', get_class($this));
+		$aRouteToController = explode('\\', get_class($this));
 
 		if(!empty($aRouteToController[0]) and !empty($aRouteToController[1])) {
-			$this->addModel($aRouteToController[0] . '_model_' . $aRouteToController[1]);
-			$this->sTemplateName = Luki_Loader::isFile($aRouteToController[0] . '/template/' . $aRouteToController[1] . '.twig');
+			#$this->addModel($aRouteToController[0] . '_model_' . $aRouteToController[1]);
+			$this->sTemplateName = Loader::isFile($aRouteToController[0] . '/template/' . $aRouteToController[1] . '.twig');
 		}
 
 		unset($aRouteToController);
@@ -96,7 +101,7 @@ class Luki_Controller {
 
 	public function addModel($sModel)
 	{
-		$sModelClassFileWithPath = Luki_Loader::isClass($sModel);
+		$sModelClassFileWithPath = Loader::isClass($sModel);
 
 		if(!empty($sModelClassFileWithPath)) {
 			$this->aModels[$sModel] = new $sModel;
@@ -134,7 +139,7 @@ class Luki_Controller {
 			$aData = $this->aData;
 		}
 		
-		$oTemplate = new Luki_Template($sTemplateName, $aData);
+		$oTemplate = new Template($sTemplateName, $aData);
 		$this->sOutput = $oTemplate->Render();
 	}
 	

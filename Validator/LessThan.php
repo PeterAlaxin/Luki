@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * LessThan validator
  * 
  * @package Luki
  */
-class Luki_Validator_LessThan extends Luki_Validator_Factory {
+class LessThan extends basicFactory {
 
 	public $sMessage = 'The value "%value%" not less then "%max%"!';
 	

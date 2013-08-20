@@ -17,12 +17,14 @@
  * @filesource
  */
 
+namespace Luki\Data\MySQL;
+
 /**
  * MySQL Result Iterator class
  *
  * @package Luki
  */
-class Luki_Data_MySQL_Result {
+class Result {
 
 	/**
 	 * Position

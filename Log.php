@@ -17,12 +17,18 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Date;
+use Luki\Log\Format\basicInterface as FormatInterface;
+use Luki\Log\Writer\basicInterface as WriterInterface;
+
 /**
  * Log class
  *
  * @package Luki
  */
-class Luki_Log {
+class Log {
 
 	const EMERGENCY = 0;
 	const ALERT = 1;
@@ -47,10 +53,12 @@ class Luki_Log {
 	private $aValidators = array();
 	private $sTimestampFormat = 'c';
 
-	public function __construct()
+	public function __construct(FormatInterface $oFormat, WriterInterface $oWriter)
 	{
-		$this->oFormat = new Luki_Log_Format_Simple();
-		$this->oWriter = new Luki_Log_Writer_Simple();
+		$this->oFormat = $oFormat;
+		$this->oWriter = $oWriter;
+        
+        unset($oFormat, $oWriter);
 	}
 
 	public function addValidator($sKey, $oValidator)
@@ -63,7 +71,7 @@ class Luki_Log {
 		return $this;
 	}
 
-	public function setFormat($oFormat)
+	public function setFormat(FormatInterface $oFormat)
 	{
 		$this->oFormat = $oFormat;
 
@@ -71,7 +79,7 @@ class Luki_Log {
 		return $this;
 	}
 
-	public function setWriter($oWriter)
+	public function setWriter(WriterInterface $oWriter)
 	{
 		$this->oWriter = $oWriter;
 
@@ -153,7 +161,7 @@ class Luki_Log {
 	private function _Log($sMessage, $nPriority)
 	{
 		$dNow = date('Y-m-d H:i:s');
-		$sTimestampFormat = Luki_Date::DateTimeToFormat($dNow, $this->sTimestampFormat);
+		$sTimestampFormat = Date::DateTimeToFormat($dNow, $this->sTimestampFormat);
 		$bValid = TRUE;
 
 		$aParameters = array(

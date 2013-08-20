@@ -17,6 +17,8 @@
  * @filesource
  */
 
+namespace Luki;
+
 /**
  * Storage class
  *
@@ -24,7 +26,7 @@
  *
  * @package Luki
  */
-class Luki_Storage {
+class Storage {
 
 	/**
 	 * Flag for installed storage
@@ -88,6 +90,20 @@ class Luki_Storage {
 		unset($sName);
 		return $bReturn;
 	}
+    
+     public static function __callStatic($sMethod, $aArguments)
+     {
+         if('is' == substr($sMethod, 0, 2)) {
+             $sVariable = substr($sMethod, 2);
+             $xReturn = self::isSaved($sVariable);
+         }
+         else {
+             $xReturn = self::Get($sMethod);             
+         }
+         
+         unset($sMethod, $aArguments, $sVariable);
+         return $xReturn;
+     }
 
 }
 

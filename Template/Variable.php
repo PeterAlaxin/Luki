@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Template;
+
+use Luki\Template;
+
 /**
  * Template Variable class
  *
  * @package Luki
  */
-class Luki_Template_Variable {
+class Variable {
 
     protected $sContent = '';
     protected $sVariable = '';
@@ -148,8 +152,8 @@ class Luki_Template_Variable {
     {
         $aMatches = array();
 
-        $sFunction = Luki_Template::phpRow('private function _' . $this->sFunctionName . '($xValue)');
-        $sFunction .= Luki_Template::phpRow('{');
+        $sFunction = Template::phpRow('private function _' . $this->sFunctionName . '($xValue)');
+        $sFunction .= Template::phpRow('{');
         foreach ($this->aFilters as $sFilter) {
 
             preg_match_all('|(.*)\((.*)\)|U', $sFilter, $aMatches, PREG_SET_ORDER);
@@ -158,22 +162,22 @@ class Luki_Template_Variable {
 #				if(!in_array($sFilter, $this->aFilters)) {
 #					continue;
 #				}
-                $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);', 2);
+                $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);', 2);
             }
             else {
 #				if(!in_array($aMatches[0][1], $this->aFilters)) {
 #					continue;
 #				}
                 if(empty($aMatches[0][2])) {
-                    $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);', 2);
+                    $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);', 2);
                 }
                 else {
-                    $sFunction .= Luki_Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');', 2);
+                    $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');', 2);
                 }
             }
         }
-        $sFunction .= Luki_Template::phpRow('return $xValue;', 2);
-        $sFunction .= Luki_Template::phpRow('}', 1, 2);
+        $sFunction .= Template::phpRow('return $xValue;', 2);
+        $sFunction .= Template::phpRow('}', 1, 2);
 
         $this->sFunction = $sFunction;
 

@@ -17,12 +17,16 @@
  * @filesource
  */
 
+namespace Luki\Validator;
+
+use Luki\Validator\basicFactory;
+
 /**
  * Url validator
  * 
  * @package Luki
  */
-class Luki_Validator_Url extends Luki_Validator_Factory {
+class Url extends basicFactory {
 
 	public $sMessage = 'The value "%value%" is not valid URL!';
 	

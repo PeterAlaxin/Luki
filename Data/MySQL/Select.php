@@ -17,12 +17,14 @@
  * @filesource
  */
 
+namespace Luki\Data\MySQL;
+
 /**
  * MySQL Select class
  * 
  * @package Luki
  */
-class Luki_Data_MySQL_Select {
+class Select {
 
 	const ALL = 'all';
 	const DISTINCT = 'distinct';

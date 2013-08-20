@@ -17,18 +17,23 @@
  * @filesource
  */
 
+namespace Luki;
+
+use Luki\Data;
+use Luki\Data\basicInterface;
+
 /**
  * Model class
  *
  * @package Luki
  */
-abstract class Luki_Model {
+abstract class Model {
 	
 	public $aData = array();
 	
-	public function addData($sName, Luki_Data_Interface $oDataAdapter)
+	public function addData($sName, basicInterface $oDataAdapter)
 	{
-		$this->aData[$sName] = new Luki_Data($oDataAdapter);
+		$this->aData[$sName] = new Data($oDataAdapter);
 		
 		unset($sName, $oDataAdapter);
 		return $this;
@@ -51,11 +56,8 @@ abstract class Luki_Model {
 		$oAdapter = FALSE;
 
 		if(!empty($aOptions['adapter'])) {
-			$sAdapterName = 'Luki_Data_' . $aOptions['adapter'] . 'Adapter';
-		
-			if(Luki_Loader::isClass($sAdapterName)) {
-				$oAdapter = new $sAdapterName($aOptions);
-			}
+			$sAdapterName = $aOptions['adapter'] . 'Adapter';		
+			$oAdapter = new $sAdapterName($aOptions);
 		}
 		
 		return $oAdapter;
