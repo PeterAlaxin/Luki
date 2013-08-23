@@ -152,7 +152,7 @@ class Variable {
     {
         $aMatches = array();
 
-        $sFunction = Template::phpRow('private function _' . $this->sFunctionName . '($xValue)');
+        $sFunction = Template::phpRow('public function _' . $this->sFunctionName . '($xValue)');
         $sFunction .= Template::phpRow('{');
         foreach ($this->aFilters as $sFilter) {
 

@@ -40,6 +40,7 @@ class Template {
     protected $sNewClass = '';
     protected $aFilters = array();
     protected $aFunctions = array();
+    protected $sExtendedClass = '';
 
     /**
      * Constructor
@@ -87,10 +88,15 @@ class Template {
         $this->sTwig = file_get_contents($this->sTemplate);
 
         $this->_clearComments();
-
+        
+        $this->_extendClass();
         $this->_begin();
-        $this->_defineFilters();
-        $this->_defineFunctions();
+
+        if(empty($this->sExtendedClass)) {
+            $this->_defineFilters();
+            $this->_defineFunctions();
+        }
+        
         $this->_defineBlocks();
         $this->_addFunctions();
         $this->_useBlocks();
@@ -111,24 +117,51 @@ class Template {
         unset($aMatches, $aMatch);
     }
 
+    private function _extendClass()
+    {
+        $aMatches = array();
+        preg_match_all('|{% extends "(.*)" %}|U', $this->sTwig, $aMatches, PREG_SET_ORDER);
+
+        if(!empty($aMatches) and !empty($aMatches[0][1])) {
+            $this->sExtendedClass = $aMatches[0][1];
+        }
+
+        foreach ($aMatches as $aMatch) {
+            $this->sTwig = str_replace($aMatch[0], '', $this->sTwig);
+        }
+
+        unset($aMatches, $aMatch);
+    }
+    
     private function _begin()
     {
         $this->sClassContent = self::phpRow('<?php', 0);
-        $this->sClassContent .= self::phpRow('class ' . $this->sClass, 0);
-        $this->sClassContent .= self::phpRow('{', 0, 2);
-        $this->sClassContent .= self::phpRow('protected $aFilters = array();', 1, 2);
-        $this->sClassContent .= self::phpRow('protected $aFunctions = array();', 1, 2);
-        $this->sClassContent .= self::phpRow('protected $aData = array();', 1, 2);
-        $this->sClassContent .= self::phpRow('public function __construct($aData)');
-        $this->sClassContent .= self::phpRow('{');
-        $this->sClassContent .= self::phpRow('$this->aData = $aData;', 2);
-        $this->sClassContent .= self::phpRow('$this->_defineFilters();', 2);
-        $this->sClassContent .= self::phpRow('$this->_defineFunctions();', 2);
-        $this->sClassContent .= self::phpRow('}', 1, 2);
-        $this->sClassContent .= self::phpRow('public function Render()');
-        $this->sClassContent .= self::phpRow('{');
-        $this->sClassContent .= self::phpRow('$this->_mainBlock();', 2);
-        $this->sClassContent .= self::phpRow('}', 1, 2);
+        
+        if(!empty($this->sExtendedClass)) {
+            $this->sClassContent .= self::phpRow('class ' . $this->sClass . ' extends ' . $this->sExtendedClass, 0);
+            $this->sClassContent .= self::phpRow('{', 0, 2);
+            $this->sClassContent .= self::phpRow('public function __construct($aData)');
+            $this->sClassContent .= self::phpRow('{');
+            $this->sClassContent .= self::phpRow('parent::__construct($aData);', 2);
+            $this->sClassContent .= self::phpRow('}', 1, 2);
+        }
+        else {          
+            $this->sClassContent .= self::phpRow('class ' . $this->sClass, 0);
+            $this->sClassContent .= self::phpRow('{', 0, 2);
+            $this->sClassContent .= self::phpRow('public $aFilters = array();', 1, 2);
+            $this->sClassContent .= self::phpRow('public $aFunctions = array();', 1, 2);
+            $this->sClassContent .= self::phpRow('public $aData = array();', 1, 2);
+            $this->sClassContent .= self::phpRow('public function __construct($aData)');
+            $this->sClassContent .= self::phpRow('{');
+            $this->sClassContent .= self::phpRow('$this->aData = $aData;', 2);
+            $this->sClassContent .= self::phpRow('$this->_defineFilters();', 2);
+            $this->sClassContent .= self::phpRow('$this->_defineFunctions();', 2);
+            $this->sClassContent .= self::phpRow('}', 1, 2);
+            $this->sClassContent .= self::phpRow('public function Render()');
+            $this->sClassContent .= self::phpRow('{');
+            $this->sClassContent .= self::phpRow('$this->_mainBlock();', 2);
+            $this->sClassContent .= self::phpRow('}', 1, 2);
+        }        
     }
 
     private function _end()
@@ -138,7 +171,7 @@ class Template {
 
     private function _defineFilters()
     {
-        $this->sClassContent .= self::phpRow('private function _defineFilters()');
+        $this->sClassContent .= self::phpRow('public function _defineFilters()');
         $this->sClassContent .= self::phpRow('{');
 
         $aFiles = File::getFilesInDirectory(__DIR__ . '/Template/Filters');
@@ -156,7 +189,7 @@ class Template {
 
     private function _defineFunctions()
     {
-        $this->sClassContent .= self::phpRow('private function _defineFunctions()');
+        $this->sClassContent .= self::phpRow('public function _defineFunctions()');
         $this->sClassContent .= self::phpRow('{');
 
         $aFiles = File::getFilesInDirectory(__DIR__ . '/Template/Functions');
@@ -174,12 +207,16 @@ class Template {
     private function _defineBlocks()
     {
         $sMainBlock = $this->_parseBlocks($this->sTwig);
-        $this->aBlocks['main'] = new Block($sMainBlock);
-
+        
+        if(empty($this->sExtendedClass)) {
+            $this->aBlocks['main'] = new Block($sMainBlock);
+        }
+        
         foreach ($this->aBlocks as $sName => $oBlock) {
-            $this->sClassContent .= self::phpRow('private function _' . $sName . 'Block()');
+            $sBlockContent = $this->_getContent($sName, $oBlock);
+            $this->sClassContent .= self::phpRow('public function _' . $sName . 'Block()');
             $this->sClassContent .= self::phpRow('{');
-            $this->sClassContent .= self::phpRow(' ?>' . $oBlock->getContent() . '<?php ', 2);
+            $this->sClassContent .= self::phpRow(' ?>' . $sBlockContent . '<?php ', 2);
             $this->sClassContent .= self::phpRow('}', 1, 2);
 
             $this->aVariables = array_merge($this->aVariables, $oBlock->getVariables());
@@ -188,6 +225,20 @@ class Template {
         unset($sName, $oBlock, $sMainBlock);
     }
 
+    private function _getContent($sName, $oBlock)
+    {
+        if(empty($this->sExtendedClass)) {
+            $sContent = preg_replace('/{% parent %}/', '', $oBlock->getContent());
+        }
+        else {
+            $sContent = preg_replace('/{% parent %}/', self::phpRow('<?php parent::_' . $sName . 'Block(); ?>'), $oBlock->getContent());            
+        }
+        
+        unset($sName, $oBlock);
+        
+        return $sContent;
+    }
+    
     private function _parseBlocks($sBlock)
     {
         $aStartMatches = array();
