@@ -19,6 +19,7 @@
 
 namespace Luki\Template;
 
+use Luki\Template;
 use Luki\Template\Variable;
 
 /**
@@ -32,6 +33,7 @@ class Block {
     protected $sContent = '';
     protected $sTransformedContent = '';
     protected $aVariables = array();
+    protected $aOperators = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
 
     public function __construct($Block)
     {
@@ -45,8 +47,11 @@ class Block {
         }
 
         $this->_defineVariables();
+        $this->_setVariables();
+        $this->_forBlock();
+        $this->_ifBlock();
         $this->_transformVariables();
-
+                
         unset($Block);
     }
 
@@ -74,6 +79,16 @@ class Block {
         unset($aMatches, $aVariable);
     }
 
+    private function _setVariables()
+    {
+        $aMatches = array();
+        preg_match_all('|{% set (.*) = (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+
+        foreach($aMatches as $aMatch) {
+            $this->sContent = str_replace($aMatch[0], '<?php $this->aData["' . $aMatch[1] . '"] = ' . $aMatch[2] . '; ?>', $this->sContent);
+        }
+    }
+
     private function _transformVariables()
     {
         $this->sTransformedContent = $this->sContent;
@@ -84,6 +99,80 @@ class Block {
         unset($oVariable);
     }
 
+    private function _forBlock()
+    {
+        $aMatches = array();
+        preg_match_all('|{% for (.*) in (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+
+        foreach($aMatches as $aMatch) {
+            $this->aVariables[] = new Variable($aMatch[1]);
+            
+            $oVariable = new Variable($aMatch[2]);            
+            $this->aVariables[] = $oVariable;
+            
+            $sFor = Template::phpRow('<?php '); 
+            $sFor .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $oVariable->getVariable() . ';', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["length"] = count($this->aData["loop"]["variable"]);', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2); 
+            $sFor .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $aMatch[1] . '"]) {', 2);
+            $sFor .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["revindex"]--;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["revindex1"]--;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["first"] = $this->aData["loop"]["index"] == 0 ? TRUE : FALSE;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["last"] = $this->aData["loop"]["index1"] == $this->aData["loop"]["length"] ? TRUE : FALSE;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["even"] = $this->aData["loop"]["index1"]/2 == round($this->aData["loop"]["index1"]/2) ? TRUE : FALSE;', 3);
+            $sFor .= Template::phpRow('$this->aData["loop"]["odd"] = !$this->aData["loop"]["even"]', 3);
+            $sFor .= Template::phpRow(' ?>', 1); 
+            
+            $this->sContent = str_replace($aMatch[0], $sFor, $this->sContent);
+        }
+        
+        $sEndFor = Template::phpRow('<?php }'); 
+        $sEndFor .= '$this->aData["loop"] = array_pop($this->aLoop);';
+        $sEndFor .= Template::phpRow(' ?>', 1); 
+        $this->sContent = str_replace('{% endfor %}', $sEndFor, $this->sContent);
+        
+        unset($aMatches, $aMatch, $oVariable, $sFor, $sEndFor);
+    }
+
+    private function _ifBlock()
+    {
+        $aMatches = array();
+        preg_match_all('/{% if (.+\w) %}/U', $this->sContent, $aMatches, PREG_SET_ORDER);
+
+        foreach($aMatches as $aMatch) {
+            $aSubMatches = array();
+            preg_match_all('/\(|\)|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_]*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
+
+            $sCondition = '';
+            
+            foreach($aSubMatches as $aSubMatch) {
+                if(in_array($aSubMatch[0], $this->aOperators) or is_numeric($aSubMatch[0])) {
+                    $sCondition .= $aSubMatch[0]; 
+                }
+                elseif(empty($aSubMatch[0])) {
+                    $sCondition .= ' ';
+                }
+                else {
+                     $oVariable = new Variable($aSubMatch[0]);            
+                     $this->aVariables[] = $oVariable;
+                     $sCondition .= $oVariable->getVariable();
+                }
+            }            
+        
+            $this->sContent = str_replace($aMatch[0], Template::phpRow('<?php if(' . trim($sCondition) . ') { ?>'), $this->sContent);
+        }        
+        
+        $this->sContent = str_replace('{% else %}', Template::phpRow('<?php } else { ?>'), $this->sContent);
+        $this->sContent = str_replace('{% endif %}', Template::phpRow('<?php } ?>'), $this->sContent);
+        
+        unset($aMatch, $aMatches);
+    }
 }
 
 # End of file

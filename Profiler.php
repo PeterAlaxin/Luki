@@ -47,13 +47,14 @@ class Profiler {
     
     function __destruct() 
     {
-        Time::stopwatchStop('Luki_Profiler_PageTimer') ;
+        Time::stopwatchStop('Luki_Profiler_PageTimer');
         $nMemory = memory_get_usage();
         
         $this->_startProfiler();
         $this->_insideCell('Page time', round(Time::getStopwatch('Luki_Profiler_PageTimer'), 4) . ' s');
         $this->_showMemory($nMemory);
         $this->_showSession();
+        $this->_showTemplate();
         $this->_endProfiler();
     }
     
@@ -95,6 +96,25 @@ class Profiler {
         $this->_insideCell('Session', count($aSession) . 'x', $sHidden);
     }
     
+    private function _showTemplate()
+    {
+        $nTimes = 0;
+        
+        if(!empty($this->_profiler['Template'])) {
+            $aTemplates = $this->_profiler['Template'];
+            $sHidden = '<table>';
+            foreach($aTemplates as $aTemplate) {
+                $nTime = round($aTemplate['time'], 4);
+                $nTimes += $nTime;
+                $sHidden .= '<tr><td>' . $aTemplate['name'] . ':</td>';
+                $sHidden .= '<td>' . $nTime . ' s</td></tr>';
+            }
+            $sHidden .= '</table>';
+        }
+        
+        $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' s)', $sHidden);
+    }
+    
     private function _startProfiler()
     {
         echo '<div style="width: 100%; min-height: 20px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px;">';
@@ -104,16 +124,17 @@ class Profiler {
     private function _endProfiler()
     {
         echo '</div>';        
+#        echo '</body></html>';        
     }
     
     private function _insideCell($sTitle, $sContent, $sHidden=NULL)
     {
         echo '<div style="padding: 10px 5px; float: left; border-right: 1px solid #000; text-align: center;';
         
-        if(!empty($sHidden) and FALSE) {
+        if(!empty($sHidden) and TRUE) {
             $sRandom = str_shuffle('acdefghijklmnopqrstuvwxz');
-            echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $sRandom . '\'); if(el.style.display == \'none\') { el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
-            echo '<p class="subProfiler" id="' . $sRandom . '" style="border: 1px solid green; position: fixed; bottom: 23px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee;"><b>' . $sTitle . '</b><br />' . $sHidden . '</p>';
+            echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $sRandom . '\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
+            echo '<div class="subProfiler" id="' . $sRandom . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee;"><b>' . $sTitle . '</b><br />' . $sHidden . '</div>';
         }
         else {
             echo '">';

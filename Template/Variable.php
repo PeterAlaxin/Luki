@@ -35,6 +35,7 @@ class Variable {
     protected $sTransformedVariable = '';
     protected $sCode = '';
     protected $aFilters = array();
+    protected $sFinalVariable = '';
 
     public function __construct($sContent)
     {
@@ -42,7 +43,7 @@ class Variable {
 
         $this->_prepareFilters();
         $this->_transformVariable();
-        $this->_prepareCode();
+        $this->_prepareVariable();
 
         unset($sContent);
     }
@@ -69,25 +70,21 @@ class Variable {
         return $this->sFunction;
     }
 
+    public function getVariable()
+    {
+        return $this->sFinalVariable;
+    }
+
     private function _prepareFilters()
     {
         if(strpos($this->sContent, '|')) {
             $this->aFilters = explode('|', $this->sContent);
             $this->sVariable = array_shift($this->aFilters);
-
-            $this->_prepareFunctionName();
+            $this->sFunctionName = 'fnc_' . sha1($this->sContent);
         }
         else {
             $this->sVariable = $this->sContent;
         }
-    }
-
-    private function _prepareFunctionName()
-    {
-        $sFilters = implode('|', $this->aFilters);
-        $this->sFunctionName = 'fnc_' . sha1($sFilters);
-
-        unset($sFilters);
     }
 
     private function _transformVariable()
@@ -125,29 +122,79 @@ class Variable {
 
     private function _stringToVariable($sString)
     {
-        if(!preg_match('/[\'"]/', $sString) and !is_numeric($sString)) {
-            $sString = '$this->aData["' . $sString . '"]';
-        }
-
-        return $sString;
-    }
-
-    private function _prepareCode()
-    {
-        $sCode = '<?php echo ';
-        if(!empty($this->aFilters)) {
-            $sCode .= '$this->_' . $this->sFunctionName . '(' . $this->sTransformedVariable . ');';
+        $aTypes = array('RangeOperator' => '/^(.*)\.\.(.*)$/',
+          'SubArray' => '/^(.*)\.(.*)$/',
+          'Range' => '/^range\((.*)\)$/',
+          'Random' => '/^random\((.*)\)$/'
+          );
+        $sReturnString = '';
+        
+        if(!preg_match('/^[\'"]/', $sString) and !is_numeric($sString)) {
+            
+            foreach($aTypes as $sType => $sRegexp) {
+                $aMatches = array();
+                preg_match($sRegexp, $this->sVariable, $aMatches);
+                
+                if(!empty($aMatches)) {
+                    switch($sType) {
+                        case 'Random':
+                            $sReturnString = '$this->aFunctions["random"]->Get(' . $aMatches[1] . ')';
+                            break;
+                        case 'Range':
+                            $sReturnString = '$this->aFunctions["range"]->Get(' . $aMatches[1] . ')';
+                            break;
+                        case 'SubArray':
+                            $sReturnString = '$this->aData["' . $aMatches[1] . '"]["' . $aMatches[2] . '"]';                
+                            break;
+                        case 'RangeOperator':
+                            $aRange = explode('..', $sString);
+                            $aNewArray = array();
+                            if(is_numeric($aRange[0])) {
+                                $nMin = min($aRange[0], $aRange[1]);
+                                $nMax = max($aRange[0], $aRange[1]);
+                                for($i = $nMin; $i <= $nMax; $i++) {
+                                    $aNewArray[] = $i;
+                                }
+                            }
+                            else {
+                                $nMin = min(ord($aRange[0]), ord($aRange[1]));
+                                $nMax = max(ord($aRange[0]), ord($aRange[1]));
+                                for($i = $nMin; $i <= $nMax; $i++) {
+                                    $aNewArray[] = chr($i);
+                                }
+                            }
+                            $sReturnString = 'array("' . implode('","', $aNewArray) . '")';
+                            break;
+                    }
+                    
+                    break;
+                }
+            }
+            
+            if(empty($sReturnString)) {
+                $sReturnString = '$this->aData["' . $sString . '"]';
+            }    
         }
         else {
-            $sCode .= $this->sTransformedVariable . ';';
+            $sReturnString = $sString;
         }
-        $sCode .= ' ?>';
-
-        $this->sCode = $sCode;
-
-        unset($sCode);
+        
+        unset($aMatches, $aRange, $sString, $sType, $sRegexp);
+        return $sReturnString;
     }
 
+    private function _prepareVariable()
+    {
+        if(!empty($this->aFilters)) {
+             $this->sFinalVariable = '$this->_' . $this->sFunctionName . '(' . $this->sTransformedVariable . ')';
+        }
+        else {
+            $this->sFinalVariable = $this->sTransformedVariable;
+        }
+
+        $this->sCode = '<?php echo ' . $this->sFinalVariable . '; ?>';
+    }
+    
     private function _prepareFunction()
     {
         $aMatches = array();

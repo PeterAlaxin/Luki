@@ -43,7 +43,6 @@ class Controller {
 		$aRouteToController = explode('\\', get_class($this));
 
 		if(!empty($aRouteToController[0]) and !empty($aRouteToController[1])) {
-			#$this->addModel($aRouteToController[0] . '_model_' . $aRouteToController[1]);
 			$this->sTemplateName = Loader::isFile($aRouteToController[0] . '/template/' . $aRouteToController[1] . '.twig');
 		}
 

@@ -21,6 +21,7 @@ namespace Luki;
 
 use Luki\File;
 use Luki\Template\Block;
+use Luki\Time;
 
 /**
  * Template class
@@ -62,11 +63,16 @@ class Template {
         $sClass = ucwords(preg_replace('/\//', ' ', $sTemplateWithoutTemplate));  
         
         $this->sClass = implode('', array_slice(explode(' ', $sClass), -2));
+        
+        if(Storage::isProfiler()) {
+            Time::stopwatchStart('Luki_Template_' . $this->sClass);
+        }
+
         $this->sNewClass = $this->sTwigPath . preg_replace('/_/', '/', $this->sClass) . '.php';
 
-        #  if(!file($this->sNewClass) or filectime($this->sTemplate) > filectime($this->sNewClass)) {
-        $this->_generateTemplate();
-        #  }
+        if(!file($this->sNewClass) or filectime($this->sTemplate) != filectime($this->sNewClass)) {
+            $this->_generateTemplate();
+        }
 
         unset($sTemplate, $sTemplateWithoutTwig, $sTemplateWithoutTemplate, $aData, $sClass);
     }
@@ -80,6 +86,11 @@ class Template {
         $sOutput = ob_get_contents();
         ob_end_clean();
         
+        if(Storage::isProfiler()) {
+            Time::stopwatchStop('Luki_Template_' . $this->sClass);
+            Storage::Profiler()->Add('Template', array('name' => $this->sClass, 'time' => Time::getStopwatch('Luki_Template_' . $this->sClass)));
+        }
+
         return $sOutput;
     }
 
@@ -151,9 +162,11 @@ class Template {
             $this->sClassContent .= self::phpRow('public $aFilters = array();', 1, 2);
             $this->sClassContent .= self::phpRow('public $aFunctions = array();', 1, 2);
             $this->sClassContent .= self::phpRow('public $aData = array();', 1, 2);
+            $this->sClassContent .= self::phpRow('public $aLoop = array();', 1, 2);
             $this->sClassContent .= self::phpRow('public function __construct($aData)');
             $this->sClassContent .= self::phpRow('{');
             $this->sClassContent .= self::phpRow('$this->aData = $aData;', 2);
+            $this->sClassContent .= self::phpRow('$this->aData["loop"] = array();', 2);
             $this->sClassContent .= self::phpRow('$this->_defineFilters();', 2);
             $this->sClassContent .= self::phpRow('$this->_defineFunctions();', 2);
             $this->sClassContent .= self::phpRow('}', 1, 2);
@@ -249,7 +262,7 @@ class Template {
         preg_match_all('|({% endblock(.*) %})|U', $sBlock, $aEndMatches, PREG_SET_ORDER);
 
         if(count($aStartMatches) != count($aEndMatches)) {
-            echo 'Template error';
+            echo 'Template error in block counts';
             exit;
         }
 

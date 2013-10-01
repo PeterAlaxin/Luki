@@ -66,9 +66,11 @@ class Range {
 			$aRange = array_reverse($aRange);
 		}
 		
-		$sReturn = "json_decode('" . json_encode($aRange) . "')";
+        return $aRange;
+        
+		#$sReturn = "json_decode('" . json_encode($aRange) . "')";
 		
-		return $sReturn;
+		#return $sReturn;
 	}
 }
 
