@@ -28,6 +28,7 @@ use Luki\Profiler;
 use Luki\Request;
 use Luki\Session;
 use Luki\Storage;
+use Luki\Template;
 use Luki\Time;
 
 /**
@@ -56,6 +57,7 @@ class Starter {
         self::initSession();
         self::initCache();
         self::initDatabase();
+        self::initTemplate();
 
         self::dispatchURL();
         
@@ -145,9 +147,19 @@ class Starter {
             foreach($aDatabases as $sName => $aDatabase) {
                 $sAdapter = Data::findAdapter($aDatabase['adapter']);  
                 $oAdapter = new $sAdapter($aDatabase);
-                Storage::Set($sName, new Data($oAdapter));
+                Storage::Set($sName, $oAdapter);
             }
         }
+        
+        unset($aDatabases, $sName, $aDatabase, $sAdapter, $oAdapter);
+    }
+
+    public static function initTemplate()
+    {
+        $sPath = self::$oConfiguration->getValue('twigPath', 'definition'); 
+        Template::setPath($sPath);
+        
+        unset($sPath);
     }
 
     public static function initSession()

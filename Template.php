@@ -21,6 +21,7 @@ namespace Luki;
 
 use Luki\File;
 use Luki\Template\Block;
+use Luki\Template\Filters\Capitalize;
 use Luki\Time;
 
 /**
@@ -30,7 +31,7 @@ use Luki\Time;
  */
 class Template {
 
-    protected $sTwigPath = '/var/projects/demo/data/twig/';
+    protected static $sTwigPath = '';
     protected $sTemplate = '';
     protected $sClass = '';
     protected $sClassContent = '';
@@ -68,8 +69,7 @@ class Template {
             Time::stopwatchStart('Luki_Template_' . $this->sClass);
         }
 
-        $this->sNewClass = $this->sTwigPath . preg_replace('/_/', '/', $this->sClass) . '.php';
-
+        $this->sNewClass = self::$sTwigPath . preg_replace('/_/', '/', $this->sClass) . '.php';
         if(!file($this->sNewClass) or filectime($this->sTemplate) != filectime($this->sNewClass)) {
             $this->_generateTemplate();
         }
@@ -77,6 +77,11 @@ class Template {
         unset($sTemplate, $sTemplateWithoutTwig, $sTemplateWithoutTemplate, $aData, $sClass);
     }
 
+    public static function setPath($sNewPath)
+    {
+        self::$sTwigPath = $sNewPath;
+    }
+    
     public function Render()
     {
         $oTemplateClass = new $this->sClass($this->aData);
@@ -134,14 +139,23 @@ class Template {
         preg_match_all('|{% extends "(.*)" %}|U', $this->sTwig, $aMatches, PREG_SET_ORDER);
 
         if(!empty($aMatches) and !empty($aMatches[0][1])) {
-            $this->sExtendedClass = $aMatches[0][1];
+            
+            $aExtended = explode('/', $aMatches[0][1]);
+            $sExtendedClass = Loader::isFile($aExtended[0] . '/template/' . $aExtended[1] . '.twig');
+            $oTemplate = new Template($sExtendedClass, array()); 
+            
+            foreach($aExtended as $nKey => $sExtended) {
+                $aExtended[$nKey] = Capitalize::Get($sExtended);
+            }
+            
+            $this->sExtendedClass = implode('', $aExtended);
         }
 
         foreach ($aMatches as $aMatch) {
             $this->sTwig = str_replace($aMatch[0], '', $this->sTwig);
         }
 
-        unset($aMatches, $aMatch);
+        unset($aMatches, $aMatch, $aExtended, $sExtendedClass, $oTemplate, $nKey, $sExtended);
     }
     
     private function _begin()
