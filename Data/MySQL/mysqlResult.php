@@ -26,7 +26,7 @@ use Luki\Data\MySQL\Result as Result;
  *
  * @package Luki
  */
-class mysqlResult extends Result implements Iterator {
+class mysqlResult extends Result implements \Iterator {
 
 	/**
 	 * Constructor
