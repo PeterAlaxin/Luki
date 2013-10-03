@@ -41,24 +41,28 @@ class Url {
 		$sLink = '';
 
 		if(is_string($xLink)) {
-			$sLink = html_entity_decode($xLink, ENT_QUOTES, 'UTF-8');
-			$sLink = preg_replace('/[^a-z0-9- ]/i', '-', $sLink);
-			$sLink = preg_replace('/ /', '-', $sLink);
-			$sLink = strtolower($sLink);
+            $sLink = mb_strtolower($xLink, 'UTF-8');                
+            $sLink = html_entity_decode($sLink, ENT_QUOTES, 'UTF-8');
+            $sLink = preg_replace("/[^a-z0-9-._~:?#[\]@!$&'()*+:=ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǺǻǼǽǾǿ]/u", '-', $sLink);
+            $sLink = str_replace('&', '-and-', $sLink);
+            $sLink = urlencode($sLink);
+            $sLink = str_replace('+', '-', $sLink);
+            $sLink = preg_replace('/--+/u', '-', $sLink);
+            $sLink = trim($sLink, '.-_');
+            $sLink = urldecode($sLink);
+            
 		}
 		elseif(is_array($xLink)) {
 
 			foreach ($xLink as $xLinkPart) {
 				$sLink .= self::makeLink((string) $xLinkPart) . '/';
 			}
-
-			unset($xLinkPart);
 		}
 		else {
 			$sLink = self::makeLink((string) $xLink);
 		}
 
-		unset($xLink);
+		unset($xLink, $xLinkPart);
 		return $sLink;
 	}
 

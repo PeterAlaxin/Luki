@@ -55,6 +55,7 @@ class Profiler {
         $this->_showMemory($nMemory);
         $this->_showSession();
         $this->_showTemplate();
+        $this->_showData();
         $this->_endProfiler();
     }
     
@@ -107,12 +108,31 @@ class Profiler {
                 $nTime = round($aTemplate['time'], 4);
                 $nTimes += $nTime;
                 $sHidden .= '<tr><td>' . $aTemplate['name'] . ':</td>';
-                $sHidden .= '<td>' . $nTime . ' s</td></tr>';
+                $sHidden .= '<td>' . $nTime . '&nbsp;s</td></tr>';
             }
             $sHidden .= '</table>';
         }
         
         $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' s)', $sHidden);
+    }
+    
+    private function _showData()
+    {
+        $nTimes = 0;
+        
+        if(!empty($this->_profiler['Data'])) {
+            $aDatas = $this->_profiler['Data'];
+            $sHidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            foreach($aDatas as $aData) {
+                $nTime = round($aData['time'], 4);
+                $nTimes += $nTime;
+                $sHidden .= '<tr><td>' . $aData['sql'] . '</td>';
+                $sHidden .= '<td>' . $nTime . '&nbsp;s</td></tr>';
+            }
+            $sHidden .= '</table>';
+        }
+        
+        $this->_insideCell('Data', count($aDatas) . 'x (' . $nTimes . ' s)', $sHidden);
     }
     
     private function _startProfiler()
@@ -134,7 +154,7 @@ class Profiler {
         if(!empty($sHidden) and TRUE) {
             $sRandom = str_shuffle('acdefghijklmnopqrstuvwxz');
             echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $sRandom . '\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
-            echo '<div class="subProfiler" id="' . $sRandom . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee;"><b>' . $sTitle . '</b><br />' . $sHidden . '</div>';
+            echo '<div class="subProfiler" id="' . $sRandom . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee; max-height: 300px; overflow: auto;"><b>' . $sTitle . '</b><br />' . $sHidden . '</div>';
         }
         else {
             echo '">';

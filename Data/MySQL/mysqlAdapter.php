@@ -22,6 +22,8 @@ namespace Luki\Data\MySQL;
 use Luki\Data\MySQL\basicAdapter;
 use Luki\Data\MySQL\Select as Select;
 use Luki\Data\MySQL\mysqlResult as Result;
+use Luki\Storage;
+use Luki\Time;
 
 /**
  * MySQL data adapter
@@ -70,8 +72,17 @@ class mysqlAdapter extends basicAdapter {
 	
 	public function Query($sSQL)
 	{
+        if(Storage::isProfiler()) {
+            Time::stopwatchStart('Luki_Data_MySQL_MySQL');
+        }
+
 		$oResult = mysql_query((string)$sSQL, $this->rConnection);
 		
+        if(Storage::isProfiler()) {
+            Time::stopwatchStop('Luki_Data_MySQL_MySQL');
+            Storage::Profiler()->Add('Data', array('sql' => (string)$sSQL, 'time' => Time::getStopwatch('Luki_Data_MySQL_MySQL')));
+        }
+
 		if(is_resource($oResult)) {
 			$oResult = new Result($oResult);
 		}

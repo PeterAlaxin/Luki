@@ -208,7 +208,7 @@ class Request {
             $sFile = basename($this->getScriptName());
             $this->baseUrl = ltrim(preg_replace('/' . $sFile . '/', '', $this->scriptName), '/');
         }
-        
+
         unset($sFile);
         return $this->baseUrl;
     }
@@ -244,7 +244,7 @@ class Request {
         if(is_null($this->url)) {
             $aFrom = array('/' . $this->getBaseUrl(),
                            '?' . $this->getQueryString());
-            $this->url = $this->getRequestUri();
+            $this->url = urldecode($this->getRequestUri());
 
             foreach($aFrom as $sItem) {
                 $this->url = str_replace($sItem, '', $this->url);

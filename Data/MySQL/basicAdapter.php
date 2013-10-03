@@ -53,6 +53,9 @@ abstract class basicAdapter implements basicInterface {
 			if(!$bFirst) {
 				$sSQL .= ', ';
 			}
+            else {
+                $bFirst = FALSE;
+            }
 			
 			$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
 		}
@@ -63,7 +66,7 @@ abstract class basicAdapter implements basicInterface {
 			$this->saveLastID($sTable);
 		}
 		
-		unset($sTable, $aValues, $sKey, $sValue, $sSQL, $bFirst, $oResultLast);
+		unset($sTable, $aValues, $sKey, $sValue, $sSQL, $bFirst);
 		return $oResult;
 	}
 	
@@ -80,6 +83,9 @@ abstract class basicAdapter implements basicInterface {
 				if(!$bFirst) {
 					$sSQL .= ', ';
 				}
+                else {
+                    $bFirst = FALSE;
+                }
 
 				$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
 			}
@@ -92,6 +98,9 @@ abstract class basicAdapter implements basicInterface {
 					if(!$bFirst) {
 						$sSQL .= ' AND ';
 					}
+                    else {
+                        $bFirst = FALSE;
+                    }
 
 					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
 				}
@@ -115,7 +124,6 @@ abstract class basicAdapter implements basicInterface {
 		
 		if(!empty($sTable)) {
 					
-			$bFirst = TRUE;
 			$sSQL = 'DELETE FROM `' . $sTable . '`';
 
 			if(!empty($aWhere)) {
@@ -126,6 +134,9 @@ abstract class basicAdapter implements basicInterface {
 					if(!$bFirst) {
 						$sSQL .= ' AND ';
 					}
+                    else {
+                        $bFirst = FALSE;
+                    }
 
 					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
 				}
