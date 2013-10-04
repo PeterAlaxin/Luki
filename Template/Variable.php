@@ -206,20 +206,24 @@ class Variable {
             preg_match_all('|(.*)\((.*)\)|U', $sFilter, $aMatches, PREG_SET_ORDER);
 
             if(empty($aMatches)) {
-#				if(!in_array($sFilter, $this->aFilters)) {
-#					continue;
-#				}
                 $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $sFilter . '"]->Get($xValue);', 2);
             }
             else {
-#				if(!in_array($aMatches[0][1], $this->aFilters)) {
-#					continue;
-#				}
                 if(empty($aMatches[0][2])) {
                     $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue);', 2);
                 }
                 else {
-                    $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $aMatches[0][2] . ');', 2);
+                    $sParam = $aMatches[0][2];
+                    $aSubMatches = array();
+                    preg_match('/^[\[{](.*)[\]}]$/', $sParam, $aSubMatches);
+
+                    if(count($aSubMatches) > 0) {
+                        $sParam = preg_replace('/[\[{]/', 'array(', $sParam);
+                        $sParam = preg_replace('/: /', ' => ', $sParam);
+                        $sParam = preg_replace('/[\]}]/', ')', $sParam);
+                    }
+
+                    $sFunction .= Template::phpRow('$xValue = $this->aFilters["' . $aMatches[0][1] . '"]->Get($xValue, ' . $sParam . ');', 2);
                 }
             }
         }
@@ -228,7 +232,7 @@ class Variable {
 
         $this->sFunction = $sFunction;
 
-        unset($sFunction, $sFilter, $aMatches);
+        unset($sFunction, $sFilter, $aMatches, $aSubMatches, $sParam);
     }
 
 }
