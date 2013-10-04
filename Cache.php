@@ -75,12 +75,16 @@ class Cache {
 		return $this->nExpiration;
 	}
 
-	public function Set($sKey, $sValue = '')
+	public function Set($sKey, $sValue = '', $nExpiration = NULL)
 	{
+        if(is_null($nExpiration)) {
+            $nExpiration = $this->nExpiration;
+        }
+        
 		if(is_array($sKey)) {
 			$aKeyValues = $sKey;
 			foreach ($aKeyValues as $sKey => $sValue) {
-				$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $this->nExpiration);
+				$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $nExpiration);
 
 				if(!$bReturn) {
 					break;
@@ -88,10 +92,10 @@ class Cache {
 			}
 		}
 		else {
-			$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $this->nExpiration);
+			$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $nExpiration);
 		}
 
-		unset($sKey, $sValue, $aKeyValues);
+		unset($sKey, $sValue, $aKeyValues, $nExpiration);
 		return $bReturn;
 	}
 
