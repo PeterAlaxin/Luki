@@ -26,8 +26,12 @@ namespace Luki\Template\Filters;
  */
 class Date {
 
-	public function Get($dValue, $sFormat = 'd.m.Y', $sTimezone = 'Europe/Berlin')
+	public function Get($dValue, $sFormat = '%d.%m.%Y', $sTimezone = '')
 	{
+        if(empty($sTimezone)) {
+            $sTimezone = date_default_timezone_get();
+        }
+        
 		$oTimezone = new \DateTimeZone($sTimezone);
 		
 		if(is_a($dValue, 'DateTime')) {
@@ -38,8 +42,8 @@ class Date {
 			$oDate = new \DateTime($dValue, $oTimezone);
 		}
 		
-		$dReturn = $oDate->format($sFormat);
-	
+		$dReturn = strftime($sFormat, $oDate->getTimestamp());
+        
 		unset($dValue, $sFormat, $sTimezone, $oDate, $oTimezone);
 		return $dReturn;
 	}

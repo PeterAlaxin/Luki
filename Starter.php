@@ -52,6 +52,8 @@ class Starter {
         
         self::openStarterFile($sStarterFile);
         self::addPathToLoader();
+        self::setLocale();
+        self::setTimezone();
         self::initRequest();
         self::initProfiler($aMicrotime, $nMemory);
         self::initSession();
@@ -109,6 +111,8 @@ class Starter {
         if('development' == $sEnvironment) {
             Storage::Set('Profiler', new Profiler($aMicrotime, $nMemory));
         }
+        
+        unset($sEnvironment);
     }
 
     public static function initCache()
@@ -124,6 +128,8 @@ class Starter {
                 Storage::Cache()->setExpiration($aCache['expiration']);
             }
         }
+        
+        unset($aCache, $sAdapter, $oAdapter);
     }
     
     public static function addPathToLoader()
@@ -169,8 +175,31 @@ class Starter {
         if(!empty($sSessionType)) {
             Session::Start($sSessionType);
         }
+        
+        unset($sSessionType);
     }
 
+    public static function setTimezone()
+    {
+        $sTimeZone = self::$oConfiguration->getValue('timezone', 'definition');
+        
+        if(!empty($sTimeZone)) {
+            date_default_timezone_set($sTimeZone);
+        }
+        
+        unset($sTimeZone);
+    }
+    
+    public static function setLocale()
+    {
+        $sLocale = self::$oConfiguration->getValue('locale', 'definition');
+        
+        if(!empty($sLocale)) {
+            setlocale(LC_ALL, $sLocale);
+        }
+        
+        unset($sLocale);
+    }
     
     public static function dispatchURL()
     {
