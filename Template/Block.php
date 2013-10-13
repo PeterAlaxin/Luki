@@ -143,11 +143,12 @@ class Block {
     private function _ifBlock()
     {
         $aMatches = array();
-        preg_match_all('/{% if (.+\w) %}/U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        preg_match_all('|{% if (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
 
         foreach($aMatches as $aMatch) {
+
             $aSubMatches = array();
-            preg_match_all('/\(|\)|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_]*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
+            preg_match_all('/\(|\)|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
 
             $sCondition = '';
             
@@ -165,11 +166,11 @@ class Block {
                 }
             }            
         
-            $this->sContent = str_replace($aMatch[0], Template::phpRow('<?php if(' . trim($sCondition) . ') { ?>'), $this->sContent);
+            $this->sContent = str_replace($aMatch[0], Template::phpRow('<?php if(' . trim($sCondition) . ') { ?>', 0, 0), $this->sContent);
         }        
         
-        $this->sContent = str_replace('{% else %}', Template::phpRow('<?php } else { ?>'), $this->sContent);
-        $this->sContent = str_replace('{% endif %}', Template::phpRow('<?php } ?>'), $this->sContent);
+        $this->sContent = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->sContent);
+        $this->sContent = str_replace('{% endif %}', Template::phpRow('<?php } ?>', 0, 0), $this->sContent);
         
         unset($aMatch, $aMatches);
     }

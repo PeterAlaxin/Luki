@@ -140,6 +140,9 @@ class Controller {
 		
 		$oTemplate = new Template($sTemplateName, $aData);
 		$this->sOutput = $oTemplate->Render();
+        
+        unset($sTemplateName, $aData, $oTemplate);
+        return $this;
 	}
 	
 	public function getOutput()

@@ -98,6 +98,29 @@ class Time {
 		return $sMicro;
 	}
 
+    public static function convertUtcToTimezone($dDateTime)
+    {
+        $sTimeZone = date_default_timezone_get();
+        
+        $dateTimeZoneHere = new \DateTimeZone($sTimeZone);
+        $dateTimeZoneUTC = new \DateTimeZone("UTC");
+        
+        $dateTimeUTC = new \DateTime($dDateTime, $dateTimeZoneUTC);
+        
+        $nOffset = $dateTimeZoneHere->getOffset($dateTimeUTC);         
+        $oInterval = new \DateInterval('PT' . abs($nOffset) . 'S');
+        
+        if($nOffset < 0) {
+            $oInterval->invert = 1;
+        }
+        
+        $dateTimeUTC->add($oInterval);
+        $dateTimeHere = $dateTimeUTC->format('Y-m-d H:i:s');
+        
+        unset($dDateTime, $sTimeZone, $dateTimeZoneHere, $dateTimeZoneUTC, $dateTimeUTC, $nOffset, $oInterval);
+        return $dateTimeHere;
+    }
+    
 	/**
 	 * Start stopwatch
 	 * 
