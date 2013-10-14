@@ -28,49 +28,10 @@ class Range {
 
 	public function Get($nBegin, $nEnd, $nStep = 1)
 	{
-		$bConvert = FALSE;
-		$bReverse = FALSE;
-		$aRange = array();
-		
-		if(!is_numeric($nBegin) and !is_numeric($nEnd)) {
-			$nBegin = ord($nBegin);
-			$nEnd = ord($nEnd);
-			$bConvert = TRUE;
-		}
-
-		$nStep = abs((int)$nStep);
-		if(empty($nStep)) {
-			$nStep = 1;
-		}
-				
-		if($nBegin > $nEnd) {
-			$nNewBegin = min($nBegin, $nEnd);
-			$nNewEnd = max($nBegin, $nEnd);
-			$bReverse = TRUE;
-		}
-		else {
-			$nNewBegin = $nBegin;
-			$nNewEnd = $nEnd;			
-		}
-		
-		for($i = $nNewBegin; $i <= $nNewEnd; $i += $nStep) {
-			if($bConvert) {
-				$aRange[] = chr($i);
-			}
-			else {
-				$aRange[] = $i;				
-			}
-		}
-		
-		if($bReverse) {
-			$aRange = array_reverse($aRange);
-		}
-		
+        $aRange = range($nBegin, $nEnd, $nStep);
+                
+        unset($nBegin, $nEnd, $nStep);
         return $aRange;
-        
-		#$sReturn = "json_decode('" . json_encode($aRange) . "')";
-		
-		#return $sReturn;
 	}
 }
 
