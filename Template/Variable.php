@@ -90,6 +90,7 @@ class Variable {
     private function _transformVariable()
     {
         $aMatches = array();
+        $bArrayKeys = FALSE;
         preg_match('/^[\[{](.*)[\]}]$/', $this->sVariable, $aMatches);
 
         if(count($aMatches) > 0) {
@@ -98,6 +99,7 @@ class Variable {
 
             foreach ($aItems as $Item) {
                 if(strpos($Item, ': ')) {
+                    $bArrayKeys = TRUE;
                     $aSubItems = explode(': ', $Item);
 
                     $aNewItems[] = $this->_stringToVariable($aSubItems[0]) .
@@ -111,13 +113,18 @@ class Variable {
 
             $sVariable = preg_replace('/[\[{]/', 'array(', $this->sVariable);
             $sVariableArray = preg_replace('/' . $aMatches[1] . '/', implode(', ', $aNewItems), $sVariable);
-            $this->sTransformedVariable = preg_replace('/[\]}]/', ')', $sVariableArray);
+            if($bArrayKeys) {
+                $this->sTransformedVariable = preg_replace('/[}]/', ')', $sVariableArray);
+            }
+            else {
+                $this->sTransformedVariable = preg_replace('/[\]}]/', ')', $sVariableArray);
+            }
         }
         else {
             $this->sTransformedVariable = $this->_stringToVariable($this->sVariable);
         }
 
-        unset($aMatches, $aNewItems, $aItems, $Item, $aSubItems, $sVariable, $sVariableArray);
+        unset($aMatches, $aNewItems, $aItems, $Item, $aSubItems, $sVariable, $sVariableArray, $bArrayKeys);
     }
 
     private function _stringToVariable($sString)

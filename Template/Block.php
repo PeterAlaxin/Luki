@@ -19,8 +19,9 @@
 
 namespace Luki\Template;
 
-use Luki\Template;
-use Luki\Template\Variable;
+use Luki\Loader,
+    Luki\Template,
+    Luki\Template\Variable;
 
 /**
  * Template Block class
@@ -50,6 +51,7 @@ class Block {
         $this->_setVariables();
         $this->_forBlock();
         $this->_ifBlock();
+        $this->_includeBlock();
         $this->_transformVariables();
                 
         unset($Block);
@@ -85,8 +87,10 @@ class Block {
         preg_match_all('|{% set (.*) = (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
 
         foreach($aMatches as $aMatch) {
-            $this->sContent = str_replace($aMatch[0], '<?php $this->aData["' . $aMatch[1] . '"] = ' . $aMatch[2] . '; ?>', $this->sContent);
+            $this->sContent = str_replace($aMatch[0], '<?php $this->aData["' . $aMatch[1] . '"] = ' . $this->_transformToVariable($aMatch[2]) . '; ?>', $this->sContent);
         }
+        
+        unset($aMatches, $aMatch);
     }
 
     private function _transformVariables()
@@ -107,12 +111,9 @@ class Block {
         foreach($aMatches as $aMatch) {
             $this->aVariables[] = new Variable($aMatch[1]);
             
-            $oVariable = new Variable($aMatch[2]);            
-            $this->aVariables[] = $oVariable;
-            
             $sFor = Template::phpRow('<?php '); 
             $sFor .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $oVariable->getVariable() . ';', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $this->_transformToVariable($aMatch[2], TRUE) . ';', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["length"] = count($this->aData["loop"]["variable"]);', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2); 
@@ -137,7 +138,7 @@ class Block {
         $sEndFor .= Template::phpRow(' ?>', 1); 
         $this->sContent = str_replace('{% endfor %}', $sEndFor, $this->sContent);
         
-        unset($aMatches, $aMatch, $oVariable, $sFor, $sEndFor);
+        unset($aMatches, $aMatch, $sFor, $sEndFor);
     }
 
     private function _ifBlock()
@@ -160,9 +161,7 @@ class Block {
                     $sCondition .= ' ';
                 }
                 else {
-                     $oVariable = new Variable($aSubMatch[0]);            
-                     $this->aVariables[] = $oVariable;
-                     $sCondition .= $oVariable->getVariable();
+                     $sCondition .= $this->_transformToVariable($aSubMatch[0], TRUE);
                 }
             }            
         
@@ -172,7 +171,73 @@ class Block {
         $this->sContent = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->sContent);
         $this->sContent = str_replace('{% endif %}', Template::phpRow('<?php } ?>', 0, 0), $this->sContent);
         
-        unset($aMatch, $aMatches);
+        unset($aMatch, $aMatches, $aSubMatches, $aSubMatch, $sCondition);
+    }
+
+    private function _includeBlock()
+    {
+        $aMatches = array();
+        preg_match_all('|{% include (.+) with (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        
+        foreach($aMatches as $aMatch) {
+            $sTemplate = $this->_transformToTemplate($aMatch[1]);
+            $sVariable = $this->_transformToVariable($aMatch[2]);
+            
+            $sInclude = Template::phpRow('<?php '); 
+            $sInclude .= Template::phpRow('$oTemplate = new Luki\Template("' . $sTemplate . '", ' . $sVariable . ');', 2);
+            $sInclude .= Template::phpRow('echo $oTemplate->Render();', 2);
+            $sInclude .= Template::phpRow(' ?>', 1); 
+        
+            $this->sContent = str_replace($aMatch[0], $sInclude, $this->sContent);
+        }
+        
+        $aMatches = array();
+        preg_match_all('|{% include (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        
+        foreach($aMatches as $aMatch) {
+            $sTemplate = $this->_transformToTemplate($aMatch[1]);
+
+            $sInclude = Template::phpRow('<?php '); 
+            $sInclude .= Template::phpRow('$oTemplate = new Luki\Template("' . $sTemplate . '");', 2);
+            $sInclude .= Template::phpRow('echo $oTemplate->Render();', 2);
+            $sInclude .= Template::phpRow(' ?>', 1); 
+        
+            $this->sContent = str_replace($aMatch[0], $sInclude, $this->sContent);
+        }
+        
+        unset($aMatches, $aMatch, $sInclude, $sTemplate, $sVariable);
+    }
+    
+    private function _transformToTemplate($sTemplate)
+    {
+        $aTemplate = explode('/', $sTemplate);
+        $aNewTemplate = array();
+
+        foreach($aTemplate as $nKey => $sItem) {
+            if($nKey+1 == count($aTemplate)) {
+                $aNewTemplate[] = 'template';
+            }
+            $aNewTemplate[] = $sItem;
+        }
+
+        $sTemplate = str_replace(array('"', "'"), array('', ''), implode('/', $aNewTemplate));
+        $sReturn = Loader::isFile($sTemplate);
+        
+        unset($sTemplate, $aTemplate, $aNewTemplate, $nKey, $sItem);
+        return $sReturn;
+    }
+    
+    private function _transformToVariable($sVariable, $bAddToVariables = FALSE)
+    {
+        $oVariable = new Variable($sVariable);
+        $sVariable = $oVariable->getVariable();
+        
+        if($bAddToVariables) {
+            $this->aVariables[] = $oVariable;
+        }
+        
+        unset($oVariable, $bAddToVariables);
+        return $sVariable;
     }
 }
 
