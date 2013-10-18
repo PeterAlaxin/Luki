@@ -54,7 +54,7 @@ class Template {
      * @uses Template::_explodeTemplate() Explode template
      * @uses Template::_transformConstants() Transform constants
      */
-    function __construct($sTemplate, $aData)
+    function __construct($sTemplate, $aData=NULL)
     {
         $this->sTemplate = $sTemplate;
         $this->aData = (array) $aData;
@@ -80,6 +80,8 @@ class Template {
     public static function setPath($sNewPath)
     {
         self::$sTwigPath = $sNewPath;
+        
+        unset($sNewPath);
     }
     
     public function Render()
@@ -96,6 +98,7 @@ class Template {
             Storage::Profiler()->Add('Template', array('name' => $this->sClass, 'time' => Time::getStopwatch('Luki_Template_' . $this->sClass)));
         }
 
+        unset($oTemplateClass);
         return $sOutput;
     }
 
@@ -258,11 +261,10 @@ class Template {
             $sContent = preg_replace('/{% parent %}/', '', $oBlock->getContent());
         }
         else {
-            $sContent = preg_replace('/{% parent %}/', self::phpRow('<?php parent::_' . $sName . 'Block(); ?>'), $oBlock->getContent());            
+            $sContent = preg_replace('/{% parent %}/', self::phpRow('<?php parent::_' . $sName . 'Block(); ?>'), $oBlock->getContent());
         }
         
         unset($sName, $oBlock);
-        
         return $sContent;
     }
     
@@ -295,6 +297,7 @@ class Template {
             preg_match_all('|({% block (.*) %})|U', $sBlock, $aStartMatches, PREG_SET_ORDER);
         }
 
+        unset($aStartMatches, $aEndMatches, $aBlockMatches, $aBlock, $aSubBlock);
         return $sBlock;
     }
 

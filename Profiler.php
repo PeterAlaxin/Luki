@@ -113,7 +113,9 @@ class Profiler {
             $sHidden .= '</table>';
         }
         
-        $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' s)', $sHidden);
+        if(!empty($aTemplates)) {
+            $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' s)', $sHidden);
+        }
     }
     
     private function _showData()

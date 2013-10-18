@@ -110,10 +110,12 @@ class Block {
 
         foreach($aMatches as $aMatch) {
             $this->aVariables[] = new Variable($aMatch[1]);
+            $sVariable = $this->_transformToVariable($aMatch[2], TRUE);
             
             $sFor = Template::phpRow('<?php '); 
+            $sFor .= Template::phpRow('if(empty(' . $sVariable . ')) { ' . $sVariable . ' = array(); }', 2); 
             $sFor .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $this->_transformToVariable($aMatch[2], TRUE) . ';', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $sVariable . ';', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["length"] = count($this->aData["loop"]["variable"]);', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2); 
@@ -138,7 +140,7 @@ class Block {
         $sEndFor .= Template::phpRow(' ?>', 1); 
         $this->sContent = str_replace('{% endfor %}', $sEndFor, $this->sContent);
         
-        unset($aMatches, $aMatch, $sFor, $sEndFor);
+        unset($aMatches, $aMatch, $sFor, $sEndFor, $sVariable);
     }
 
     private function _ifBlock()
