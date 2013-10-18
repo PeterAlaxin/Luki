@@ -40,8 +40,6 @@ class Starter {
 
     const LOADER_NOT_EXISTS = 'Loader file "%s" does not exists!';
 
-    private static $oConfiguration;
-
     public static function Start($sStarterFile)
     {
         ob_start(array('self', 'sanitizeOutput'));
@@ -96,8 +94,12 @@ class Starter {
         $sAdapter = Config::findAdapter($sStarterFile);
         $oAdapter = new $sAdapter($sStarterFile);
 
-        self::$oConfiguration = new Config($oAdapter);
-
+        Storage::Set('Configuration', new Config($oAdapter));
+      
+        if('development' == Storage::Configuration()->getValue('environment', 'definition')) {
+            Storage::Set('Development', TRUE);
+        }
+        
         unset($sStarterFile, $sAdapter, $oAdapter);
     }
 
@@ -110,18 +112,14 @@ class Starter {
 
     public static function initProfiler($aMicrotime, $nMemory)
     {
-        $sEnvironment = self::$oConfiguration->getValue('environment', 'definition');
-
-        if('development' == $sEnvironment) {
+        if(Storage::isDevelopment()) {
             Storage::Set('Profiler', new Profiler($aMicrotime, $nMemory));
         }
-
-        unset($sEnvironment);
     }
 
     public static function initCache()
     {
-        $aCache = self::$oConfiguration->getSection('cache');
+        $aCache = Storage::Configuration()->getSection('cache');
 
         if(!empty($aCache)) {
             $sAdapter = Cache::findAdapter($aCache['adapter']);
@@ -138,7 +136,7 @@ class Starter {
 
     public static function addPathToLoader()
     {
-        $aLoader = self::$oConfiguration->getSection('loader');
+        $aLoader = Storage::Configuration()->getSection('loader');
 
         if(!empty($aLoader)) {
             foreach ($aLoader as $sPath) {
@@ -151,7 +149,7 @@ class Starter {
 
     public static function initDatabase()
     {
-        $aDatabases = self::$oConfiguration->getSection('database');
+        $aDatabases = Storage::Configuration()->getSection('database');
 
         if(!empty($aDatabases)) {
             foreach ($aDatabases as $sName => $aDatabase) {
@@ -166,7 +164,7 @@ class Starter {
 
     public static function initTemplate()
     {
-        $sPath = self::$oConfiguration->getValue('twigPath', 'definition');
+        $sPath = Storage::Configuration()->getValue('twigPath', 'definition');
         Template::setPath($sPath);
 
         unset($sPath);
@@ -174,7 +172,7 @@ class Starter {
 
     public static function initSession()
     {
-        $sSessionType = self::$oConfiguration->getValue('session', 'definition');
+        $sSessionType = Storage::Configuration()->getValue('session', 'definition');
 
         if(!empty($sSessionType)) {
             Session::Start($sSessionType);
@@ -185,7 +183,7 @@ class Starter {
 
     public static function setTimezone()
     {
-        $sTimeZone = self::$oConfiguration->getValue('timezone', 'definition');
+        $sTimeZone = Storage::Configuration()->getValue('timezone', 'definition');
 
         if(!empty($sTimeZone)) {
             date_default_timezone_set($sTimeZone);
@@ -196,7 +194,7 @@ class Starter {
 
     public static function setLocale()
     {
-        $sLocale = self::$oConfiguration->getValue('locale', 'definition');
+        $sLocale = Storage::Configuration()->getValue('locale', 'definition');
 
         if(!empty($sLocale)) {
             setlocale(LC_ALL, $sLocale);
@@ -207,7 +205,7 @@ class Starter {
 
     public static function dispatchURL()
     {
-        $sDispatcher = self::$oConfiguration->getValue('dispatcher', 'definition');
+        $sDispatcher = Storage::Configuration()->getValue('dispatcher', 'definition');
         $sAdapter = Config::findAdapter($sDispatcher);
         $oAdapter = new $sAdapter($sDispatcher);
 
@@ -219,9 +217,7 @@ class Starter {
 
     public static function sanitizeOutput($output)
     {
-        $sEnvironment = self::$oConfiguration->getValue('environment', 'definition');
-                
-        if('development' != $sEnvironment) {
+        if(Storage::isDevelopment()) {
             $search = array(
               '/\>[^\S ]+/s', //strip whitespaces after tags, except space
               '/[^\S ]+\</s', //strip whitespaces before tags, except space
@@ -235,7 +231,7 @@ class Starter {
             $output = preg_replace($search, $replace, $output);
         }
         
-        unset($sEnvironment, $search, $replace);
+        unset($search, $replace);
         return $output;
     }
 
