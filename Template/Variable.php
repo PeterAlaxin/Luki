@@ -151,7 +151,8 @@ class Variable {
                             $sReturnString = '$this->aFunctions["range"]->Get(' . $aMatches[1] . ')';
                             break;
                         case 'SubArray':
-                            $sReturnString = '$this->aData["' . $aMatches[1] . '"]["' . $aMatches[2] . '"]';                
+                            $aItem = explode('.', $aMatches[0]);
+                            $sReturnString = '$this->aData["' . implode('"]["', $aItem) . '"]';
                             break;
                         case 'RangeOperator':
                             $aRange = explode('..', $sString);
@@ -186,7 +187,7 @@ class Variable {
             $sReturnString = $sString;
         }
         
-        unset($aMatches, $aRange, $sString, $sType, $sRegexp);
+        unset($aMatches, $aRange, $sString, $sType, $sRegexp, $aItem);
         return $sReturnString;
     }
 

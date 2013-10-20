@@ -140,11 +140,18 @@ class Starter {
 
         if(!empty($aLoader)) {
             foreach ($aLoader as $sPath) {
-                Loader::addPath($sPath);
+                if(is_array($sPath)) {
+                    foreach($sPath as $sPathOne) {
+                        Loader::addPath($sPathOne);
+                    }
+                }
+                else {
+                    Loader::addPath($sPath);                
+                }
             }
         }
 
-        unset($aLoader, $sPath);
+        unset($aLoader, $sPath, $sPathOne);
     }
 
     public static function initDatabase()

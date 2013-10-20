@@ -242,12 +242,19 @@ class Request {
 	public function getURL()
 	{
         if(is_null($this->url)) {
-            $aFrom = array('/' . $this->getBaseUrl(),
-                           '?' . $this->getQueryString());
+            $aFrom = array('?' . $this->getQueryString());
+            $this->getBaseUrl();
+            if(!empty($this->baseUrl)) {
+                $aFrom[] = '/' . $this->baseUrl;
+            }
             $this->url = urldecode($this->getRequestUri());
 
             foreach($aFrom as $sItem) {
                 $this->url = str_replace($sItem, '', $this->url);
+            }
+            
+            if('/' == substr($this->url, 0, 1)) {
+                $this->url = substr($this->url, 1);
             }
         }
         

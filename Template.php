@@ -58,7 +58,8 @@ class Template {
     {
         $this->sTemplate = $sTemplate;
         $this->aData = (array) $aData;
-
+        $this->_addApplicationData();
+        
         $sTemplateWithoutTwig = preg_replace('/.twig/', '', $sTemplate);
         $sTemplateWithoutTemplate = preg_replace('/\/template/', '', $sTemplateWithoutTwig);
         $sClass = ucwords(preg_replace('/\//', ' ', $sTemplateWithoutTemplate));  
@@ -343,6 +344,10 @@ class Template {
         return $sString;
     }
 
+    private function _addApplicationData()
+    {
+        $this->aData['app'] = array('auto' => array('moto' => 'revue'));
+    }
 }
 
 # End of file
