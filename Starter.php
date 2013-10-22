@@ -51,6 +51,7 @@ class Starter {
         $aMicrotime = Time::explodeMicrotime();
 
         self::openStarterFile($sStarterFile);
+        self::initFolders();
         self::addPathToLoader();
         self::setLocale();
         self::setTimezone();
@@ -103,6 +104,17 @@ class Starter {
         unset($sStarterFile, $sAdapter, $oAdapter);
     }
 
+    public static function initFolders()
+    {
+        $oFolders = Storage::Configuration()->getSection('folder');
+        
+        foreach ($oFolders as $sKey => $sPath) {
+            Storage::Set($sKey, $sPath);
+        }
+        
+        unset($oFolders, $sKey, $sPath);
+    }
+    
     public static function initRequest()
     {
         Storage::Set('Request', new Request());
@@ -224,7 +236,7 @@ class Starter {
 
     public static function sanitizeOutput($output)
     {
-        if(Storage::isDevelopment()) {
+        if(!Storage::isDevelopment()) {
             $search = array(
               '/\>[^\S ]+/s', //strip whitespaces after tags, except space
               '/[^\S ]+\</s', //strip whitespaces before tags, except space
