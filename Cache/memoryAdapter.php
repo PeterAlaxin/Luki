@@ -30,43 +30,41 @@ class memoryAdapter implements basicInterface {
 
 	private $oMemcache;
 
-	public function __construct($aOptions = array())
+	public function __construct($Options = array())
 	{
-		if(empty($aOptions) or !is_array($aOptions)) {
-			$aOptions = array(
+		if(empty($Options) or !is_array($Options)) {
+			$Options = array(
 				'server' => 'localhost',
 				'port' => '11211');
 		}
 		$this->oMemcache = new \Memcache;
-		$this->oMemcache->connect($aOptions['server'], $aOptions['port']);
+		$this->oMemcache->connect($Options['server'], $Options['port']);
 
-		unset($aOptions);
+		unset($Options);
 	}
 
-	public function Set($sKey, $sValue = '', $nExpire = 0)
+	public function Set($Key, $Value = '', $ExpirationInSeconds = 0)
 	{
-		$sValue = serialize($sValue);
-		$bReturn = $this->oMemcache->set($sKey, $sValue, MEMCACHE_COMPRESSED, $nExpire);
+		$isSet = $this->oMemcache->set($Key, serialize($Value), MEMCACHE_COMPRESSED, $ExpirationInSeconds);
 
-		unset($sKey, $sValue, $nExpire);
-		return $bReturn;
+		unset($Key, $Value, $ExpirationInSeconds);
+		return $isSet;
 	}
 
-	public function Get($sKey)
+	public function Get($Key)
 	{
-		$sValue = $this->oMemcache->get($sKey, MEMCACHE_COMPRESSED);
-		$sReturn = unserialize($sValue);
+		$sValue = unserialize($this->oMemcache->get($Key, MEMCACHE_COMPRESSED));
 
-		unset($sKey, $sValue);
-		return $sReturn;
+		unset($Key);
+		return $sValue;
 	}
 
-	public function Delete($sKey)
+	public function Delete($Key)
 	{
-		$bReturn = $this->oMemcache->delete($sKey);
+		$isDeleted = $this->oMemcache->delete($Key);
 
-		unset($sKey);
-		return $bReturn;
+		unset($Key);
+		return $isDeleted;
 	}
 
 }

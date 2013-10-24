@@ -35,84 +35,83 @@ class Cache {
 	 * @var object 
 	 * @access private
 	 */
-	private $oCacheAdapter = NULL;
+	private $CacheAdapter = NULL;
 	
 	/**
 	 * Default expiration
 	 * @var int
 	 */
-	private $nExpiration = 0;
+	private $ExpirationInSeconds = 0;
 
-	public function __construct(basicInterface $oAdapter)
+	public function __construct(basicInterface $CacheAdapter)
 	{
-		$this->oCacheAdapter = $oAdapter;
+		$this->CacheAdapter = $CacheAdapter;
 
-		unset($oAdapter);
+		unset($CacheAdapter);
 	}
 
-    public static function findAdapter($sType)
+    public static function findAdapter($CacheType)
     {
-        $sAdapter = __NAMESPACE__ . '\Cache\\' . $sType . 'Adapter';
+        $CacheAdapter = __NAMESPACE__ . '\Cache\\' . $CacheType . 'Adapter';
         
-        return $sAdapter;
+        return $CacheAdapter;
     }
 
-	public function setExpiration($nNewExpiration = 0)
+	public function setExpiration($nNewExpirationInSeconds = 0)
 	{
-		$bReturn = FALSE;
+		$isSet = FALSE;
 		
-		if(is_int($nNewExpiration)) {
-			$this->nExpiration = (int)$nNewExpiration;
-			$bReturn = TRUE;
+		if(is_int($nNewExpirationInSeconds)) {
+			$this->ExpirationInSeconds = $nNewExpirationInSeconds;
+			$isSet = TRUE;
 		}
 
-		unset($nNewExpiration);
-		return $bReturn;
+		unset($nNewExpirationInSeconds);
+		return $isSet;
 	}
 
 	public function getExpiration()
 	{
-		return $this->nExpiration;
+		return $this->ExpirationInSeconds;
 	}
 
-	public function Set($sKey, $sValue = '', $nExpiration = NULL)
+	public function Set($Key, $Value = '', $ExpirationInSeconds = NULL)
 	{
-        if(is_null($nExpiration)) {
-            $nExpiration = $this->nExpiration;
+        if(is_null($ExpirationInSeconds)) {
+            $ExpirationInSeconds = $this->ExpirationInSeconds;
         }
         
-		if(is_array($sKey)) {
-			$aKeyValues = $sKey;
-			foreach ($aKeyValues as $sKey => $sValue) {
-				$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $nExpiration);
+		if(is_array($Key)) {
+			foreach ($Key as  $SubKey => $SubValue) {
+				$isSet = $this->CacheAdapter->Set($SubKey, $SubValue, $ExpirationInSeconds);
 
-				if(!$bReturn) {
+				if(!$isSet) {
 					break;
 				}
 			}
 		}
 		else {
-			$bReturn = $this->oCacheAdapter->Set($sKey, $sValue, $nExpiration);
+			$isSet = $this->CacheAdapter->Set($Key, $Value, $ExpirationInSeconds);
 		}
 
-		unset($sKey, $sValue, $aKeyValues, $nExpiration);
-		return $bReturn;
+		unset($Key, $Value, $SubKey, $SubValue, $ExpirationInSeconds);
+		return $isSet;
 	}
 
-	public function Get($sKey)
+	public function Get($Key)
 	{
-		$sReturn = $this->oCacheAdapter->Get($sKey);
+		$Value = $this->CacheAdapter->Get($Key);
 
-		unset($sKey);
-		return $sReturn;
+		unset($Key);
+		return $Value;
 	}
 
-	public function Delete($sKey)
+	public function Delete($Key)
 	{
-		$sReturn = $this->oCacheAdapter->Delete($sKey);
+		$isDeleted = $this->CacheAdapter->Delete($Key);
 
-		unset($sKey);
-		return $sReturn;
+		unset($Key);
+		return $isDeleted;
 	}
 
 }

@@ -30,60 +30,72 @@ class fileAdapter implements basicInterface {
 
 	private $sPath;
 
-	public function __construct($aOptions = array())
+	public function __construct($Options = array())
 	{
-		if(empty($aOptions) or !is_array($aOptions)) {
-			$aOptions = array('path' => '/tmp/');
+		if(empty($Options) or !is_array($Options)) {
+			$Options = array('path' => '/tmp/');
 		}
-		$this->sPath = $aOptions['path'];
+		$this->sPath = $Options['path'];
 
-		unset($aOptions);
+		unset($Options);
 	}
 
-	public function Set($sKey, $sValue = '', $nExpire = 0)
+	public function Set($Key, $Value = '', $ExpirationInSeconds = 0)
 	{
-		$bReturn = FALSE;
-		$aValue = array('expiration' => $nExpire,
+		$isSet = FALSE;
+		$ValueContent = array('expiration' => $ExpirationInSeconds,
 						'created' => time(),
-						'value' => $sValue);
+						'value' => $Value);
 
-		$xReturn = file_put_contents($this->sPath . $sKey, serialize($aValue), LOCK_EX);
-		if(FALSE !== $xReturn) {
-			$bReturn = TRUE;			
+		if(FALSE !== file_put_contents($this->sPath . $Key, serialize($ValueContent), LOCK_EX)) {
+			$isSet = TRUE;			
 		}
 
-		unset($sKey, $sValue, $nExpire, $aValue, $xReturn);
-		return $bReturn;
+		unset($Key, $Value, $ExpirationInSeconds, $ValueContent);
+		return $isSet;
 	}
 
-	public function Get($sKey)
+	public function Get($Key)
 	{
-		$xReturn = FALSE;
+		$Value = FALSE;
 
-		if(is_file($this->sPath . $sKey)) {
-			$sContent = file_get_contents($this->sPath . $sKey);
-			$aContent = unserialize($sContent);
-			if($aContent['expiration'] == 0 or time() < $aContent['created'] + $aContent['expiration']) {
-				$xReturn = $aContent['value'];
+		if(is_file($this->sPath . $Key)) {
+			$ValueContent = unserialize(file_get_contents($this->sPath . $Key));
+			if(!$this->isExpired($ValueContent)) {
+				$Value = $ValueContent['value'];
 			}
+            else {
+                $this->Delete($Key);
+            }
 		}
 
-		unset($sKey, $sContent, $aContent);
-		return $xReturn;
+		unset($Key, $ValueContent);
+		return $Value;
 	}
 
-	public function Delete($sKey)
+	public function Delete($Key)
 	{
-		$bReturn = FALSE;
+		$isDeleted = FALSE;
 
-		if(is_file($this->sPath . $sKey)) {
-			$bReturn = unlink($this->sPath . $sKey);
+		if(is_file($this->sPath . $Key)) {
+			$isDeleted = unlink($this->sPath . $Key);
 		}
 
-		unset($sKey);
-		return $bReturn;
+		unset($Key);
+		return $isDeleted;
 	}
 
+    private function isExpired($ValueContent)
+    {
+        $isExpired = TRUE;
+        
+        if($ValueContent['expiration'] == 0 or time() < $ValueContent['created'] + $ValueContent['expiration']) {
+            $isExpired = FALSE;
+        }
+        
+        unset($ValueContent);
+        return $isExpired;
+    }
 }
 
 # End of file
