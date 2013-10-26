@@ -30,16 +30,15 @@ class ymlAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
-	 * @param type $sFileName
+	 * @param type $File
 	 */
-	public function __construct($sFileName)
+	public function __construct($File, $allowCreate = FALSE)
 	{
-        parent::__construct($sFileName);
+        parent::__construct($File, $allowCreate);
         
-        $sConfigContent = file_get_contents($this->sFileName);
-        $this->aConfiguration = yaml_parse($sConfigContent);
+        $this->Configuration = yaml_parse(file_get_contents($this->File));
  
-		unset($sFileName, $sConfigContent);
+		unset($File, $allowCreate);
 	}
 
 	/**
@@ -50,12 +49,11 @@ class ymlAdapter extends basicAdapter {
 	 */
 	public function saveConfiguration()
 	{
-		$sOutput = yaml_emit($this->aConfiguration);
+        parent::saveConfiguration();
+        
+        $isSaved = $this->saveToFile(yaml_emit($this->Configuration));
 
-        $bReturn = $this->saveToFile($sOutput);
-
-		unset($sOutput);
-		return $bReturn;
+		return $isSaved;
 	}
 
 }

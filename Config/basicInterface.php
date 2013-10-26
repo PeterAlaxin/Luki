@@ -26,9 +26,9 @@ namespace Luki\Config;
  */
 interface basicInterface {
 
-	public function __construct($sFileName);
+	public function __construct($File, $allowCreate);
 
-	public function setFilename($sFileName);
+	public function setFilename($File);
 
 	public function getFilename();
     
@@ -39,6 +39,8 @@ interface basicInterface {
 	public function getConfiguration();
 
 	public function saveConfiguration();
+    
+    public function createConfigFile($File, $allowCreate);
 }
 
 # End of file

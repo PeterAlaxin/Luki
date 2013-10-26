@@ -35,52 +35,52 @@ class Config {
 	 * @var array
 	 * @access private
 	 */
-	private $aConfiguration = array();
+	private $Configuration = array();
 
 	/**
 	 * Configuration adapter
 	 * @var object 
 	 * @access private
 	 */
-	private $oConfigAdapter = NULL;
+	private $ConfigurationAdapter = NULL;
 
 	/**
 	 * Default section
 	 * @var string
 	 * @access private
 	 */
-	private $sDefaultSection = '';
+	private $DefaultSection = '';
 
 	/**
 	 * All sections
 	 * @var array
 	 * @access private
 	 */
-	private $aSections = array();
+	private $Sections = array();
 
 	/**
 	 * Constructor
 	 */
-	public function __construct(basicInterface $oConfigAdapter)
+	public function __construct(basicInterface $ConfigurationAdapter)
 	{
-		$this->oConfigAdapter = $oConfigAdapter;
-		$this->aConfiguration = $this->oConfigAdapter->getConfiguration();
-		$this->aSections = $this->oConfigAdapter->getSections();
+		$this->ConfigurationAdapter = $ConfigurationAdapter;
+		$this->Configuration = $this->ConfigurationAdapter->getConfiguration();
+		$this->Sections = $this->ConfigurationAdapter->getSections();
 
-		if(isset($this->aSections[0])) {
-			$this->sDefaultSection = $this->aSections[0];
+		if(isset($this->Sections[0])) {
+			$this->DefaultSection = $this->Sections[0];
 		}
 
-		unset($oConfigAdapter);
+		unset($ConfigurationAdapter);
 	}
 
-    public static function findAdapter($sFile)
+    public static function findAdapter($File)
     {
-        $aFileInfo = pathinfo($sFile);
-        $sAdapter = __NAMESPACE__ . '\Config\\' . $aFileInfo['extension'] . 'Adapter';
+        $FileInfo = pathinfo($File);
+        $Adapter = __NAMESPACE__ . '\Config\\' . $FileInfo['extension'] . 'Adapter';
         
-        unset($aFileInfo);
-        return $sAdapter;
+        unset($FileInfo);
+        return $Adapter;
     }
 
 	/**
@@ -89,7 +89,7 @@ class Config {
 	 */
 	public function getConfiguration()
 	{
-		return $this->aConfiguration;
+		return $this->Configuration;
 	}
 
 	/**
@@ -98,70 +98,70 @@ class Config {
 	 */
 	public function getConfigurationFile()
 	{
-		return $this->oConfigAdapter->getFilename();
+		return $this->ConfigurationAdapter->getFilename();
 	}
 
 	/**
 	 * Add new section
-	 * @param type $sSection Section name
-	 * @param type $aValues Array with values
+	 * @param type $Section Section name
+	 * @param type $Values Array with values
 	 * @return boolean
 	 */
-	public function addSection($sSection = '', $aValues = array())
+	public function addSection($Section, $Values = array())
 	{
-		$bReturn = FALSE;
+		$isAdded = FALSE;
 
-		if(!empty($sSection) and is_string($sSection) and !in_array($sSection, $this->aSections)) {
-			$this->aConfiguration[$sSection] = array();
-			$this->aSections[] = $sSection;
-			$this->setDefaultSection($sSection);
-			$bReturn = TRUE;
+		if(!empty($Section) and is_string($Section) and !in_array($Section, $this->Sections)) {
+			$this->Configuration[$Section] = array();
+			$this->Sections[] = $Section;
+			$this->setDefaultSection($Section);
+			$isAdded = TRUE;
 
-			if(!empty($aValues) and is_array($aValues)) {
-				$this->addValue($aValues);
+			if(!empty($Values) and is_array($Values)) {
+				$this->addValue($Values);
 			}
 		}
 
-		unset($sSection, $aValues);
-		return $bReturn;
+		unset($Section, $Values);
+		return $isAdded;
 	}
 
 	/**
 	 * Delete section
-	 * @param type $sSection Section name
+	 * @param type $Section Section name
 	 * @return boolean
 	 */
-	public function deleteSection($sSection = '')
+	public function deleteSection($Section)
 	{
-		$bReturn = FALSE;
-		$sSection = $this->_fillEmptySection($sSection);
+		$isDeleted = FALSE;
+		$Section = $this->_fillEmptySection($Section);
 
-		if(in_array($sSection, $this->aSections)) {
-			unset($this->aConfiguration[$sSection]);
-			$this->aSections = array_keys($this->aConfiguration);
-			$bReturn = TRUE;
+		if(in_array($Section, $this->Sections)) {
+			unset($this->Configuration[$Section]);
+			$this->Sections = array_keys($this->Configuration);
+			$isDeleted = TRUE;
 		}
 
-		unset($sSection);
-		return $bReturn;
+		unset($Section);
+		return $isDeleted;
 	}
 
 	/**
 	 * Get full section
-	 * @param string $sSection Section name
+	 * @param string $Section Section name
 	 * @return array
 	 */
-	public function getSection($sSection = '')
+	public function getSection($Section)
 	{
-		$sSection = $this->_fillEmptySection($sSection);
-		$aSection = array();
+		$Section = $this->_fillEmptySection($Section);
+		$Values = array();
 
-		if(in_array($sSection, $this->aSections)) {
-			$aSection = $this->aConfiguration[$sSection];
+		if(in_array($Section, $this->Sections)) {
+			$Values = $this->Configuration[$Section];
 		}
 
-		unset($sSection);
-		return $aSection;
+		unset($Section);
+		return $Values;
 	}
 
 	/**
@@ -170,142 +170,112 @@ class Config {
 	 */
 	public function getSections()
 	{
-		return $this->aSections;
+		return $this->Sections;
 	}
 
 	/**
 	 * Add value to section
-	 * @param type $sKey Key of new value
-	 * @param type $sValue New value
-	 * @param type $sSection Section name
+	 * @param type $Key Key of new value
+	 * @param type $Value New value
+	 * @param type $Section Section name
 	 * @return boolean
 	 */
-	public function addValue($sKey = '', $sValue = '', $sSection = '')
+	public function addValue($Key, $Value = '', $Section = '')
 	{
-		$bReturn = FALSE;
+		$isAdded = FALSE;
 
-		if(!empty($sKey)) {
-			if(is_array($sKey)) {
-				$aInsert = $sKey;
-				$sSection = $sValue;
+		if(!empty($Key)) {
+			if(is_array($Key)) {
+				$Values = $Key;
+				$Section = $Value;
 			}
 			else {
-				$aInsert = array($sKey => $sValue);
+				$Values = array($Key => $Value);
 			}
 
-			$sSection = $this->_fillEmptySection($sSection);
-
-			if(!in_array($sSection, $this->getSections())) {
-				$this->addSection($sSection);
-			}
+			$Section = $this->_fillEmptySection($Section);
+            $this->addSection($Section);
 			
-			foreach ($aInsert as $sKey => $sValue) {
-				$this->aConfiguration[(string) $sSection][(string) $sKey] = (string) $sValue;
+			foreach ($Values as $Key => $Value) {
+				$this->Configuration[(string) $Section][(string) $Key] = (string) $Value;
 			}
-			$bReturn = TRUE;
+			$isAdded = TRUE;
 		}
 
-		unset($sKey, $sValue, $sSection, $aInsert);
-		return $bReturn;
+		unset($Key, $Value, $Section, $Values);
+		return $isAdded;
 	}
 
 	/**
 	 * Delete key from section
-	 * @param type $sKey Key from section
-	 * @param type $sSection Section name
+	 * @param type $Key Key from section
+	 * @param type $Section Section name
 	 * @return boolean
 	 */
-	public function deleteKey($sKey = '', $sSection = '')
+	public function deleteKey($Key, $Section = '')
 	{
-		$bReturn = FALSE;
+		$isDeleted = FALSE;
 
-		$sSection = $this->_fillEmptySection($sSection);
-		if(isset($this->aConfiguration[$sSection][$sKey])) {
-			unset($this->aConfiguration[$sSection][$sKey]);
-			$bReturn = TRUE;
+		$Section = $this->_fillEmptySection($Section);
+		if(isset($this->Configuration[$Section][$Key])) {
+			unset($this->Configuration[$Section][$Key]);
+			$isDeleted = TRUE;
 		}
 
-		unset($sKey, $sSection);
-		return $bReturn;
+		unset($Key, $Section);
+		return $isDeleted;
 	}
 
 	/**
 	 * Get value from configuration
-	 * @param string $sKey Key in section
-	 * @param string $sSection Section name
+	 * @param string $Key Key in section
+	 * @param string $Section Section name
 	 * @return string
 	 */
-	public function getValue($sKey = '', $sSection = '')
+	public function getValue($Key, $Section = '')
 	{
-		$sSection = $this->_fillEmptySection($sSection);
-		$xValue = NULL;
+		$Section = $this->_fillEmptySection($Section);
+		$Value = NULL;
 
-		if(isset($this->aConfiguration[$sSection][$sKey])) {
-			$xValue = $this->aConfiguration[$sSection][$sKey];
+		if(isset($this->Configuration[$Section][$Key])) {
+			$Value = $this->Configuration[$Section][$Key];
 		}
 
-		unset($sKey, $sSection);
-		return $xValue;
+		unset($Key, $Section);
+		return $Value;
 	}
 
 	/**
 	 * Set value
-	 * @param type $sKey Key in section
-	 * @param type $sValue New value
-	 * @param type $sSection Section name
+	 * @param type $Key Key in section
+	 * @param type $Value New value
+	 * @param type $Section Section name
 	 * @return boolean
 	 */
-	public function setValue($sKey = '', $sValue = '', $sSection = '')
+	public function setValue($Key, $Value = '', $Section = '')
 	{
-		$bReturn = FALSE;
-		$bError = FALSE;
-		
-		if(is_array($sKey)) {
-			$aUpdate = $sKey;
-			$sSection = $sValue;
-		}
-		else {
-			$aUpdate = array($sKey => $sValue);
-		}
-
-		$sSection = $this->_fillEmptySection($sSection);
-
-		if(in_array($sSection, $this->getSections())) {
-			foreach ($aUpdate as $sKey => $sValue) {
-				if(!isset($this->aConfiguration[(string)$sSection][(string)$sKey])) {
-					$bError = TRUE;
-					break;
-				}				
-			}
-			
-			if(!$bError) {
-				foreach ($aUpdate as $sKey => $sValue) {
-					$this->aConfiguration[(string)$sSection][(string)$sKey] = $sValue;
-				}
-				$bReturn = TRUE;
-			}
-		}
-		
-		unset($sKey, $sValue, $sSection);
-		return $bReturn;
-	}
+        $isSet = $this->addValue($Key, $Value, $Section);
+        
+        unset($Key, $Value, $Section);
+        return $isSet;
+    }
 
 	/**
 	 * Set section as default
-	 * @param string $sSection Section name
+	 * @param string $Section Section name
 	 * @return boolean
 	 */
-	public function setDefaultSection($sSection = '')
+	public function setDefaultSection($Section = '')
 	{
-		$bReturn = FALSE;
+		$isSet = FALSE;
 
-		if(!empty($sSection) and in_array($sSection, $this->aSections)) {
-			$this->sDefaultSection = $sSection;
-			$bReturn = TRUE;
+		if(!empty($Section) and in_array($Section, $this->Sections)) {
+			$this->DefaultSection = $Section;
+			$isSet = TRUE;
 		}
 
-		unset($sSection);
-		return $bReturn;
+		unset($Section);
+		return $isSet;
 	}
 
 	/**
@@ -315,38 +285,38 @@ class Config {
 	 */
 	public function getDefaultSection()
 	{
-		return $this->sDefaultSection;
+		return $this->DefaultSection;
 	}
 
-	public function Save($sFileName = '')
+	public function Save($File = '')
 	{
-		$bReturn = FALSE;
+		$isSaved = FALSE;
 
-		if(!empty($sFileName)) {
-			$this->oConfigAdapter->setFilename($sFileName);
+		if(!empty($File)) {
+			$this->ConfigurationAdapter->setFilename($File);
 		}
 
-		if($this->oConfigAdapter->setConfiguration($this->aConfiguration)) {
-			$bReturn = $this->oConfigAdapter->saveConfiguration();
+		if($this->ConfigurationAdapter->setConfiguration($this->Configuration)) {
+			$isSaved = $this->ConfigurationAdapter->saveConfiguration();
 		}
 
-		unset($sFileName);
-		return $bReturn;
+		unset($File);
+		return $isSaved;
 	}
 
 	/**
 	 * Fill empty section with default section 
-	 * @param string $sSection Section name
+	 * @param string $Section Section name
 	 * @return string
 	 * @access private
 	 */
-	private function _fillEmptySection($sSection = '')
+	private function _fillEmptySection($Section = '')
 	{
-		if(empty($sSection) and !empty($this->sDefaultSection)) {
-			$sSection = $this->sDefaultSection;
+		if(empty($Section) and !empty($this->DefaultSection)) {
+			$Section = $this->DefaultSection;
 		}
 
-		return $sSection;
+		return $Section;
 	}
 
 }

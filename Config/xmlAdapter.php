@@ -30,17 +30,17 @@ class xmlAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
-	 * @param type $sFileName
+	 * @param type $File
 	 */
-	public function __construct($sFileName)
+	public function __construct($File, $allowCreate = FALSE)
 	{
-        parent::__construct($sFileName);
+        parent::__construct($File, $allowCreate);
         
 		libxml_use_internal_errors(TRUE);
-		$oXML = simplexml_load_file($this->sFileName, 'SimpleXMLElement', LIBXML_NOERROR);
-		$this->aConfiguration = json_decode(json_encode($oXML), TRUE);
+		$XML = simplexml_load_file($this->File, 'SimpleXMLElement', LIBXML_NOERROR);
+		$this->Configuration = json_decode(json_encode($XML), TRUE);
 
-		unset($sFileName, $oXML);
+		unset($File, $XML, $allowCreate);
 	}
 
 	/**
@@ -50,28 +50,26 @@ class xmlAdapter extends basicAdapter {
 	 */
 	public function saveConfiguration()
 	{
-		$oConfiguration = new DOMDocument('1.0', 'UTF-8');
-		$oConfiguration->preserveWhiteSpace = false;
-		$oConfiguration->formatOutput = true;
-		$oElement = $oConfiguration->createElement('configuration');
-		$oConfiguration->appendChild($oElement);
+        parent::saveConfiguration();
+        
+		$OutputContent = new DOMDocument('1.0', 'UTF-8');
+		$OutputContent->preserveWhiteSpace = false;
+		$OutputContent->formatOutput = true;
+		$Element = $OutputContent->createElement('configuration');
+		$OutputContent->appendChild($Element);
 
-		foreach ($this->aConfiguration as $sSection => $aSectionValues) {
-			$oSection = $oConfiguration->createElement($sSection);
-			$oConfiguration->documentElement->appendChild($oSection);
+		foreach ($this->Configuration as $Section => $Values) {
+			$NewSection = $OutputContent->createElement($Section);
+			$OutputContent->documentElement->appendChild($NewSection);
 
-			foreach ($aSectionValues as $sKey => $sValue) {
-				$oKey = $oConfiguration->createElement($sKey, $sValue);
-				$oSection->appendChild($oKey);
+			foreach ($Values as $Key => $Value) {
+				$NewSection->appendChild($OutputContent->createElement($Key, $Value));
 			}
-
-			$sOutput = $oConfiguration->saveXML();
 		}
+        $isSaved = $this->saveToFile($OutputContent->saveXML());
 
-        $bReturn = $this->saveToFile($sOutput);
-
-		unset($oConfiguration, $oElement, $sSection, $aSectionValues, $oSection, $sKey, $sValue, $oKey, $sOutput);
-		return $bReturn;
+		unset($OutputContent, $Element, $Section, $Values, $NewSection, $Key, $Value);
+		return $isSaved;
 	}
 
 }

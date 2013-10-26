@@ -30,15 +30,15 @@ class iniAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
-	 * @param type $sFileName
+	 * @param type $File
 	 */
-	public function __construct($sFileName)
+	public function __construct($File, $allowCreate = FALSE)
 	{
-        parent::__construct($sFileName);
+        parent::__construct($File, $allowCreate);
         
-		$this->aConfiguration = parse_ini_file($this->sFileName, TRUE);
+		$this->Configuration = parse_ini_file($this->File, TRUE);
 
-		unset($sFileName);
+		unset($File, $allowCreate);
 	}
 
 	/**
@@ -49,21 +49,25 @@ class iniAdapter extends basicAdapter {
 	 */
 	public function saveConfiguration()
 	{
-		$sOutput = '';
-		foreach ($this->aConfiguration as $sSection => $aSectionValues) {
-			$sOutput .= '[' . $sSection . ']' . chr(10);
-			foreach ($aSectionValues as $sKey => $sValue) {
-				$sOutput .= $sKey . ' = "' . $sValue . '"' . chr(10);
+        parent::saveConfiguration();
+        
+		$OutputContent = '';
+        
+		foreach ($this->Configuration as $Section => $Values) {
+			$OutputContent .= '[' . $Section . ']' . chr(10);
+
+            foreach ($Values as $sKey => $sValue) {
+				$OutputContent .= $sKey . ' = "' . $sValue . '"' . chr(10);
 			}
-			$sOutput .= chr(10);
+			
+            $OutputContent .= chr(10);
 		}
 
-        $bReturn = $this->saveToFile($sOutput);
+        $isSaved = $this->saveToFile($OutputContent);
 
-		unset($sOutput, $sSection, $aSectionValues, $sKey, $sValue);
-		return $bReturn;
+		unset($OutputContent, $Section, $Values, $sKey, $sValue);
+		return $isSaved;
 	}
-
 }
 
 # End of file
