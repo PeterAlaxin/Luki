@@ -152,8 +152,6 @@ class Loader {
 
     public static function isClass($sClassName = '')
 	{
-        var_dump($sClassName);
-        
 		$sReturn = NULL;
 		$sClassFile = preg_replace('/_/', '/', $sClassName) . '.php';
 

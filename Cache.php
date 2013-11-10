@@ -30,6 +30,11 @@ use Luki\Cache\basicInterface;
  */
 class Cache {
 
+    const EXPIRE_IN_MINUTE = 60;
+    const EXPIRE_IN_HALF_AN_HOUR = 1800;
+    const EXPIRE_IN_HOUR = 3600;
+    const EXPIRE_IN_DAY = 86400;
+    
 	/**
 	 * Chache adapter
 	 * @var object 
