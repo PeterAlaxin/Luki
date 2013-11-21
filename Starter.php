@@ -141,6 +141,10 @@ class Starter {
             if(!empty($aCache['expiration'])) {
                 Storage::Cache()->setExpiration($aCache['expiration']);
             }
+
+            if(isset($aCache['useCache'])) {
+                Storage::Cache()->useCache($aCache['useCache']);
+            }
         }
 
         unset($aCache, $sAdapter, $oAdapter);

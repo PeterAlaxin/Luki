@@ -35,19 +35,12 @@ class Cache {
     const EXPIRE_IN_HOUR = 3600;
     const EXPIRE_IN_DAY = 86400;
     
-	/**
-	 * Chache adapter
-	 * @var object 
-	 * @access private
-	 */
 	private $CacheAdapter = NULL;
 	
-	/**
-	 * Default expiration
-	 * @var int
-	 */
 	private $ExpirationInSeconds = 0;
 
+    private $useCache = TRUE;
+    
 	public function __construct(basicInterface $CacheAdapter)
 	{
 		$this->CacheAdapter = $CacheAdapter;
@@ -82,6 +75,10 @@ class Cache {
 
 	public function Set($Key, $Value = '', $ExpirationInSeconds = NULL)
 	{
+        if(!$this->useCache) {
+            return NULL;
+        }
+        
         if(is_null($ExpirationInSeconds)) {
             $ExpirationInSeconds = $this->ExpirationInSeconds;
         }
@@ -105,8 +102,13 @@ class Cache {
 
 	public function Get($Key)
 	{
-		$Value = $this->CacheAdapter->Get($Key);
-
+        if(!$this->useCache) {
+            $Value = NULL;
+        }
+        else {
+            $Value = $this->CacheAdapter->Get($Key);
+        }
+        
 		unset($Key);
 		return $Value;
 	}
@@ -119,6 +121,9 @@ class Cache {
 		return $isDeleted;
 	}
 
+    public function useCache($useCache = TRUE) {
+        $this->useCache = (bool) $useCache;
+    }
 }
 
 # End of file
