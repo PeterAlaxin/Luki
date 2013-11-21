@@ -51,7 +51,7 @@ class Profiler {
         $nMemory = memory_get_usage();
         
         $this->_startProfiler();
-        $this->_insideCell('Page time', round(Time::getStopwatch('Luki_Profiler_PageTimer'), 4) . ' s');
+        $this->_insideCell('Page time', $this->changeSecToMs(Time::getStopwatch('Luki_Profiler_PageTimer')) . ' ms');
         $this->_showMemory($nMemory);
         $this->_showSession();
         $this->_showTemplate();
@@ -105,16 +105,16 @@ class Profiler {
             $aTemplates = $this->_profiler['Template'];
             $sHidden = '<table>';
             foreach($aTemplates as $aTemplate) {
-                $nTime = round($aTemplate['time'], 4);
+                $nTime = $this->changeSecToMs($aTemplate['time']);
                 $nTimes += $nTime;
                 $sHidden .= '<tr><td>' . $aTemplate['name'] . ':</td>';
-                $sHidden .= '<td>' . $nTime . '&nbsp;s</td></tr>';
+                $sHidden .= '<td>' . $nTime . '&nbsp;ms</td></tr>';
             }
             $sHidden .= '</table>';
         }
         
         if(!empty($aTemplates)) {
-            $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' s)', $sHidden);
+            $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' ms)', $sHidden);
         }
     }
     
@@ -126,15 +126,15 @@ class Profiler {
             $aDatas = $this->_profiler['Data'];
             $sHidden = '<table border="1" cellspacing="0" cellpadding="3">';
             foreach($aDatas as $aData) {
-                $nTime = round($aData['time'], 4);
+                $nTime = $this->changeSecToMs($aData['time']);
                 $nTimes += $nTime;
                 $sHidden .= '<tr><td>' . $aData['sql'] . '</td>';
-                $sHidden .= '<td>' . $nTime . '&nbsp;s</td></tr>';
+                $sHidden .= '<td>' . number_format($nTime, 2) . '&nbsp;ms</td></tr>';
             }
             $sHidden .= '</table>';
         }
         
-        $this->_insideCell('Data', count($aDatas) . 'x (' . $nTimes . ' s)', $sHidden);
+        $this->_insideCell('Data', count($aDatas) . 'x (' . $nTimes . ' ms)', $sHidden);
     }
     
     private function _startProfiler()
@@ -165,6 +165,14 @@ class Profiler {
         echo '<b>' . $sTitle . ':</b>&nbsp;';
         echo $sContent;
         echo '&nbsp;</div>';
+    }
+    
+    private function changeSecToMs($Sec)
+    {
+        $Ms = round($Sec*1000, 2);
+        
+        unset($Sec);
+        return $Ms;
     }
 }
 
