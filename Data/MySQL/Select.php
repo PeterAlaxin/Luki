@@ -60,6 +60,7 @@ class Select {
 		'group' => '',
 		'having' => '',
 		'where' => '',
+		'orWhere' => array(),
 		'order' => '',
 		'limit' => array(
 			'from' => 0,
@@ -174,15 +175,11 @@ class Select {
 
 	public function orWhere($sCondition, $sParameter = NULL)
 	{
-		if(!empty($this->aSelect['where'])) {
-			$this->aSelect['where'] = '(' . $this->aSelect['where'] . ') OR ';
-		}
-
 		if(!is_null($sParameter)) {
-			$sCondition = $this->_escape($sCondition, $sParameter);
+			$sCondition = $this->_escapeString($sCondition, $sParameter);
 		}
 
-		$this->aSelect['where'] .= '(' . $sCondition . ')';
+		$this->aSelect['orWhere'][] = $sCondition;
 
 		unset($sCondition, $sParameter);
 		return $this;
@@ -463,6 +460,16 @@ class Select {
 		if(!empty($this->aSelect['where'])) {
 			$sSQL .= ' WHERE ' . $this->aSelect['where'];
 			$sSQL .= chr(13);
+		}
+		if(!empty($this->aSelect['orWhere'])) {
+			$sSQL .= ' AND (';
+            foreach($this->aSelect['orWhere'] as $Key => $Condition) {
+                if(!empty($Key)) {
+                    $sSQL .= ' OR ';
+                }
+                $sSQL .= $Condition;
+            }
+			$sSQL .= ')'. chr(13);
 		}
 		#</editor-fold>
 		#<editor-fold defaultstate="collapsed" desc="Group">
