@@ -137,12 +137,12 @@ class Security {
 	}
 
 	/**
-	 * SHA2 hash
+	 * Generate hash
 	 * 
 	 * @param string Any data
 	 * @return string Hash
 	 */
-	static function SHA2($sString = '')
+	static function generateHash($sString = '')
 	{
 		$sHashed = '';
 
