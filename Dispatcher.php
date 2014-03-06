@@ -74,7 +74,7 @@ class Dispatcher {
     
     private function _checkRoute($aRoute) 
     {
-        $aUrl = explode('/', $aRoute['url']);
+        $aUrl = explode('/', (string)$aRoute['url']);
         $bEqual = TRUE;
         
         for($i=0; $i<$aRoute['count']; $i++) {
