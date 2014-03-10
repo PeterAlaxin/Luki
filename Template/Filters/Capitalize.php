@@ -26,7 +26,7 @@ namespace Luki\Template\Filters;
  */
 class Capitalize {
 
-	public function Get($sValue)
+	public static function Get($sValue)
 	{
 		$sValue = mb_convert_case($sValue, MB_CASE_UPPER, 'UTF-8');
 		$sReturn = mb_substr($sValue, 0, 1, 'UTF-8') . 
