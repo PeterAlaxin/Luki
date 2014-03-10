@@ -139,12 +139,13 @@ class Profiler {
     
     private function _startProfiler()
     {
-        echo '<div style="width: 100%; min-height: 20px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px;">';
+        echo '<div style="width: 100%; min-height: 20px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px;" id="LukiProfiler">';
         $this->_insideCell('Luki', '3.0.0');
     }
     
     private function _endProfiler()
     {
+        echo '<span style="position: relative; top: 0; right: 5px; float: right; cursor: pointer;" onclick="var x=document.getElementById(\'LukiProfiler\'); x.style.display=\'none\';">X</span>';
         echo '</div>';        
 #        echo '</body></html>';        
     }
