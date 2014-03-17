@@ -21,6 +21,8 @@ namespace Luki;
 
 use Luki\Data;
 use Luki\Data\basicInterface;
+use Luki\Storage;
+use Luki\Url;
 
 /**
  * Model class
@@ -62,6 +64,44 @@ abstract class Model {
 		
 		return $oAdapter;
 	}
+
+    public function getFromCache($sName='') 
+    {
+        $xCache = FALSE;
+        if(Storage::isCache()) {
+            $sName = $this->_getCacheName($sName);        
+            $xCache = Storage::Cache()->Get($sName);
+        }
+        
+        unset($sName);
+        return $xCache;
+    }
+    
+    public function setToCache($sContent, $sName='', $nExpiration=3600)
+    {
+        if(Storage::isCache()) {
+            $sName = $this->_getCacheName($sName);
+            Storage::Cache()->Set($sName, $sContent, $nExpiration);
+        }
+        
+        unset($sContent, $sName, $nExpiration);
+    }
+    
+    private function _getCacheName($sName)
+    {
+        $aCallers = debug_backtrace();
+        $sNewName = $aCallers[2]['class'] . '_' . $aCallers[2]['function'];
+
+        if(!empty($sName)) {
+            $sNewName .= '_' . $sName;
+        }
+        elseif(!empty($aCallers[2]['args'])) {
+            $sNewName .= '_' . Url::makeLink(implode('_', $aCallers[2]['args']), FALSE);
+        }
+        
+        unset($aCallers, $sName);
+        return $sNewName;
+    }
 }
 
 # End of file
