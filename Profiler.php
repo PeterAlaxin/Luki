@@ -36,27 +36,35 @@ class Profiler {
 	private $_profiler = array();
     
     private $nMemory;
+    
+    private $bAjax = FALSE;
 
     public function __construct($aMicrotime, $nMemory)
     {
-        Time::stopwatchStart('Luki_Profiler_PageTimer', $aMicrotime);
-        $this->nMemory = $nMemory;
+        $this->bAjax =Storage::Request()->isAjax();
+        
+        if(!$this->bAjax) {
+            Time::stopwatchStart('Luki_Profiler_PageTimer', $aMicrotime);
+            $this->nMemory = $nMemory;
+        }
         
         unset($nMemory);
     }
     
     function __destruct() 
     {
-        Time::stopwatchStop('Luki_Profiler_PageTimer');
-        $nMemory = memory_get_usage();
-        
-        $this->_startProfiler();
-        $this->_insideCell('Page time', $this->changeSecToMs(Time::getStopwatch('Luki_Profiler_PageTimer')) . ' ms');
-        $this->_showMemory($nMemory);
-        $this->_showSession();
-        $this->_showTemplate();
-        $this->_showData();
-        $this->_endProfiler();
+        if(!$this->bAjax) {
+            Time::stopwatchStop('Luki_Profiler_PageTimer');
+            $nMemory = memory_get_usage();
+
+            $this->_startProfiler();
+            $this->_insideCell('Page time', $this->changeSecToMs(Time::getStopwatch('Luki_Profiler_PageTimer')) . ' ms');
+            $this->_showMemory($nMemory);
+            $this->_showSession();
+            $this->_showTemplate();
+            $this->_showData();
+            $this->_endProfiler();
+        }
     }
     
     public function Add($sKey, $sValue) 
