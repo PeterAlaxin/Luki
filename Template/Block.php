@@ -35,6 +35,8 @@ class Block {
     protected $sTransformedContent = '';
     protected $aVariables = array();
     protected $aOperators = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
+    protected $aLogic = array("is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
+      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd");
 
     public function __construct($Block)
     {
@@ -151,13 +153,16 @@ class Block {
         foreach($aMatches as $aMatch) {
 
             $aSubMatches = array();
-            preg_match_all('/\(|\)|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
 
             $sCondition = '';
             
             foreach($aSubMatches as $aSubMatch) {
                 if(in_array($aSubMatch[0], $this->aOperators) or is_numeric($aSubMatch[0])) {
                     $sCondition .= $aSubMatch[0]; 
+                }
+                elseif(in_array($aSubMatch[0], $this->aLogic)) {
+                    $sCondition = $this->_generateTest($aMatch, $aSubMatch);
                 }
                 elseif(empty($aSubMatch[0])) {
                     $sCondition .= ' ';
@@ -240,6 +245,33 @@ class Block {
         
         unset($oVariable, $bAddToVariables);
         return $sVariable;
+    }
+    
+    private function _generateTest($aMatch, $aSubMatch)
+    {
+        $sCondition = '';
+        $sTest = str_replace('is ', '', str_replace('is not ', '', $aSubMatch[0]));
+                
+        switch($sTest) {
+            case 'blank':
+            case 'constant':
+            case 'defined':
+            case 'even':
+            case 'iterable':
+            case 'null':
+            case 'odd':
+                $aCondition = explode(' ', $aMatch[1]);
+                $sVariable = $this->_transformToVariable($aCondition[0]);
+                $sCondition .= '$this->aTests["' . $sTest . '"]->Is(' . $sVariable . ')';
+                break;
+        }
+        
+        if(strpos($aSubMatch[0], ' not ') > 0) {
+            $sCondition = '!' . $sCondition;
+        }
+
+        unset($aMatch, $aSubMatch, $sTest, $aCondition, $sVariable);
+        return $sCondition;
     }
 }
 

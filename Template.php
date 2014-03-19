@@ -42,6 +42,7 @@ class Template {
     protected $sNewClass = '';
     protected $aFilters = array();
     protected $aFunctions = array();
+    protected $aTests = array();
     protected $sExtendedClass = '';
 
     /**
@@ -115,6 +116,7 @@ class Template {
         if(empty($this->sExtendedClass)) {
             $this->_defineFilters();
             $this->_defineFunctions();
+            $this->_defineTests();
         }
         
         $this->_defineBlocks();
@@ -187,6 +189,7 @@ class Template {
             $this->sClassContent .= self::phpRow('$this->aData["loop"] = array();', 2);
             $this->sClassContent .= self::phpRow('$this->_defineFilters();', 2);
             $this->sClassContent .= self::phpRow('$this->_defineFunctions();', 2);
+            $this->sClassContent .= self::phpRow('$this->_defineTests();', 2);
             $this->sClassContent .= self::phpRow('}', 1, 2);
             $this->sClassContent .= self::phpRow('public function Render()');
             $this->sClassContent .= self::phpRow('{');
@@ -229,6 +232,23 @@ class Template {
             $sFile = preg_replace('/.php/', '', $sFile);
             $sFunction = strtolower($sFile);
             $this->sClassContent .= self::phpRow('$this->aFunctions["' . $sFunction . '"] = new Luki\\Template\\Functions\\' . $sFile . ';', 2);
+        }
+        $this->sClassContent .= self::phpRow('}', 1, 2);
+
+        unset($aFiles, $sFile, $sFunction);
+    }
+
+    private function _defineTests()
+    {
+        $this->sClassContent .= self::phpRow('public function _defineTests()');
+        $this->sClassContent .= self::phpRow('{');
+
+        $aFiles = File::getFilesInDirectory(__DIR__ . '/Template/Tests');
+
+        foreach ($aFiles as $sFile) {
+            $sFile = preg_replace('/.php/', '', $sFile);
+            $sFunction = strtolower($sFile);
+            $this->sClassContent .= self::phpRow('$this->aTests["' . $sFunction . '"] = new Luki\\Template\\Tests\\' . $sFile . ';', 2);
         }
         $this->sClassContent .= self::phpRow('}', 1, 2);
 
