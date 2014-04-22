@@ -124,6 +124,10 @@ class Cache {
     public function useCache($useCache = TRUE) {
         $this->useCache = (bool) $useCache;
     }
+
+    public function isUsedCache() {
+        return $this->useCache;
+    }
 }
 
 # End of file

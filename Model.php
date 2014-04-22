@@ -68,7 +68,8 @@ abstract class Model {
     public function getFromCache($sName='') 
     {
         $xCache = FALSE;
-        if(Storage::isCache()) {
+        
+        if(Storage::isCache() and Storage::Cache()->isUsedCache()) {            
             $sName = $this->_getCacheName($sName);        
             $xCache = Storage::Cache()->Get($sName);
         }
