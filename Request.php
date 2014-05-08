@@ -21,8 +21,8 @@ namespace Luki;
 
 use Luki\Request\cookieAdapter;
 use Luki\Request\filesAdapter;
-use Luki\Request\queryAdapter;
-use Luki\Request\requestAdapter;
+use Luki\Request\getAdapter;
+use Luki\Request\postAdapter;
 use Luki\Request\serverAdapter;
 
 /**
@@ -34,8 +34,8 @@ class Request {
 
     public $cookie; 
     public $files; 
-    public $query; 
-    public $request;
+    public $get; 
+    public $post;
     public $server;
     
     private $ajax = NULL;
@@ -67,8 +67,8 @@ class Request {
 	{
         $this->cookie = new cookieAdapter();
         $this->files = new filesAdapter();
-        $this->query = new queryAdapter();
-        $this->request = new requestAdapter();
+        $this->get = new getAdapter();
+        $this->post = new postAdapter();
         $this->server = new serverAdapter();
 	}
     

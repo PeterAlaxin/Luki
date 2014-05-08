@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Request adapter
+ * Post adapter
  *
  * Luki framework
  * Date 19.9.2012
@@ -20,11 +20,11 @@
 namespace Luki\Request;
 
 /**
- * Request adapter
+ * Post adapter
  * 
  * @package Luki
  */
-class requestAdapter extends basicAdapter {
+class postAdapter extends basicAdapter {
 
 	/**
 	 * Constructor

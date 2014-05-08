@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Query adapter
+ * Get adapter
  *
  * Luki framework
  * Date 19.9.2012
@@ -22,11 +22,11 @@ namespace Luki\Request;
 use Luki\Request\basicAdapter;
 
 /**
- * Query adapter
+ * Get adapter
  * 
  * @package Luki
  */
-class queryAdapter extends basicAdapter {
+class getAdapter extends basicAdapter {
 
 	/**
 	 * Constructor
