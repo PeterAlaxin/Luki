@@ -24,7 +24,7 @@ namespace Luki\Data\MySQL;
  *
  * @package Luki
  */
-class Result {
+class Result implements \Iterator {
 
 	/**
 	 * Position
