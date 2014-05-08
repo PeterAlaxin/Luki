@@ -111,6 +111,7 @@ class Block {
         preg_match_all('|{% for (.*) in (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
 
         foreach($aMatches as $aMatch) {
+
             $this->aVariables[] = new Variable($aMatch[1]);
             $sVariable = $this->_transformToVariable($aMatch[2], TRUE);
             
@@ -118,11 +119,12 @@ class Block {
             $sFor .= Template::phpRow('if(empty(' . $sVariable . ')) { ' . $sVariable . ' = array(); }', 2); 
             $sFor .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $sVariable . ';', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["length"] = count($this->aData["loop"]["variable"]);', 2); 
+            $sFor .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2); 
             $sFor .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2); 
+            $sFor .= $this->_elseFor($aMatch);
             $sFor .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $aMatch[1] . '"]) {', 2);
             $sFor .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
             $sFor .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
@@ -145,6 +147,26 @@ class Block {
         unset($aMatches, $aMatch, $sFor, $sEndFor, $sVariable);
     }
 
+    private function _elseFor($aMatch)
+    {
+        $aMatches = array();
+        $sElseFor = '';
+        preg_match_all('|(' . $aMatch[0] . ')([\s\S]*)({% elsefor %})([\s\S]*)({% endfor %})|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        
+        if(!empty($aMatches)) {
+            $sElseFor .= Template::phpRow('if(0 == $this->aData["loop"]["length"]) {', 2); 
+            $sElseFor .= Template::phpRow(' ?>', 1);
+            $sElseFor .= $aMatches[0][4];
+            $sElseFor .= Template::phpRow('<?php '); 
+            $sElseFor .= Template::phpRow('}', 2); 
+
+            $this->sContent = str_replace($aMatches[0][3] . $aMatches[0][4], '', $this->sContent);
+        }
+        
+        unset($aMatch, $aMatches);
+        return $sElseFor;
+    }
+    
     private function _ifBlock()
     {
         $aMatches = array();

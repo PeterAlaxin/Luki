@@ -75,6 +75,34 @@ class Variable {
         return $this->sFinalVariable;
     }
 
+    public static function getVariableLenght($variable) {
+
+        switch (gettype($variable)) {
+            case 'array':
+            case 'boolean':
+            case 'NULL':
+                $nLenght = count($variable);
+                break;
+            case 'string':
+                $nLenght = strlen($variable);
+                break;
+            case 'integer':
+            case 'double':
+                $nLenght = $variable;
+                break;
+            case 'object':
+                if(is_a($variable, 'Luki\Data\MySQL\Result')) {
+                    $nLenght = $variable->getRecordsCount();
+                }
+                break;
+            default :
+                $nLenght = NULL;
+        }
+        
+        unset($variable);
+        return $nLenght;
+    }
+    
     private function _prepareFilters()
     {
         if(strpos($this->sContent, '|')) {
