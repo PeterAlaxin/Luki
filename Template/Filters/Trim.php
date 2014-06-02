@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Trim {
+class Trim
+{
 
-	public function Get($sValue, $sCharlist = '')
-	{
-		$sReturn = trim($sValue, ' \t\n\r\0\x0B' . $sCharlist);
-		
-		unset($sValue, $sCharlist);
-		return $sReturn;
-	}
+    public function Get($value, $charList = '')
+    {
+        $trimmed = trim($value, ' \t\n\r\0\x0B' . $charList);
+
+        unset($value, $charList);
+        return $trimmed;
+    }
+
 }
 
 # End of file

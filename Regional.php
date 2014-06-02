@@ -24,181 +24,134 @@ namespace Luki;
  *
  * @package Luki
  */
-class Regional {
+class Regional
+{
 
-	public static $sFormat = '%x';
+    public static $format = '%x';
 
-	/**
-	 * Set output date format
-	 * 
-	 * @param type $sFormat
-	 */
-	public static function setFormat($sFormat = '%x')
-	{
-		$bReturn = FALSE;
-		$oDate = date_create('now');
+    public static function setFormat($format = '%x')
+    {
+        $isSet = FALSE;
+        $date = date_create('now');
 
-		if(FALSE !== $oDate->format($sFormat)) {
-			self::$sFormat = $sFormat;
-			$bReturn = TRUE;
-		}
+        if ( FALSE !== $date->format($format) ) {
+            self::$format = $format;
+            $isSet = TRUE;
+        }
 
-		unset($sFormat);
-		return $bReturn;
-	}
+        unset($format);
+        return $isSet;
+    }
 
-	/**
-	 * Get current format
-	 */
-	public static function getFormat()
-	{
-		return self::$sFormat;
-	}
+    public static function getFormat()
+    {
+        return self::$format;
+    }
 
-	/**
-	 * Reset output date format to default
-	 * 
-	 * @param type $sFormat
-	 */
-	public static function resetFormat()
-	{
-		self::$sFormat = '%x';
-	}
+    public static function resetFormat()
+    {
+        self::$format = '%x';
+        
+        return $this;
+    }
 
-	/**
-	 * Transform Date
-	 *
-	 * @param date $dValue Date
-	 * @param string $sFormat User format
-	 * @return date
-	 */
-	public static function Date($dValue = NULL, $sFormat = NULL)
-	{
-		if(empty($dValue) or
-			'0000-00-00' == $dValue or
-			($nMicroValue = strtotime($dValue)) === FALSE) {
-			unset($dValue, $sFormat, $nMicroValue);
-			return '';
-		}
+    public static function Date($value = NULL, $format = NULL)
+    {
+        if ( empty($value) or
+                '0000-00-00' == $value or ( $microValue = strtotime($value)) === FALSE ) {
+            unset($value, $format, $microValue);
+            return '';
+        }
 
-		$sOldLocale = NULL;
+        $oldLocale = NULL;
 
-		switch ($sFormat) {
-			case 'text':
-				$sFormat = '%e. %B %Y, %A';
-				break;
-			case 'gmt':
-				$sFormat = '%a, %d %b %Y %H:%M:%S GMT';
-				$sOldLocale = setlocale(LC_TIME, 0);
-				setlocale(LC_TIME, 'en_US.utf8');
-				break;
-			case NULL;
-			default:
-				$sFormat = self::$sFormat;
-		}
+        switch ( $format ) {
+            case 'text':
+                $format = '%e. %B %Y, %A';
+                break;
+            case 'gmt':
+                $format = '%a, %d %b %Y %H:%M:%S GMT';
+                $oldLocale = setlocale(LC_TIME, 0);
+                setlocale(LC_TIME, 'en_US.utf8');
+                break;
+            case NULL;
+            default:
+                $format = self::$format;
+        }
 
-		$dValue = strftime($sFormat, $nMicroValue);
+        $value = strftime($format, $microValue);
 
-		if(!is_null($sOldLocale)) {
-			setlocale(LC_TIME, $sOldLocale);
-		}
+        if ( !is_null($oldLocale) ) {
+            setlocale(LC_TIME, $oldLocale);
+        }
 
-		unset($sFormat);
-		return $dValue;
-	}
+        unset($format);
+        return $value;
+    }
 
-	/**
-	 * Transform Money
-	 *
-	 * @param float $nMoney Money
-	 * @param string $sFormat User format
-	 * @return string Formated money
-	 */
-	public static function Money($nMoney, $sFormat = NULL)
-	{
-		# Linux
-		if(!empty($_SERVER["HTTP_USER_AGENT"]) and
-			0 === preg_match('/windows/i', $_SERVER["HTTP_USER_AGENT"])) {
+    public static function Money($money, $format = NULL)
+    {
+        $userAgent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
+        if ( !empty($userAgent) and
+                0 === preg_match('/windows/i', $userAgent) ) {
 
-			switch ($sFormat) {
-				case 'eur':
-					$sFormat = '%!n&nbsp;€';
-					break;
-				default:
-					$sFormat = '%!n';
-			}
+            switch ( $format ) {
+                case 'eur':
+                    $format = '%!n&nbsp;€';
+                    break;
+                default:
+                    $format = '%!n';
+            }
 
-			$nMoney = money_format($sFormat, (float) $nMoney);
-		}
+            $money = money_format($format, (float) $money);
+        } else {
+            $money = number_format((float) $money, 2, ',', '.');
 
-		# Windows
-		else {
-			$nMoney = number_format((float) $nMoney, 2, ',', '.');
+            if ( 'eur' == $format ) {
+                $money = $money . '&nbsp;€';
+            }
+        }
 
-			if('eur' == $sFormat) {
-				$nMoney = $nMoney . '&nbsp;€';
-			}
-		}
+        unset($userAgent, $format);
+        return $money;
+    }
 
-		unset($sFormat);
-		return $nMoney;
-	}
+    public static function getDays($isShort = FALSE)
+    {
+        $days = array();
+        $format = (bool) $isShort ? '%a' : '%A';
 
-	/**
-	 * Get days names
-	 * 
-	 * @param bool $bShort Short/Long names
-	 * @return array
-	 */
-	public static function getDays($bShort = FALSE)
-	{
-		$aDays = array();
+        for ( $day = 1; $day < 8; $day++ ) {
+            $microValue = mktime(0, 0, 0, 1, $day, 2012);
+            $days[] = strftime($format, $microValue);
+        }
 
-		$sFormat = '%A';
-		if($bShort) {
-			$sFormat = '%a';
-		}
+        unset($isShort, $day, $microValue, $format);
+        return $days;
+    }
 
-		for ($nDay = 1; $nDay < 8; $nDay++) {
-			$nMicroValue = mktime(0, 0, 0, 1, $nDay, 2012);
-			$aDays[] = strftime($sFormat, $nMicroValue);
-		}
+    public static function getMonths($isShort = FALSE)
+    {
+        $months = array();
+        $format = (bool) $isShort ? '%b' : '%B';
 
-		unset($bShort, $nDay, $nMicroValue, $sFormat);
-		return $aDays;
-	}
+        for ( $month = 1; $month < 13; $month++ ) {
+            $microValue = mktime(0, 0, 0, $month, 1, 2012);
+            $months[] = strftime($format, $microValue);
+        }
 
-	/**
-	 * Get month names
-	 * 
-	 * @param bool $bShort Short/Long names
-	 * @return array
-	 */
-	public static function getMonths($bShort = FALSE)
-	{
-		$aMonths = array();
+        unset($isShort, $month, $microValue, $format);
+        return $months;
+    }
 
-		$sFormat = '%B';
-		if($bShort) {
-			$sFormat = '%b';
-		}
+    public static function setLocale($language)
+    {
+        setlocale(LC_ALL, $language);
+        setlocale(LC_NUMERIC, 'C');
 
-		for ($nMonth = 1; $nMonth < 13; $nMonth++) {
-			$nMicroValue = mktime(0, 0, 0, $nMonth, 1, 2012);
-			$aMonths[] = strftime($sFormat, $nMicroValue);
-		}
-
-		unset($bShort, $nMonth, $nMicroValue, $sFormat);
-		return $aMonths;
-	}
-
-	public static function setLocale($sLang)
-	{
-		setlocale(LC_ALL, $sLang);
-		setlocale(LC_NUMERIC, 'C');
-
-		unset($sLang);
-	}
+        unset($language);
+        return $this;
+    }
 
 }
 

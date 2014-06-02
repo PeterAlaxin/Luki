@@ -26,15 +26,17 @@ use Luki\Url;
  * 
  * @package Luki
  */
-class Link {
+class Link
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = Url::makeLink($sValue);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $link = Url::makeLink($value);
+
+        unset($value);
+        return $link;
+    }
+
 }
 
 # End of file

@@ -26,160 +26,120 @@ use Luki\Config\basicInterface;
  * 
  * @package Luki
  */
-abstract class basicAdapter implements basicInterface {
+abstract class basicAdapter implements basicInterface
+{
 
     const FILE_NOT_EXISTS = 'File "%s" does not exists!';
-
     const FILE_NOT_READABLE = 'File "%s" is not readable!';
-    
     const FILE_NOT_WRITABLE = 'File "%s" is not writable!';
-    
     const CONFIGURATION_NOT_SAVED = 'File "%s" not saved!';
 
-    /**
-     * File name
-     * @var string
-     */
-	public $File = '';
-    
-    /**
-     * Configuration
-     * @var array
-     */
-	public $Configuration = array();
+    public $fileName = '';
 
-	/**
-	 * Constructor
-	 * @param type $File
-	 */
-	public function __construct($File, $allowCreate = FALSE)
-	{
+    public $configuration = array();
+
+    public function __construct($fileName, $allowCreate = FALSE)
+    {
         try {
-            if(!is_file($File)) {
-                $this->createConfigFile($File, $allowCreate);
+            if ( !is_file($fileName) ) {
+                $this->createConfigFile($fileName, $allowCreate);
             }
 
-            if(!is_readable($File)) {
-                throw new \Exception(sprintf(self::FILE_NOT_READABLE, $File));
+            if ( !is_readable($fileName) ) {
+                throw new \Exception(sprintf(self::FILE_NOT_READABLE, $fileName));
             }
 
-            $this->File = $File;
+            $this->fileName = $fileName;
         }
-        catch (\Exception $oException) {
-            exit($oException->getMessage());
+        catch ( \Exception $exception ) {
+            exit($exception->getMessage());
         }
 
-		unset($File, $allowCreate);
-	}
+        unset($fileName, $allowCreate);
+    }
 
-	/**
-	 * Read configuration file
-	 * @return array
-	 */
-	public function getConfiguration()
-	{
-		return $this->Configuration;
-	}
+    public function getConfiguration()
+    {
+        return $this->configuration;
+    }
 
-	/**
-	 * Read configuration file
-	 * @return array
-	 */
-	public function getSections()
-	{
-        $Sections = array_keys($this->Configuration);
-        
-		return $Sections;
-	}
+    public function getSections()
+    {
+        $sections = array_keys($this->configuration);
 
-	/**
-	 * Save configuration to specific file
-	 * @param array $aConfiguration Configuration
-	 * @param string $sFileName File to store configuration
-	 * @return boolean
-	 */
-	public function saveConfiguration()
-	{
-        if(!empty($this->File) and is_file($this->File) and !is_writable($this->File)) {
-            throw new \Exception(sprintf(self::FILE_NOT_WRITABLE, $this->File));
-        }        
-	}
+        return $sections;
+    }
 
-    /**
-     * Get configuration file name
-     * @return string
-     */
-	public function getFilename() {
-		return $this->File;		
-	}
+    public function saveConfiguration()
+    {
+        if ( !empty($this->fileName) and is_file($this->fileName) and ! is_writable($this->fileName) ) {
+            throw new \Exception(sprintf(self::FILE_NOT_WRITABLE, $this->fileName));
+        }
+    }
 
-    /**
-     * Change actual configuration
-     * @param array $Configuration
-     * @return boolean
-     */
-	public function setConfiguration($Configuration)
-	{
-		$isSaved = FALSE;
-        
-		if(is_array($Configuration)) {
-			$this->Configuration = $Configuration;
-			$isSaved = TRUE;
-		}
+    public function getFilename()
+    {
+        return $this->fileName;
+    }
 
-		unset($Configuration);
-		return $isSaved;		
-	}
-
-    /**
-     * Set file name
-     * @param string $File
-     * @return boolean
-     */
-	public function setFilename($File)
-	{
-		$isSaved = FALSE;
-        
-		if(!empty($File)) {
-			$this->File = $File;
-			$isSaved = TRUE;
-		}
-
-		unset($File);
-		return $isSaved;		
-	}
-    
-    public function saveToFile($Output)
+    public function setConfiguration($configuration)
     {
         $isSaved = FALSE;
-        
+
+        if ( is_array($configuration) ) {
+            $this->configuration = $configuration;
+            $isSaved = TRUE;
+        }
+
+        unset($configuration);
+        return $isSaved;
+    }
+
+    public function setFilename($fileName)
+    {
+        $isSaved = FALSE;
+
+        if ( !empty($fileName) ) {
+            $this->fileName = $fileName;
+            $isSaved = TRUE;
+        }
+
+        unset($fileName);
+        return $isSaved;
+    }
+
+    public function saveToFile($output)
+    {
+        $isSaved = FALSE;
+
         try {
-            if(file_put_contents($this->File, $Output) === FALSE) {
-                throw new \Exception(sprintf(self::CONFIGURATION_NOT_SAVED, $this->File));
+            if ( file_put_contents($this->fileName, $output) === FALSE ) {
+                throw new \Exception(sprintf(self::CONFIGURATION_NOT_SAVED, $this->fileName));
             }
 
             $isSaved = TRUE;
         }
-        catch (\Exception $oException) {
+        catch ( \Exception $oException ) {
             exit($oException->getMessage());
         }
-        
-        unset($Output);
+
+        unset($output);
         return $isSaved;
     }
 
-    public function createConfigFile($File, $allowCreate)
+    public function createConfigFile($fileName, $allowCreate)
     {
-        if(!$allowCreate) {
-            throw new \Exception(sprintf(self::FILE_NOT_EXISTS, $File));        
+        if ( !$allowCreate ) {
+            throw new \Exception(sprintf(self::FILE_NOT_EXISTS, $fileName));
         }
-        
-        if($this->setFilename($File)) {
+
+        if ( $this->setFilename($fileName) ) {
             $this->saveConfiguration();
         }
-        
-        unset($File, $allowCreate);
+
+        unset($fileName, $allowCreate);
     }
+
 }
 
 # End of file

@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Ico extends basicFactory {
+class Ico extends basicFactory
+{
 
-	public $sValidator = '/^[0-9\ ]{8,10}$/';
-	
-	public $sMessage = 'The value "%value%" is not valid ICO!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+        
+        $validator = '/^[0-9\ ]{8,10}$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" is not valid ICO!');
+        
+        unset($options, $validator);
+    }
 
 }
 

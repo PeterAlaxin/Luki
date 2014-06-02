@@ -24,15 +24,16 @@ namespace Luki\Cache;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function __construct($Options);
+    public function __construct($options);
 
-	public function Set($Key, $Value, $ExpirationInSeconds);
+    public function Set($key, $value, $expirationInSeconds);
 
-	public function Get($Key);
+    public function Get($key);
 
-	public function Delete($Key);
+    public function Delete($key);
 }
 
 # End of file

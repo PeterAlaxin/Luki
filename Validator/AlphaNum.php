@@ -26,11 +26,18 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class AlphaNum extends basicFactory {
-
-	public $sValidator = '/^[a-zA-Z0-9áäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ]*$/';
-	
-	public $sMessage = 'The value "%value%" contains characters other than letters or digits!';
+class AlphaNum extends basicFactory
+{
+    public function __construct($options)
+    {
+        parent::__construct($options);
+        
+        $validator = '/^[' . self::ALPHA . self::NUM . ']*$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" contains characters other than letters or digits!');
+        
+        unset($options, $validator);
+    }
 
 }
 

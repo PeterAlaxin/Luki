@@ -26,31 +26,31 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Url extends basicFactory {
+class Url extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" is not valid URL!';
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-		if(FALSE !== filter_var($xValue, FILTER_VALIDATE_URL)) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
+        $this->setMessage('The value "%value%" is not valid URL!');
 
-		unset($xValue);
-		return $bReturn;
-	}
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( FALSE !== filter_var($value, FILTER_VALIDATE_URL) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
 
 }
 

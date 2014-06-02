@@ -24,24 +24,26 @@ namespace Luki\Template\Functions;
  * 
  * @package Luki
  */
-class Cycle {
+class Cycle
+{
 
-	public function Get($aSource, $nValue)
-	{
-		if(count($aSource) <= $nValue) {
-			$nRatio = ceil($nValue/count($aSource));
-			$aFinal = $aSource; 
+    public function Get($source, $value)
+    {
+        if ( count($source) <= $value ) {
+            $ratio = ceil($value / count($source));
+            $final = $source;
 
-			for($i=1; $i<=$nRatio; $i++) {
-				$aSource = array_merge($aSource, $aFinal);
-			}
-		}
-			
-		$sReturn = $aSource[$nValue];
-		
-		unset($aSource, $nValue, $aFinal, $i, $nRatio);
-		return $sReturn;
-	}
+            for ( $i = 1; $i <= $ratio; $i++ ) {
+                $source = array_merge($source, $final);
+            }
+        }
+
+        $cycle = $source[$value];
+
+        unset($source, $value, $final, $i, $ratio);
+        return $cycle;
+    }
+
 }
 
 # End of file

@@ -26,36 +26,37 @@ use Luki\Cache\basicInterface;
  * 
  * @package Luki
  */
-class apcAdapter implements basicInterface {
+class apcAdapter implements basicInterface
+{
 
-	public function __construct($Options = array())
-	{
-        unset($Options);
-	}
+    public function __construct($options = array())
+    {
+        unset($options);
+    }
 
-	public function Set($Key, $Value = '', $ExpirationInSeconds = 0)
-	{
-		$isSet = apc_store($Key, serialize($Value), $ExpirationInSeconds);
+    public function Set($key, $value = '', $expirationInSeconds = 0)
+    {
+        $isSet = apc_store($key, serialize($value), $expirationInSeconds);
 
-		unset($Key, $Value, $ExpirationInSeconds);
-		return $isSet;
-	}
+        unset($key, $value, $expirationInSeconds);
+        return $isSet;
+    }
 
-	public function Get($Key)
-	{
-		$Value = unserialize(apc_fetch($Key));
+    public function Get($key)
+    {
+        $value = unserialize(apc_fetch($key));
 
-		unset($Key);
-		return $Value;
-	}
+        unset($key);
+        return $value;
+    }
 
-	public function Delete($Key)
-	{
-		$isDeleted = apc_delete($Key);
+    public function Delete($key)
+    {
+        $isDeleted = apc_delete($key);
 
-		unset($Key);
-		return $isDeleted;
-	}
+        unset($key);
+        return $isDeleted;
+    }
 
 }
 

@@ -26,24 +26,25 @@ use Luki\Log\Writer\basicInterface;
  * 
  * @package Luki
  */
-class Simple implements basicInterface {
+class Simple implements basicInterface
+{
 
+    public function __construct($fileName = '')
+    {
+        unset($fileName);
+    }
 
-	public function __construct($sFile='')
-	{
-		unset($sFile);
-	}
-	
-	public function Write($sText)
-	{
-		if(is_array($sText)) {
-			$sText = json_encode($sText);
-		}
-		
-		echo $sText . '<br />';
-			
-		unset($sText);
-	}
+    public function Write($content)
+    {
+        if ( is_array($content) ) {
+            $content = json_encode($content);
+        }
+
+        echo $content . '<br />';
+
+        unset($content);
+    }
+
 }
 
 # End of file

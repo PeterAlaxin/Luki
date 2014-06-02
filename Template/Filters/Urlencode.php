@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Urlencode {
+class Urlencode
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = urlencode($sValue);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $encoded = urlencode($value);
+
+        unset($value);
+        return $encoded;
+    }
+
 }
 
 # End of file

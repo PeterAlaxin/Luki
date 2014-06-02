@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Sameas {
+class Sameas
+{
 
-	public function Is($sValue, $sControll)
-	{
-		
-		$bReturn = ($sValue === $sControll);
-		
-		unset($sValue, $sControll);
-		return $bReturn;
-	}
+    public function Is($value, $controll)
+    {
+
+        $isSameAs = ($value === $controll);
+
+        unset($value, $controll);
+        return $isSameAs;
+    }
+
 }
 
 # End of file

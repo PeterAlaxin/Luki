@@ -26,44 +26,78 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class RecordExist extends basicFactory {
+class RecordExist extends basicFactory
+{
 
-	public $sMessage = 'The record with ID="%value%" does not exists!';
+    public $data = NULL;
+    public $table = NULL;
+    public $key = NULL;
 
-	public $data = NULL;
-	
-	public $table = NULL;
-	
-	public $key = NULL;
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
-		
-		$oSelect = $this->data->Select();
-		$oSelect->from($this->table, array($this->key))
-				->where($this->key . '=?', $xValue)
-				->limit(1);
-		
-		$oResult = $this->data->Query($oSelect);
+        $this->setMessage('The record with ID="%value%" does not exists!');
 
-		if(1 == $oResult->getRecordsCount()) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
+        unset($options);
+    }
 
-		unset($xValue);
-		return $bReturn;
-	}
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        $select = $this->data->Select();
+        $select->from($this->table, array( $this->key ))
+                ->where($this->key . '=?', $value)
+                ->limit(1);
+
+        $result = $this->data->Query($select);
+
+        if ( 1 == $result->getNumberOfRecords() ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value, $select, $result);
+        return $this->isValid;
+    }
+
+    public function setData($data)
+    {
+        $this->data = $data;
+
+        unset($data);
+    }
+
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function setTable($table)
+    {
+        $this->table = $table;
+
+        unset($table);
+    }
+
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    public function setKey($key)
+    {
+        $this->key = $key;
+
+        unset($key);
+    }
+
+    public function getKey()
+    {
+        return $this->key;
+    }
 
 }
 

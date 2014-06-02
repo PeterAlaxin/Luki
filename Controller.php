@@ -29,179 +29,179 @@ use Luki\Template;
  *
  * @package Luki
  */
-class Controller {
+class Controller
+{
 
-	protected $RenderAllowed = TRUE;
-	protected $Models = array();
-	protected $Output = '';
-	protected $Data = array();
-	protected $ModelMethods = array();
-	protected $TemplateName = '';
-	protected $EndProgramAfterRender = TRUE;
-    protected $RouteToController = array();
-    
-	function __construct()
-	{
-		$this->RouteToController = explode('\\', get_class($this));
+    protected $_renderAllowed = TRUE;
+    protected $_models = array();
+    protected $_output = '';
+    protected $_data = array();
+    protected $_methods = array();
+    protected $_template = '';
+    protected $_endProgramAfterRender = TRUE;
+    protected $_route = array();
+
+    function __construct()
+    {
+        $this->_route = explode('\\', get_class($this));
 
         $this->setDefaultTemplate();
         $this->setDefaultModel();
-	}
-
-	public function __call($Name, $Arguments = array())
-	{
-		$Result = NULL;
-
-		foreach ($this->ModelMethods as $sModel => $aMethods) {
-			if(in_array($Name, $aMethods)) {
-				$Result = call_user_func_array(array($this->Models[$sModel], $Name), $Arguments);
-				break;
-			}
-		}
-
-		unset($Name, $Arguments, $sModel, $aMethods);
-		return $Result;
-	}
-    
-    public function __set($Name, $Value)
-    {
-        $this->Data[$Name] = $Value;
-
-        unset($Name, $Value);
     }
-    
-    public function __get($Name)
+
+    public function __call($name, $arguments = array())
     {
-        if(isset($this->Data[$Name])) {
-            $Value = $this->Data[$Name];
+        $result = NULL;
+
+        foreach ( $this->_methods as $model => $methods ) {
+            if ( in_array($name, $methods) ) {
+                $result = call_user_func_array(array( $this->_models[$model], $name ), $arguments);
+                break;
+            }
         }
-        else {
-            $Value = NULL;
-        }
-        
-        unset($Name);
-        return $Value;
+
+        unset($name, $arguments, $model, $methods);
+        return $result;
     }
-    
-    public function __isset($Name)
+
+    public function __set($name, $value)
     {
-        $isSet = isset($this->Data[$Name]);
+        $this->_data[$name] = $value;
+
+        unset($name, $value);
+    }
+
+    public function __get($name)
+    {
+        $value = NULL;
         
-        unset($Name);
+        if ( isset($this->_data[$name]) ) {
+            $value = $this->_data[$name];
+        }
+
+        unset($name);
+        return $value;
+    }
+
+    public function __isset($name)
+    {
+        $isSet = isset($this->_data[$name]);
+
+        unset($name);
         return $isSet;
     }
-    
-    public function __unset($Name)
-    {
-        unset($this->Data[$Name], $Name);
-    }
-    
-	public function preDispatch()
-	{
-		return $this;
-	}
 
-	public function postDispatch()
-	{
-		if($this->RenderAllowed) {
-			$this->Render();
-		}
-		
-		return $this;
-	}
+    public function __unset($name)
+    {
+        unset($this->_data[$name], $name);
+    }
+
+    public function preDispatch()
+    {
+        return $this;
+    }
+
+    public function postDispatch()
+    {
+        if ( $this->_renderAllowed ) {
+            $this->Render();
+        }
+
+        return $this;
+    }
 
     public function getTemplateName()
     {
-        return $this->TemplateName;
+        return $this->_template;
     }
-    
-    public function changeTemplateName($NewTemplateName)
+
+    public function changeTemplateName($newTemplateName)
     {
-        $this->TemplateName = $NewTemplateName;
-        
-        unset($NewTemplateName);
+        $this->_template = $newTemplateName;
+
+        unset($newTemplateName);
         return $this;
     }
 
-	public function removeModel($Model)
-	{
-		if(isset($this->Models[$Model])) {
-			unset($this->Models[$Model], $this->ModelMethods[$Model]);
-		}
+    public function removeModel($model)
+    {
+        if ( isset($this->_models[$model]) ) {
+            unset($this->_models[$model], $this->_methods[$model]);
+        }
 
-		unset($Model);
-		return $this;
-	}
+        unset($model);
+        return $this;
+    }
 
-	public function noRender()
-	{
-		$this->RenderAllowed = FALSE;
-		
-		return $this;
-	}
-	
-	public function Render()
-	{
-		$oTemplate = new Template($this->TemplateName, $this->Data);
-		$this->Output = $oTemplate->Render();
-        
+    public function noRender()
+    {
+        $this->_renderAllowed = FALSE;
+
+        return $this;
+    }
+
+    public function Render()
+    {
+        $oTemplate = new Template($this->_template, $this->_data);
+        $this->_output = $oTemplate->Render();
+
         unset($oTemplate);
         return $this;
-	}
-	
-	public function getOutput()
-	{
-		return $this->Output;
-	}
+    }
 
-	public function Show()
-	{
-		echo $this->Render()
-				  ->getOutput();
+    public function getOutput()
+    {
+        return $this->_output;
+    }
 
-		if($this->EndProgramAfterRender) {
-			exit;
-		}
+    public function Show()
+    {
+        echo $this->Render()
+                ->getOutput();
 
-		return $this;
-	}
+        if ( $this->_endProgramAfterRender ) {
+            exit;
+        }
+
+        return $this;
+    }
 
     public function noEndProgramAfterRender()
     {
-        $this->EndProgramAfterRender = FALSE;
-        
+        $this->_endProgramAfterRender = FALSE;
+
         return $this;
     }
-    
+
     private function setDefaultTemplate()
     {
-        if(!empty($this->RouteToController[0]) and !empty($this->RouteToController[1])) {
-			$this->TemplateName = Loader::isFile($this->RouteToController[0] . '/template/' . $this->RouteToController[1] . '.twig');
-		}       
+        if ( !empty($this->_route[0]) and ! empty($this->_route[1]) ) {
+            $this->_template = Loader::isFile($this->_route[0] . '/template/' . $this->_route[1] . '.twig');
+        }
     }
-    
+
     private function setDefaultModel()
     {
-        if(!empty($this->RouteToController[0]) and 
-           !empty($this->RouteToController[1])
-          ) {
-			$this->addModel($this->RouteToController[0] . '_model_' . $this->RouteToController[1]);
-		}       
+        if ( !empty($this->_route[0]) and ! empty($this->_route[1])
+        ) {
+            $this->addModel($this->_route[0] . '_model_' . $this->_route[1]);
+        }
     }
-    
-	public function addModel($Model)
-	{
-		$ModelClassFileWithPath = Loader::isClass($Model);
 
-		if(!empty($ModelClassFileWithPath)) {
-            $ModelWithPath = '\\' . preg_replace('/_/', '\\', $Model) ;
-			$this->Models[$Model] = new $ModelWithPath;
-			$this->ModelMethods[$Model] = get_class_methods($this->Models[$Model]);
-		}
+    public function addModel($model)
+    {
+        $modelClassFileWithPath = Loader::isClass($model);
 
-		unset($Model, $ModelClassFileWithPath, $ModelWithPath);
-		return $this;
-	}
+        if ( !empty($modelClassFileWithPath) ) {
+            $modelWithPath = '\\' . preg_replace('/_/', '\\', $model);
+            $this->_models[$model] = new $modelWithPath;
+            $this->_methods[$model] = get_class_methods($this->_models[$model]);
+        }
+
+        unset($model, $modelClassFileWithPath, $modelWithPath);
+        return $this;
+    }
+
 }
 
 # End of file

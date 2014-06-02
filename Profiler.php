@@ -26,163 +26,165 @@ namespace Luki;
  *
  * @package Luki
  */
-class Profiler {
+class Profiler
+{
 
-	/**
-	 * Flag for installed storage
-	 *
-	 * @access private
-	 */
-	private $_profiler = array();
-    
-    private $nMemory;
-    
-    private $bAjax = FALSE;
+    private $_profiler = array();
+    private $_memory;
+    private $_isAjax = FALSE;
 
-    public function __construct($aMicrotime, $nMemory)
+    public function __construct($microTime, $memory)
     {
-        $this->bAjax =Storage::Request()->isAjax();
-        
-        if(!$this->bAjax) {
-            Time::stopwatchStart('Luki_Profiler_PageTimer', $aMicrotime);
-            $this->nMemory = $nMemory;
+        $this->_isAjax = Storage::Request()->isAjax();
+
+        if ( !$this->_isAjax ) {
+            Time::stopwatchStart('Luki_Profiler_PageTimer', $microTime);
+            $this->_memory = $memory;
         }
-        
-        unset($nMemory);
+
+        unset($microTime, $memory);
     }
-    
-    function __destruct() 
+
+    function __destruct()
     {
-        if(!$this->bAjax) {
-            Time::stopwatchStop('Luki_Profiler_PageTimer');
-            $nMemory = memory_get_usage();
+        if ( !$this->_isAjax ) {
+            $time = Time::getStopwatch('Luki_Profiler_PageTimer');
+            $memory = memory_get_usage();
 
             $this->_startProfiler();
-            $this->_insideCell('Page time', $this->changeSecToMs(Time::getStopwatch('Luki_Profiler_PageTimer')) . ' ms');
-            $this->_showMemory($nMemory);
+            $this->_insideCell('Page time', $this->changeSecToMs($time . ' ms'));
+            $this->_showMemory($memory);
             $this->_showSession();
             $this->_showTemplate();
             $this->_showData();
             $this->_endProfiler();
         }
-    }
-    
-    public function Add($sKey, $sValue) 
-    {
-        $this->_profiler[$sKey][] = $sValue;
-    }
-    
-    private function _showMemory($nMemory)
-    {
-        $nMemory = $nMemory - $this->nMemory;
-        $aUnit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
-        $nTotalMemory = @round($nMemory/pow(1024,($i=floor(log($nMemory,1024)))),2).' '.$aUnit[$i];
-        $this->_insideCell('Memory', $nTotalMemory);
         
-        unset($nMemory, $aUnit, $nTotalMemory);
+        unset($time, $memory);
     }
-    
+
+    public function Add($key, $value)
+    {
+        $this->_profiler[$key][] = $value;
+    }
+
+    private function _showMemory($memory)
+    {
+        $memory = $memory - $this->_memory;
+        $unit = array( 'b', 'kb', 'mb', 'gb', 'tb', 'pb' );
+        $totalMemory = @round($memory / pow(1024, ($i = floor(log($memory, 1024)))), 2) . ' ' . $unit[$i];
+        $this->_insideCell('Memory', $totalMemory);
+
+        unset($memory, $unit, $totalMemory);
+    }
+
     private function _showSession()
     {
-        if(!empty($this->_profiler['Session'])) {
-            $aSession = $this->_profiler['Session'];
-            $sHidden = '<table>';
-            foreach($aSession as $nKey => $sSession) {
-                $sHidden .= '<tr><td>';
-                
-                if(0 == $nKey) {
-                    $sHidden .= 'Start:';
+        if ( !empty($this->_profiler['Session']) ) {
+            $sessions = $this->_profiler['Session'];
+            $hidden = '<table>';
+            foreach ( $sessions as $key => $session ) {
+                $hidden .= '<tr><td>';
+
+                if ( 0 == $key ) {
+                    $hidden .= 'Start:';
+                } else {
+                    $hidden .= 'Change:';
                 }
-                else {
-                    $sHidden .= 'Change:';
-                }
-                
-                $sHidden .= '</td><td>' . $sSession . '</td></tr>';
+
+                $hidden .= '</td><td>' . $session . '</td></tr>';
             }
-            $sHidden .= '</table>';
+            $hidden .= '</table>';
         }
+
+        $this->_insideCell('Session', count($sessions) . 'x', $hidden);
         
-        $this->_insideCell('Session', count($aSession) . 'x', $sHidden);
+        unset($sessions, $hidden, $key, $session);
     }
-    
+
     private function _showTemplate()
     {
-        $nTimes = 0;
-        
-        if(!empty($this->_profiler['Template'])) {
-            $aTemplates = $this->_profiler['Template'];
-            $sHidden = '<table>';
-            foreach($aTemplates as $aTemplate) {
-                $nTime = $this->changeSecToMs($aTemplate['time']);
-                $nTimes += $nTime;
-                $sHidden .= '<tr><td>' . $aTemplate['name'] . ':</td>';
-                $sHidden .= '<td>' . $nTime . '&nbsp;ms</td></tr>';
+        $times = 0;
+
+        if ( !empty($this->_profiler['Template']) ) {
+            $templates = $this->_profiler['Template'];
+            $hidden = '<table>';
+            foreach ( $templates as $template ) {
+                $time = $this->changeSecToMs($template['time']);
+                $times += $time;
+                $hidden .= '<tr><td>' . $template['name'] . ':</td>';
+                $hidden .= '<td>' . $time . '&nbsp;ms</td></tr>';
             }
-            $sHidden .= '</table>';
+            $hidden .= '</table>';
+        }
+
+        if ( !empty($templates) ) {
+            $this->_insideCell('Template', count($templates) . 'x (' . $times . ' ms)', $hidden);
         }
         
-        if(!empty($aTemplates)) {
-            $this->_insideCell('Template', count($aTemplates) . 'x (' . $nTimes . ' ms)', $sHidden);
-        }
+        unset($times, $templates, $hidden, $template, $time);
     }
-    
+
     private function _showData()
     {
-        $nTimes = 0;
-        
-        if(!empty($this->_profiler['Data'])) {
-            $aDatas = $this->_profiler['Data'];
-            $sHidden = '<table border="1" cellspacing="0" cellpadding="3">';
-            foreach($aDatas as $aData) {
-                $nTime = $this->changeSecToMs($aData['time']);
-                $nTimes += $nTime;
-                $sHidden .= '<tr><td>' . $aData['sql'] . '</td>';
-                $sHidden .= '<td>' . number_format($nTime, 2) . '&nbsp;ms</td></tr>';
+        $times = 0;
+
+        if ( !empty($this->_profiler['Data']) ) {
+            $datas = $this->_profiler['Data'];
+            $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            foreach ( $datas as $data ) {
+                $time = $this->changeSecToMs($data['time']);
+                $times += $time;
+                $hidden .= '<tr><td>' . $data['sql'] . '</td>';
+                $hidden .= '<td>' . number_format($time, 2) . '&nbsp;ms</td></tr>';
             }
-            $sHidden .= '</table>';
+            $hidden .= '</table>';
         }
+
+        $this->_insideCell('Data', count($datas) . 'x (' . $times . ' ms)', $hidden);
         
-        $this->_insideCell('Data', count($aDatas) . 'x (' . $nTimes . ' ms)', $sHidden);
+        unset($times, $datas, $data, $hidden, $time);
     }
-    
+
     private function _startProfiler()
     {
         echo '<div style="width: 100%; min-height: 20px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px;" id="LukiProfiler">';
         $this->_insideCell('Luki', '3.0.0');
     }
-    
+
     private function _endProfiler()
     {
         echo '<span style="position: relative; top: 0; right: 5px; float: right; cursor: pointer;" onclick="var x=document.getElementById(\'LukiProfiler\'); x.style.display=\'none\';">X</span>';
-        echo '</div>';        
-#        echo '</body></html>';        
+        echo '</div>';
     }
-    
-    private function _insideCell($sTitle, $sContent, $sHidden=NULL)
+
+    private function _insideCell($title, $content, $hidden = NULL)
     {
         echo '<div style="padding: 10px 5px; float: left; border-right: 1px solid #000; text-align: center;';
-        
-        if(!empty($sHidden) and TRUE) {
-            $sRandom = str_shuffle('acdefghijklmnopqrstuvwxz');
-            echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $sRandom . '\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
-            echo '<div class="subProfiler" id="' . $sRandom . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee; max-height: 300px; overflow: auto;"><b>' . $sTitle . '</b><br />' . $sHidden . '</div>';
-        }
-        else {
+
+        if ( !empty($hidden) and TRUE ) {
+            $random = str_shuffle('acdefghijklmnopqrstuvwxz');
+            echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $random . '\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
+            echo '<div class="subProfiler" id="' . $random . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee; max-height: 300px; overflow: auto;"><b>' . $title . '</b><br />' . $hidden . '</div>';
+        } else {
             echo '">';
         }
-        
-        echo '<b>' . $sTitle . ':</b>&nbsp;';
-        echo $sContent;
+
+        echo '<b>' . $title . ':</b>&nbsp;';
+        echo $content;
         echo '&nbsp;</div>';
-    }
-    
-    private function changeSecToMs($Sec)
-    {
-        $Ms = round($Sec*1000, 2);
         
-        unset($Sec);
-        return $Ms;
+        unset($title, $content, $hidden, $random);
     }
+
+    private function changeSecToMs($seconds)
+    {
+        $miliSeconds = round($seconds * 1000, 2);
+
+        unset($seconds);
+        return $miliSeconds;
+    }
+
 }
 
 # End of file

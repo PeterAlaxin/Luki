@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Divisibleby {
+class Divisibleby
+{
 
-	public function Is($nValue, $nNumber)
-	{
-		
-		$bReturn = (floor($nValue/$nNumber) == ($nValue/$nNumber));
-		
-		unset($nValue, $nNumber);
-		return $bReturn;
-	}
+    public function Is($value, $divider)
+    {
+
+        $isDivisible = (floor($value / $divider) == ($value / $divider));
+
+        unset($value, $divider);
+        return $isDivisible;
+    }
+
 }
 
 # End of file

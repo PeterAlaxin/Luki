@@ -26,172 +26,141 @@ namespace Luki;
  *
  * @package Luki
  */
-class Loader {
+class Loader
+{
 
     const CLASS_NOT_EXISTS = 'Class "%s" not exists!';
 
-    /**
-	 * Search path array 
-	 * @access private
-	 */
-	private static $_aPath = array();
-    
-    /**
-	 * Disable construct
-	 */
-	protected function __construct()
-	{
-		
-	}
+    private static $_paths = array();
 
-	/**
-	 * First time initialization
-	 */
-	public static function Init()
-	{
-        self::Reset();
+    protected function __construct()
+    {
         
-		spl_autoload_register('Luki\Loader::Autoload');
+    }
 
-        $aLukiDirectory = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
-		array_pop($aLukiDirectory);
-		$sLukiDirectory = implode(DIRECTORY_SEPARATOR, $aLukiDirectory) . DIRECTORY_SEPARATOR;
-		array_unshift(self::$_aPath, $sLukiDirectory);
+    public static function Init()
+    {
+        self::Reset();
 
-        unset($aLukiDirectory, $sLukiDirectory);
-	}
+        spl_autoload_register('Luki\Loader::Autoload');
 
-	/**
-	 * Reset autolader
-	 */
-	public static function Reset()
-	{
-        $aFunctions = spl_autoload_functions();
-        if(is_array($aFunctions)) {
-            foreach($aFunctions as $sFunction) {
-                spl_autoload_unregister($sFunction);
+        $lukiDirectorys = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
+        array_pop($lukiDirectorys);
+        
+        $lukiDirectory = implode(DIRECTORY_SEPARATOR, $lukiDirectorys) . DIRECTORY_SEPARATOR;
+        array_unshift(self::$_paths, $lukiDirectory);
+
+        unset($lukiDirectorys, $lukiDirectory);
+    }
+
+    public static function Reset()
+    {
+        $functions = spl_autoload_functions();
+        if ( is_array($functions) ) {
+            foreach ( $functions as $function ) {
+                spl_autoload_unregister($function);
             }
         }
-        
-		spl_autoload_register();
-        self::$_aPath = array();
-        
-        unset($aFunctions, $sFunction);
-	}
 
-    /**
-	 * Initialize loader
-	 * @param string $sPath
-	 * @uses Luki_Loader::_Init Initialize loader
-	 */
-	public static function addPath($sPath = '')
-	{
-		if(!empty($sPath) and is_dir($sPath)) {
+        spl_autoload_register();
+        self::$_paths = array();
 
-			if(substr($sPath, -1) !== DIRECTORY_SEPARATOR) {
-				$sPath .= DIRECTORY_SEPARATOR;
-			}
+        unset($functions, $function);
+    }
 
-			if(!in_array($sPath, self::$_aPath)) {
-				array_unshift(self::$_aPath, $sPath);
-			}
-		}
+    public static function addPath($path = '')
+    {
+        if ( !empty($path) and is_dir($path) ) {
 
-		unset($sPath);
-	}
+            if ( substr($path, -1) !== DIRECTORY_SEPARATOR ) {
+                $path .= DIRECTORY_SEPARATOR;
+            }
 
-    /**
-	 * Get searched path array 
-	 * @return array
-	 */
-	public static function getPath()
-	{
-		return self::$_aPath;
-	}
-    
-    /**
-	 * Add to autoloader
-	 */
-	public static function addLoader($sFunction, $bThrow = TRUE, $bPrepend = FALSE)
-	{
-        if(!empty($sFunction)) {
-            spl_autoload_register($sFunction, $bThrow, $bPrepend);
+            if ( !in_array($path, self::$_paths) ) {
+                array_unshift(self::$_paths, $path);
+            }
         }
-	}
 
-	/**
-	 * Autoload function
-	 * @param string $sClassName
-	 * @uses Luki_Loader::_Init Initialize loader
-	 */
-	public static function Autoload($sClassName = '')
-	{
+        unset($path);
+    }
+
+    public static function getPath()
+    {
+        return self::$_paths;
+    }
+
+    public static function addLoader($function, $isThrow = TRUE, $isPrepend = FALSE)
+    {
+        if ( !empty($function) ) {
+            spl_autoload_register($function, $isThrow, $isPrepend);
+        }
+    }
+
+    public static function Autoload($class = '')
+    {
         try {
-            $sClassFile = str_replace('\\', DIRECTORY_SEPARATOR, $sClassName) . '.php';
-            $bFound = FALSE;
+            $classFile = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+            $isFound = FALSE;
 
-            foreach(self::$_aPath as $sPath) {
-                $sFileWithPath = $sPath . $sClassFile;
-                
-                if(is_file($sFileWithPath) and include_once($sFileWithPath)) {
-                    $bFound = TRUE;
+            foreach ( self::$_paths as $path ) {
+                $fileWithPath = $path . $classFile;
+
+                if ( is_file($fileWithPath) and include_once($fileWithPath) ) {
+                    $isFound = TRUE;
                     break;
                 }
             }
-            
-            if(!$bFound) {
-                throw new \Exception(sprintf(self::CLASS_NOT_EXISTS, $sClassName));
+
+            if ( !$isFound ) {
+                throw new \Exception(sprintf(self::CLASS_NOT_EXISTS, $class));
             }
         }
-        catch (\Exception $oException) {
-            exit($oException->getMessage());
+        catch ( \Exception $exception ) {
+            exit($exception->getMessage());
         }
-        
-        unset($sClassName, $sClassFile, $sFileWithPath);
+
+        unset($class, $classFile, $fileWithPath);
     }
 
-    public static function isClass($sClassName = '')
-	{
-		$sReturn = NULL;
-		$sClassFile = preg_replace('/_/', '/', $sClassName) . '.php';
+    public static function isClass($class = '')
+    {
+        $className = NULL;
+        $classFile = preg_replace('/_/', '/', $class) . '.php';
 
-		foreach (self::$_aPath as $sPath) {
-			$sClassFileWithPath = $sPath . $sClassFile;
+        foreach ( self::$_paths as $path ) {
+            $fileWithPath = $path . $classFile;
 
-			if(is_file($sClassFileWithPath) and is_readable($sClassFileWithPath)) {
-				$sReturn = $sClassFileWithPath;
-				break;
-			}
-		}
+            if ( is_file($fileWithPath) and is_readable($fileWithPath) ) {
+                $className = $fileWithPath;
+                break;
+            }
+        }
 
-		unset($sClassName, $sClassFile, $sClassFileWithPath);
-		return $sReturn;
-	}
-    
-    public static function isFile($sFileName)
-	{
-		$sReturn = NULL;
+        unset($class, $classFile, $fileWithPath);
+        return $className;
+    }
 
-		foreach (self::$_aPath as $sPath) {
-			$sClassFileWithPath = $sPath . $sFileName;
+    public static function isFile($file)
+    {
+        $fileName = NULL;
 
-			if(is_file($sClassFileWithPath) and is_readable($sClassFileWithPath)) {
-				$sReturn = $sClassFileWithPath;
-				break;
-			}
-		}
+        foreach ( self::$_paths as $path ) {
+            $fileWithPath = $path . $file;
 
-		unset($sFileName, $sClassFileWithPath);
-		return $sReturn;
-	}
-    
-    /**
-	 * Disable clone
-	 */
-	private function __clone()
-	{
-		
-	}
+            if ( is_file($fileWithPath) and is_readable($fileWithPath) ) {
+                $fileName = $fileWithPath;
+                break;
+            }
+        }
+
+        unset($file, $fileWithPath);
+        return $fileName;
+    }
+
+    private function __clone()
+    {
+        
+    }
 
 }
 

@@ -24,140 +24,107 @@ namespace Luki;
  *
  * @package Luki
  */
-class Security {
+class Security
+{
 
-	private static $aChars = array(
-		1 => '1234567890',
-		2 => 'abcdefghijklmnopqrstuvwxyz',
-		3 => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-		4 => '@#$%^&*');
-	private static $sSalt = 'DefaultSalt-ChangeMe';
-	private static $sAlgorithm = 'sha256';
+    private static $_chars = array(
+      1 => '1234567890',
+      2 => 'abcdefghijklmnopqrstuvwxyz',
+      3 => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      4 => '@#$%^&*' );
+    private static $_salt = 'DefaultSalt-ChangeMe';
+    private static $_algorithm = 'sha256';
 
-	/**
-	 * Generate secure password
-	 *
-	 * @param integer $nLenght Password lenght
-	 * @param integer $nLevel Password level
-	 * @return string New password
-	 */
-	public static function generatePassword($nLenght = 8, $nLevel = 4)
-	{
-		$sReturn = '';
-		$nLevelNow = 1;
-		$aUsedLevels = array(
-			1 => FALSE,
-			2 => FALSE,
-			3 => FALSE,
-			4 => FALSE
-		);
+    public static function generatePassword($lenght = 8, $level = 4)
+    {
+        $password = '';
+        $actualLevel = 1;
+        $usedLevels = array(
+          1 => FALSE,
+          2 => FALSE,
+          3 => FALSE,
+          4 => FALSE
+        );
 
-		if($nLenght < 4) {
-			$nLenght = 4;
-		}
-		elseif($nLenght > 64) {
-			$nLenght = 64;
-		}
-		if(!in_array($nLevel, array(1, 2, 3, 4))) {
-			$nLevel = 4;
-		}
+        if ( $lenght < 4 ) {
+            $lenght = 4;
+        } elseif ( $lenght > 64 ) {
+            $lenght = 64;
+        }
+        if ( !in_array($level, array( 1, 2, 3, 4 )) ) {
+            $level = 4;
+        }
 
-		while (strlen($sReturn) < $nLenght) {
+        while ( strlen($password) < $lenght ) {
 
-			while (TRUE) {
-				$nLevelNow = rand(1, $nLevel);
-				if(strlen($sReturn) < $nLevel) {
-					if(!$aUsedLevels[$nLevelNow]) {
-						break;
-					}
-				}
-				else {
-					break;
-				}
-			}
+            while ( TRUE ) {
+                $actualLevel = rand(1, $level);
+                if ( strlen($password) < $level ) {
+                    if ( !$usedLevels[$actualLevel] ) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
 
-			$aUsedLevels[$nLevelNow] = TRUE;
-			$sChars = self::$aChars[$nLevelNow];
-			$nCharsLength = (strlen($sChars) - 1);
-			$sChar = $sChars{rand(0, $nCharsLength)};
+            $usedLevels[$actualLevel] = TRUE;
+            $chars = self::$_chars[$actualLevel];
+            $charsLength = (strlen($chars) - 1);
+            $char = $chars{rand(0, $charsLength)};
 
-			if(0 == strlen($sReturn) or $sChar != $sReturn{strlen($sReturn) - 1}) {
-				$sReturn .= $sChar;
-			}
-		}
+            if ( 0 == strlen($password) or $char != $password{strlen($password) - 1} ) {
+                $password .= $char;
+            }
+        }
 
-		unset($nLenght, $nLevel, $aUsedLevels, $nLevelNow, $sChars, $nCharsLength, $sChar);
-		return $sReturn;
-	}
+        unset($lenght, $level, $usedLevels, $actualLevel, $chars, $charsLength, $char);
+        return $password;
+    }
 
-	/**
-	 * Set Salt for SHA2
-	 * 
-	 * @param string $sSalt
-	 */
-	public static function setSalt($sSalt = '')
-	{
-		if(empty($sSalt)) {
-			$sSalt = self::generatePassword(32);
-		}
+    public static function setSalt($newSalt = '')
+    {
+        if ( empty($newSalt) ) {
+            $newSalt = self::generatePassword(32);
+        }
 
-		self::$sSalt = (string) $sSalt;
+        self::$_salt = (string) $newSalt;
 
-		unset($sSalt);
-	}
+        unset($newSalt);
+    }
 
-	/**
-	 * Get Salt for SHA2
-	 * @return type
-	 */
-	public static function getSalt()
-	{
-		return self::$sSalt;
-	}
+    public static function getSalt()
+    {
+        return self::$_salt;
+    }
 
-	/**
-	 * Set hashing algorithm
-	 * 
-	 * @param string $sAlgo
-	 */
-	public static function setAlgorithm($sAlgorithm = 'sha256')
-	{
-		self::$sAlgorithm = (string) $sAlgorithm;
+    public static function setAlgorithm($algorithm = 'sha256')
+    {
+        self::$_algorithm = (string) $algorithm;
 
-		unset($sAlgorithm);
-	}
+        unset($algorithm);
+    }
 
-	/**
-	 * Get used hashing algorithm
-	 * @return string
-	 */
-	public static function getAlgorithm()
-	{
-		return self::$sAlgorithm;
-	}
+    public static function getAlgorithm()
+    {
+        return self::$_algorithm;
+    }
 
-	/**
-	 * Generate hash
-	 * 
-	 * @param string Any data
-	 * @return string Hash
-	 */
-	static function generateHash($sString = '')
-	{
-		$sHashed = '';
+    static function generateHash($string = '')
+    {
+        $hashedString = '';
 
-		if(!empty($sString)) {
-			if(function_exists('hash') and in_array(self::$sAlgorithm, hash_algos())) {
-				$sHashed = hash_hmac(self::$sAlgorithm, $sString, self::$sSalt);
-			}
-			else {
-				$sHashed = sha1(self::$sSalt . $sString);
-			}
-		}
+        if ( !empty($string) ) {
+            if ( function_exists('hash') and in_array(self::$_algorithm, hash_algos()) ) {
+                $hashedString = hash_hmac(self::$_algorithm, $string, self::$_salt);
+            } else {
+                $hashedString = sha1(self::$_salt . $string);
+            }
+        }
 
-		unset($sString);
-		return $sHashed;
-	}
+        unset($string);
+        return $hashedString;
+    }
 
 }
 

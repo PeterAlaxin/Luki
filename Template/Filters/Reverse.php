@@ -24,25 +24,27 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Reverse {
+class Reverse
+{
 
-	public function Get($sValue)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				$aValue = preg_split("//u", $sValue, NULL, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-				$sReturn = implode('', array_reverse($aValue));
-				break;
-			case 'array':
-				$sReturn = array_reverse($sValue);
-				break;
-			default:
-				$sReturn = $sValue;
-		}
-		
-		unset($sValue, $aValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                $value = preg_split("//u", $value, NULL, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                $reverse = implode('', array_reverse($value));
+                break;
+            case 'array':
+                $reverse = array_reverse($value);
+                break;
+            default:
+                $reverse = $value;
+        }
+
+        unset($value);
+        return $reverse;
+    }
+
 }
 
 # End of file

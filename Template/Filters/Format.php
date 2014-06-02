@@ -24,27 +24,29 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Format {
+class Format
+{
 
-	public function Get($sValue, $sPar1 = NULL, $sPar2 = NULL, $sPar3 = NULL, $sPar4 = NULL, $sPar5 = NULL, $sPar6 = NULL, $sPar7 = NULL, $sPar8 = NULL, $sPar9 = NULL, $sPar10 = NULL)
-	{
-		$sFnc = '$sReturn = sprintf($sValue';
-		
-		for($i=1; $i<11; $i++) {
-			eval('$Par = is_null($sPar' . $i .');');
+    public function Get($value, $par1 = NULL, $par2 = NULL, $par3 = NULL, $par4 = NULL, $par5 = NULL, $par6 = NULL, $par7 = NULL, $par8 = NULL, $par9 = NULL, $par10 = NULL)
+    {
+        $function = '$format = sprintf($value';
 
-			if(!$Par) {
-				$sFnc .= ', $sPar' . $i;
-			}
-		}
-		
-		$sFnc .= ');';
-		
-		eval($sFnc);
-		
-		unset($sValue, $sPar1, $sPar2, $sPar3, $sPar4, $sPar5, $sPar6, $sPar7, $sPar8, $sPar9, $sPar10);
-		return $sReturn;
-	}
+        for ( $i = 1; $i < 11; $i++ ) {
+            eval('$par = is_null($par' . $i . ');');
+
+            if ( !$par ) {
+                $function .= ', $par' . $i;
+            }
+        }
+
+        $function .= ');';
+
+        eval($function);
+
+        unset($value, $par1, $par2, $par3, $par4, $par5, $par6, $par7, $par8, $par9, $par10);
+        return $format;
+    }
+
 }
 
 # End of file

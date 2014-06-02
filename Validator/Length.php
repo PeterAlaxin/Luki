@@ -26,50 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Length extends basicFactory {
+class Length extends basicFactory
+{
 
-	public $sMessage = 'The length is not equal "%equal%"!';
-	
-	public $equal = NULL;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
-		$nLength = $this->_getLength($xValue);
+    public $length = NULL;
 
-		if($nLength == $this->equal) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%equal%/', $this->equal, $this->sMessage);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	private function _getLength($xValue)
-	{
-		$nLength = NULL;
-		
-		if(is_string($xValue)) {
-			$nLength = strlen($xValue);
-		}
-		elseif(is_array($xValue)) {
-			$nLength = count($xValue);
-		}
-		
-		unset($xValue);
-		return $nLength;
-	}
-	
+        $this->setMessage('The length is not equal "%length%"!');
+
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+        $length = $this->getValueLength($value);
+
+        if ( $length == $this->length ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%length%/', $this->length);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+
+    public function setLength($lenght)
+    {
+        $this->length = (int) $lenght;
+
+        unset($lenght);
+    }
+
+    public function getLength()
+    {
+        return $this->length;
+    }
+
 }
 
 # End of file

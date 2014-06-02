@@ -30,91 +30,90 @@ use Luki\Time;
  * 
  * @package Luki
  */
-class mysqlAdapter extends basicAdapter {
+class mysqlAdapter extends basicAdapter
+{
 
-	public $rConnection = NULL;
-	
-	public function __construct($aOptions)
-	{
-		$this->rConnection = mysql_connect(
-			$aOptions['server'], 
-			$aOptions['user'], 
-			$aOptions['password']);
-		
-		if(!isset($this->rConnection) or FALSE === $this->rConnection) {
-			echo 'Connection error';
-			exit;
-		}
+    public $connection = NULL;
 
-	    if(!mysql_select_db($aOptions['database'], $this->rConnection)) {
-			echo 'Connection error';
-			exit;
-	    }	
-		
-		$this->Query('SET CHARACTER_SET_CONNECTION=' . $aOptions['coding'] . ';');
-		$this->Query('SET CHARACTER_SET_CLIENT=' . $aOptions['coding'] . ';');
-		$this->Query('SET CHARACTER_SET_RESULTS=' . $aOptions['coding'] . ';');
-		
-		unset($aOptions);
-	}
-    
+    public function __construct($options)
+    {
+        $this->connection = mysql_connect($options['server'], $options['user'], $options['password']);
+
+        if ( !isset($this->connection) or FALSE === $this->connection ) {
+            echo 'Connection error';
+            exit;
+        }
+
+        if ( !mysql_select_db($options['database'], $this->connection) ) {
+            echo 'Connection error';
+            exit;
+        }
+
+        $this->Query('SET CHARACTER_SET_CONNECTION=' . $options['coding'] . ';');
+        $this->Query('SET CHARACTER_SET_CLIENT=' . $options['coding'] . ';');
+        $this->Query('SET CHARACTER_SET_RESULTS=' . $options['coding'] . ';');
+
+        unset($options);
+    }
+
     public function __destruct()
     {
-        mysql_close($this->rConnection);
+        mysql_close($this->connection);
     }
-    	
-	public function Select()
-	{
-		$oSelect = new Select($this);
-		
-		return $oSelect;
-	}
-	
-	public function Query($sSQL)
-	{
-        if(Storage::isProfiler()) {
+
+    public function Select()
+    {
+        $select = new Select($this);
+
+        return $select;
+    }
+
+    public function Query($sql)
+    {
+        if ( Storage::isProfiler() ) {
             Time::stopwatchStart('Luki_Data_MySQL_MySQL');
         }
 
-		$oResult = mysql_query((string)$sSQL, $this->rConnection);
-		
-        if(Storage::isProfiler()) {
-            Time::stopwatchStop('Luki_Data_MySQL_MySQL');
-            Storage::Profiler()->Add('Data', array('sql' => (string)$sSQL, 'time' => Time::getStopwatch('Luki_Data_MySQL_MySQL')));
+        $result = mysql_query((string) $sql, $this->connection);
+
+        if ( Storage::isProfiler() ) {
+            $time = Time::getStopwatch('Luki_Data_MySQL_MySQL');
+            Storage::Profiler()->Add('Data', array( 'sql' => (string) $sql, 'time' => $time ));
         }
 
-		if(is_resource($oResult)) {
-			$oResult = new Result($oResult);
-		}
-		
-		unset($sSQL);
-		return $oResult;
-	}
-	
-	public function escapeString($sString)
-	{
-		$sString = mysql_real_escape_string($sString, $this->rConnection);
-		
-		return $sString;
-	}
-	
-	public function saveLastID($sTable)
-	{
-		$this->nLastID = mysql_insert_id($this->rConnection);
-		$this->aLastID[$sTable] = $this->nLastID;
-	}
-	
-	public function saveUpdated($sTable)
-	{
-		$this->nUpdated = mysql_affected_rows($this->rConnection);
-		$this->aUpdated[$sTable] = $this->nUpdated;
-	}
-	
-	public function saveDeleted($sTable)
-	{
-		$this->nDeleted = mysql_affected_rows($this->rConnection);
-		$this->aDeleted[$sTable] = $this->nDeleted;
-	}
+        if ( is_resource($result) ) {
+            $result = new Result($result);
+        }
+
+        unset($sql, $time);
+        return $result;
+    }
+
+    public function escapeString($string)
+    {
+        $string = mysql_real_escape_string($string, $this->connection);
+
+        return $string;
+    }
+
+    public function saveLastID($table)
+    {
+        $this->lastID = mysql_insert_id($this->connection);
+        $this->allLlastID[$table] = $this->lastID;
+    }
+
+    public function saveUpdated($table)
+    {
+        $this->updated = mysql_affected_rows($this->connection);
+        $this->allUpdated[$table] = $this->updated;
+    }
+
+    public function saveDeleted($table)
+    {
+        $this->deleted = mysql_affected_rows($this->connection);
+        $this->allDeleted[$table] = $this->deleted;
+    }
+
 }
 
 # End of file

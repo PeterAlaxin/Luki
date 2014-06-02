@@ -24,20 +24,21 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Keys {
+class Keys
+{
 
-	public function Get($sValue)
-	{
-		if(is_array($sValue)) {
-			$sReturn = array_keys($sValue);
-		}
-		else {
-			$sReturn = $sValue;
-		}
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        if ( is_array($value) ) {
+            $keys = array_keys($value);
+        } else {
+            $keys = $value;
+        }
+
+        unset($value);
+        return $keys;
+    }
+
 }
 
 # End of file

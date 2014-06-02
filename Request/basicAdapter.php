@@ -24,129 +24,131 @@ namespace Luki\Request;
  * 
  * @package Luki
  */
-abstract class basicAdapter {
+abstract class basicAdapter
+{
 
-    public $aData = array();
-    
-    public function saveInputs($aInputs)
+    public $data = array();
+
+    public function saveInputs($inputs)
     {
-        if(!empty($aInputs) and is_array($aInputs)) {
+        if ( !empty($inputs) and is_array($inputs) ) {
 
-            foreach ($aInputs as $sKey => $xValue) {
+            foreach ( $inputs as $key => $input ) {
 
                 # Reverse automatic addslashes
-                if(get_magic_quotes_gpc()) {
-                    $xValue = stripslashes($xValue);
+                if ( get_magic_quotes_gpc() ) {
+                    $input = stripslashes($input);
                 }
 
                 # HTML Special chars
-                $xValue = htmlspecialchars($xValue, ENT_QUOTES);
+                $input = htmlspecialchars($input, ENT_QUOTES);
 
                 # Save input
-                $this->aData[$sKey] = $xValue;
+                $this->data[$key] = $input;
             }
         }
 
-        unset($aInputs, $sKey, $xValue);
+        unset($inputs, $key, $input);
     }
 
-    public function all()
+    public function getData()
     {
-        return $this->aData;
+        return $this->data;
     }
-    
+
     public function keys()
     {
-        $aKeys = array_keys($this->aData);
-        
-        return $aKeys;
+        $keys = array_keys($this->data);
+
+        return $keys;
     }
-    
-    public function add(array $aValues = array()) 
+
+    public function add(array $values = array())
     {
-        $this->aData = array_replace($this->aData, $aValues);
-        
-        unset($aValues);
+        $this->data = array_replace($this->data, $values);
+
+        unset($values);
     }
-    
-    public function replace(array $aValues = array()) 
+
+    public function replace(array $values = array())
     {
-        $this->aData = $aValues;
-        
-        unset($aValues);
+        $this->data = $values;
+
+        unset($values);
     }
-    
-    public function get($sKey, $xDefault = NULL)
+
+    public function get($key, $default = NULL)
     {
-        if($this->has($sKey)) {
-            $xDefault = $this->aData[$sKey];
+        if ( $this->has($key) ) {
+            $default = $this->data[$key];
         }
-        
-        unset($sKey);
-        return $xDefault;
+
+        unset($key);
+        return $default;
     }
-    
-    public function set($sKey, $xValue)
+
+    public function set($key, $value)
     {
-        $this->add($sKey, $xValue);
+        $this->add(array( $key => $value ));
     }
-    
-    public function has($sKey)
+
+    public function has($key)
     {
-        $bReturn = array_key_exists($sKey, $this->aData);
-        
-        unset($sKey);
-        return $bReturn;
+        $has = array_key_exists($key, $this->data);
+
+        unset($key);
+        return $has;
     }
-    
-    public function remove($sKey)
+
+    public function remove($key)
     {
-        if($this->has($sKey)) {
-            unset($this->aData[$sKey]);
+        if ( $this->has($key) ) {
+            unset($this->data[$key]);
         }
-        
-        unset($sKey);
+
+        unset($key);
     }
-    
-    public function getAlpha($sKey, $xDefault = NULL)
+
+    public function getAlpha($key, $default = NULL)
     {
-        $xDefault = preg_replace('/[^[:alpha:]]/', '', $this->get($sKey, $xDefault));
-        
-        unset($sKey);
-        return $xDefault;
+        $default = preg_replace('/[^[:alpha:]]/', '', $this->get($key, $default));
+
+        unset($key);
+        return $default;
     }
-    
-    public function getAlnum($sKey, $xDefault = NULL)
+
+    public function getAlnum($key, $default = NULL)
     {
-        $xDefault = preg_replace('/[^[:alnum:]]/', '', $this->get($sKey, $xDefault));
-        
-        unset($sKey);
-        return $xDefault;
+        $default = preg_replace('/[^[:alnum:]]/', '', $this->get($key, $default));
+
+        unset($key);
+        return $default;
     }
-    
-    public function getDigits($sKey, $xDefault = NULL)
+
+    public function getDigits($key, $default = NULL)
     {
-        $xDefault = preg_replace('/[^[:digit:]]/', '', $this->get($sKey, $xDefault));
-        
-        unset($sKey);
-        return $xDefault;
+        $default = preg_replace('/[^[:digit:]]/', '', $this->get($key, $default));
+
+        unset($key);
+        return $default;
     }
-    
-    public function getInt($sKey, $xDefault = NULL)
+
+    public function getInt($key, $default = NULL)
     {
-        $xDefault = (int) $this->get($sKey, $xDefault);
-        
-        unset($sKey);
-        return $xDefault;
+        $default = (int) $this->get($key, $default);
+
+        unset($key);
+        return $default;
     }
-    
-    public function filter($sKey, $xDefault = NULL, $nFilter = FILTER_DEFAULT, $xOptions = array())
+
+    public function filter($key, $default = NULL, $filter = FILTER_DEFAULT, $options = array())
     {
-        $xDefault = filter_var($this->get($sKey, $xDefault), $nFilter, $xOptions);
-        
-        unset($sKey, $nFilter, $xOptions);
-        return $xDefault;
+        $default = filter_var($this->get($key, $default), $filter, $options);
+
+        unset($key, $filter, $options);
+        return $default;
     }
+
 }
 
 # End of file

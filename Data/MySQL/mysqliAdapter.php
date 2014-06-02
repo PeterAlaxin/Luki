@@ -30,87 +30,86 @@ use Luki\Time;
  * 
  * @package Luki
  */
-class mysqliAdapter extends basicAdapter {
+class mysqliAdapter extends basicAdapter
+{
 
-	public $oMySQL = NULL;
-	
-	public function __construct($aOptions)
-	{
-		$this->oMySQL = new \mysqli(
-			$aOptions['server'], 
-			$aOptions['user'], 
-			$aOptions['password'], 
-			$aOptions['database']);
-		
-		if(!empty($this->oMySQL->connect_error)) {
-			echo 'Connection error: ' . $this->oMySQL->connect_error;
-			exit;
-		}
-		
-		$this->Query('SET CHARACTER_SET_CONNECTION=' . $aOptions['coding'] . ';');
-		$this->Query('SET CHARACTER_SET_CLIENT=' . $aOptions['coding'] . ';');
-		$this->Query('SET CHARACTER_SET_RESULTS=' . $aOptions['coding'] . ';');
-		
-		unset($aOptions);
-	}
-	
+    public $mySql = NULL;
+
+    public function __construct($options)
+    {
+        $this->mySql = new \mysqli(
+                $options['server'], $options['user'], $options['password'], $options['database']);
+
+        if ( !empty($this->mySql->connect_error) ) {
+            echo 'Connection error: ' . $this->mySql->connect_error;
+            exit;
+        }
+
+        $this->Query('SET CHARACTER_SET_CONNECTION=' . $options['coding'] . ';');
+        $this->Query('SET CHARACTER_SET_CLIENT=' . $options['coding'] . ';');
+        $this->Query('SET CHARACTER_SET_RESULTS=' . $options['coding'] . ';');
+
+        unset($options);
+    }
+
     public function __destruct()
     {
-        $this->oMySQL->close();
+        $this->mySql->close();
     }
-    
-	public function Select()
-	{
-		$oSelect = new Select($this);
-		
-		return $oSelect;
-	}
-	
-	public function Query($sSQL)
-	{
-        if(Storage::isProfiler()) {
+
+    public function Select()
+    {
+        $select = new Select($this);
+
+        return $select;
+    }
+
+    public function Query($sql)
+    {
+        if ( Storage::isProfiler() ) {
             Time::stopwatchStart('Luki_Data_MySQL_MySQLi');
         }
 
-		$oResult = $this->oMySQL->query((string)$sSQL);
+        $result = $this->mySql->query((string) $sql);
 
-        if(Storage::isProfiler()) {
-            Time::stopwatchStop('Luki_Data_MySQL_MySQLi');
-            Storage::Profiler()->Add('Data', array('sql' => (string)$sSQL, 'time' => Time::getStopwatch('Luki_Data_MySQL_MySQLi')));
+        if ( Storage::isProfiler() ) {
+            $time = Time::getStopwatch('Luki_Data_MySQL_MySQLi');
+            Storage::Profiler()->Add('Data', array( 'sql' => (string) $sql, 'time' => $time ));
         }
 
-        if(is_a($oResult, 'mysqli_result')) {
-			$oResult = new Result($oResult);
-		}
-		
-		unset($sSQL);
-		return $oResult;
-	} 
-	
-	public function escapeString($sString)
-	{
-		$sString = $this->oMySQL->real_escape_string($sString);
-		
-		return $sString;
-	}
-	
-	public function saveLastID($sTable)
-	{
-		$this->nLastID = $this->oMySQL->insert_id;
-		$this->aLastID[$sTable] = $this->nLastID;
-	}
-	
-	public function saveUpdated($sTable)
-	{
-		$this->nUpdated = $this->oMySQL->affected_rows;
-		$this->aUpdated[$sTable] = $this->nUpdated;
-	}
-	
-	public function saveDeleted($sTable)
-	{
-		$this->nDeleted = $this->oMySQL->affected_rows;
-		$this->aDeleted[$sTable] = $this->nDeleted;
-	}
+        if ( is_a($result, 'mysqli_result') ) {
+            $result = new Result($result);
+        }
+
+        unset($sql, $time);
+        return $result;
+    }
+
+    public function escapeString($string)
+    {
+        $string = $this->mySql->real_escape_string($string);
+
+        return $string;
+    }
+
+    public function saveLastID($table)
+    {
+        $this->lastID = $this->mySql->insert_id;
+        $this->allLlastID[$table] = $this->lastID;
+    }
+
+    public function saveUpdated($table)
+    {
+        $this->updated = $this->mySql->affected_rows;
+        $this->allUpdated[$table] = $this->updated;
+    }
+
+    public function saveDeleted($table)
+    {
+        $this->deleted = $this->mySql->affected_rows;
+        $this->allDeleted[$table] = $this->deleted;
+    }
+
 }
 
 # End of file

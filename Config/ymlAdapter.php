@@ -26,35 +26,26 @@ use Luki\Config\basicAdapter;
  * 
  * @package Luki
  */
-class ymlAdapter extends basicAdapter {
+class ymlAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $File
-	 */
-	public function __construct($File, $allowCreate = FALSE)
-	{
-        parent::__construct($File, $allowCreate);
-        
-        $this->Configuration = yaml_parse(file_get_contents($this->File));
- 
-		unset($File, $allowCreate);
-	}
+    public function __construct($fileName, $allowCreate = FALSE)
+    {
+        parent::__construct($fileName, $allowCreate);
 
-	/**
-	 * Save configuration to specific file
-	 * @param array $aConfiguration Configuration
-	 * @param string $sFileName File to store configuration
-	 * @return boolean
-	 */
-	public function saveConfiguration()
-	{
+        $this->configuration = yaml_parse(file_get_contents($this->fileName));
+
+        unset($fileName, $allowCreate);
+    }
+
+    public function saveConfiguration()
+    {
         parent::saveConfiguration();
-        
-        $isSaved = $this->saveToFile(yaml_emit($this->Configuration));
 
-		return $isSaved;
-	}
+        $isSaved = $this->saveToFile(yaml_emit($this->configuration));
+
+        return $isSaved;
+    }
 
 }
 

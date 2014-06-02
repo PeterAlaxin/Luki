@@ -26,35 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Identical extends basicFactory {
+class Identical extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" not identical as "%token%"!';
-	
-	public $token = NULL;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public $token = NULL;
 
-		if($xValue === $this->token) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-			$this->sError = preg_replace('/%token%/', $this->token, $this->sError);
-		}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-		unset($xValue);
-		return $bReturn;
-	}
+        $this->setMessage('The value "%value%" not identical as "%token%"!');
 
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( $value === $this->token ) {
+            $this->setNoError();
+        } else {
+            $from = array( '/%value%/', '/%token%/' );
+            $to = array( $value, $this->token );
+            $this->fillMessage($from, $to);
+        }
+
+        unset($value, $from, $to);
+        return $this->isValid;
+    }
+
+    public function setToken($token)
+    {
+        $this->token = $token;
+
+        unset($token);
+    }
+
+    public function getToken()
+    {
+        return $this->token;
+    }
 
 }
 

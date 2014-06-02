@@ -24,16 +24,13 @@ namespace Luki\Request;
  * 
  * @package Luki
  */
-class cookieAdapter extends basicAdapter {
+class cookieAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $sFileName
-	 */
-	public function __construct()
-	{
+    public function __construct()
+    {
         $this->saveInputs($_COOKIE);
-	}
+    }
 
 }
 

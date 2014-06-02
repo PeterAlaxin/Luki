@@ -24,81 +24,66 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Wordwrap {
+class Wordwrap
+{
 
-	public function Get($sValue, $nWidth = 75)
-	{
-		$sReturn = $this->_mb_wordwrap($sValue, $nWidth);
-		
-		unset($sValue, $nWidth);
-		return $sReturn;
-	}	
+    public function Get($value, $width = 75)
+    {
+        $wrapped = $this->_mb_wordwrap($value, $width);
 
-	private function _mb_wordwrap($str, $width = 75)
-	{
-		if(empty($str) or mb_strlen($str, 'UTF-8') <= $width) {
-			return $str;
-		}
+        unset($value, $width);
+        return $wrapped;
+    }
 
-		$break = chr(10);
-		$br_width  = mb_strlen($break, 'UTF-8');
-		$str_width = mb_strlen($str, 'UTF-8');
-		$return = '';
-		$last_space = false;
+    private function _mb_wordwrap($str, $width = 75)
+    {
+        $encoding = mb_detect_encoding($str);
+        if ( empty($str) or mb_strlen($str, $encoding) <= $width ) {
+            return $str;
+        }
 
-		for($i=0, $count=0; $i < $str_width; $i++, $count++)
-		{
-			// If we're at a break
-			if (mb_substr($str, $i, $br_width, 'UTF-8') == $break)
-			{
-				$count = 0;
-				$return .= mb_substr($str, $i, $br_width, 'UTF-8');
-				$i += $br_width - 1;
-				continue;
-			}
+        $break = chr(10);
+        $brWidth = mb_strlen($break, $encoding);
+        $strWidth = mb_strlen($str, $encoding);
+        $return = '';
+        $lastSpace = false;
 
-			// Keep a track of the most recent possible break point
-			if(mb_substr($str, $i, 1, 'UTF-8') == " ")
-			{
-				$last_space = $i;
-			}
+        for ( $i = 0, $count = 0; $i < $strWidth; $i++, $count++ ) {
+            if ( mb_substr($str, $i, $brWidth, $encoding) == $break ) {
+                $count = 0;
+                $return .= mb_substr($str, $i, $brWidth, $encoding);
+                $i += $brWidth - 1;
+                continue;
+            }
 
-			// It's time to wrap
-			if ($count >= $width)
-			{
-				// There are no spaces to break on!  Going to truncate :(
-				if(!$last_space)
-				{
-					$return .= $break;
-					$count = 0;
-				}
-				else
-				{
-					// Work out how far back the last space was
-					$drop = $i - $last_space;
+            if ( mb_substr($str, $i, 1, $encoding) == " " ) {
+                $lastSpace = $i;
+            }
 
-					// Cutting zero chars results in an empty string, so don't do that
-					if($drop > 0)
-					{
-						$return = mb_substr($return, 0, -$drop);
-					}
+            if ( $count >= $width ) {
+                if ( !$lastSpace ) {
+                    $return .= $break;
+                    $count = 0;
+                } else {
+                    $drop = $i - $lastSpace;
 
-					// Add a break
-					$return .= $break;
+                    if ( $drop > 0 ) {
+                        $return = mb_substr($return, 0, -$drop);
+                    }
 
-					// Update pointers
-					$i = $last_space + ($br_width - 1);
-					$last_space = false;
-					$count = 0;
-				}
-			}
+                    $return .= $break;
+                    $i = $lastSpace + ($brWidth - 1);
+                    $lastSpace = false;
+                    $count = 0;
+                }
+            }
 
-			// Add character from the input string to the output
-			$return .= mb_substr($str, $i, 1, 'UTF-8');
-		}
-		
-		return $return;
-	}
+            $return .= mb_substr($str, $i, 1, $encoding);
+        }
+
+        return $return;
+    }
+
 }
 
 # End of file

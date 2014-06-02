@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Odd {
+class Odd
+{
 
-	public function Is($nValue)
-	{
-		
-		$bReturn = !(floor($nValue/2) == ($nValue/2));
-		
-		unset($nValue);
-		return $bReturn;
-	}
+    public function Is($value)
+    {
+
+        $isOdd = !(floor($value / 2) == ($value / 2));
+
+        unset($value);
+        return $isOdd;
+    }
+
 }
 
 # End of file

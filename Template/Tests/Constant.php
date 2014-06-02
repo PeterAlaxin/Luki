@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Constant {
+class Constant
+{
 
-	public function Is($sValue)
-	{
-		
-		$bReturn = defined($sValue);
-		
-		unset($sValue);
-		return $bReturn;
-	}
+    public function Is($value)
+    {
+
+        $isConstant = defined($value);
+
+        unset($value);
+        return $isConstant;
+    }
+
 }
 
 # End of file

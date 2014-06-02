@@ -26,51 +26,43 @@ use Luki\Config\basicAdapter;
  * 
  * @package Luki
  */
-class xmlAdapter extends basicAdapter {
+class xmlAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $File
-	 */
-	public function __construct($File, $allowCreate = FALSE)
-	{
-        parent::__construct($File, $allowCreate);
-        
-		libxml_use_internal_errors(TRUE);
-		$XML = simplexml_load_file($this->File, 'SimpleXMLElement', LIBXML_NOERROR);
-		$this->Configuration = json_decode(json_encode($XML), TRUE);
+    public function __construct($fileName, $allowCreate = FALSE)
+    {
+        parent::__construct($fileName, $allowCreate);
 
-		unset($File, $XML, $allowCreate);
-	}
+        libxml_use_internal_errors(TRUE);
+        $xml = simplexml_load_file($this->fileName, 'SimpleXMLElement', LIBXML_NOERROR);
+        $this->configuration = json_decode(json_encode($xml), TRUE);
 
-	/**
-	 * Save configuration to file
-	 * 
-	 * @return boolean
-	 */
-	public function saveConfiguration()
-	{
+        unset($fileName, $xml, $allowCreate);
+    }
+
+    public function saveConfiguration()
+    {
         parent::saveConfiguration();
-        
-		$OutputContent = new DOMDocument('1.0', 'UTF-8');
-		$OutputContent->preserveWhiteSpace = false;
-		$OutputContent->formatOutput = true;
-		$Element = $OutputContent->createElement('configuration');
-		$OutputContent->appendChild($Element);
 
-		foreach ($this->Configuration as $Section => $Values) {
-			$NewSection = $OutputContent->createElement($Section);
-			$OutputContent->documentElement->appendChild($NewSection);
+        $content = new DOMDocument('1.0', 'UTF-8');
+        $content->preserveWhiteSpace = false;
+        $content->formatOutput = true;
+        $element = $content->createElement('configuration');
+        $content->appendChild($element);
 
-			foreach ($Values as $Key => $Value) {
-				$NewSection->appendChild($OutputContent->createElement($Key, $Value));
-			}
-		}
-        $isSaved = $this->saveToFile($OutputContent->saveXML());
+        foreach ( $this->configuration as $section => $values ) {
+            $newSection = $content->createElement($section);
+            $content->documentElement->appendChild($newSection);
 
-		unset($OutputContent, $Element, $Section, $Values, $NewSection, $Key, $Value);
-		return $isSaved;
-	}
+            foreach ( $values as $key => $value ) {
+                $newSection->appendChild($content->createElement($key, $value));
+            }
+        }
+        $isSaved = $this->saveToFile($content->saveXML());
+
+        unset($content, $element, $section, $values, $newSection, $key, $value);
+        return $isSaved;
+    }
 
 }
 

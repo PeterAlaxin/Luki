@@ -26,31 +26,32 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Date extends basicFactory {
+class Date extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" is not valid date!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+        $this->setMessage('The value "%value%" is not valid date!');
+        
+        unset($options);
+    }
 
-		if(FALSE !== date_create($xValue)) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
 
-		unset($xValue);
-		return $bReturn;
-	}
+        if ( FALSE !== date_create($value) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+
 }
 
 # End of file

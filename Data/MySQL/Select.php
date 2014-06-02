@@ -24,505 +24,492 @@ namespace Luki\Data\MySQL;
  * 
  * @package Luki
  */
-class Select {
-
-	const ALL = 'all';
-	const DISTINCT = 'distinct';
-	const CACHE = 'cache';
-	const CALC_FOUND_ROWS = 'calc';
-	const JOIN = 'join';
-	const GROUP = 'group';
-	const WHERE = 'where';
-	const ORDER = 'order';
-	const LIMIT = 'limit';
-	const UNION = 'union';
-
-	private $oParent = NULL;
-
-	/**
-	 * All selectes
-	 * @var array 
-	 */
-	private $aSelect = array();
-
-	/**
-	 * Empty select array
-	 * @var array
-	 */
-	private $aEmptySelect = array(
-		'distinct' => 'ALL',
-		'cache' => '',
-		'calc' => '',
-		'columns' => array(),
-		'tables' => array(),
-		'from' => array(),
-		'join' => array(),
-		'group' => '',
-		'having' => '',
-		'where' => '',
-		'orWhere' => array(),
-		'order' => '',
-		'limit' => array(
-			'from' => 0,
-			'count' => 0
-		),
-		'union' => array()
-	);
-
-	public function __construct($oParent)
-	{
-		$this->oParent = $oParent;
-
-		$this->reset(self::ALL);
-	}
-
-	public function __toString()
-	{
-		$sReturn = $this->_finalizeSelect();
-
-		return $sReturn;
-	}
-
-	public function distinct()
-	{
-		$this->aSelect['distinct'] = 'DISTINCT';
-
-		return $this;
-	}
-
-	public function cache()
-	{
-		$this->aSelect['cache'] = 'SQL_CACHE';
-
-		return $this;
-	}
-
-	public function noCache()
-	{
-		$this->aSelect['cache'] = 'SQL_NO_CACHE';
-
-		return $this;
-	}
-
-	public function calcFoundRows()
-	{
-		$this->aSelect['calc'] = 'SQL_CALC_FOUND_ROWS';
-
-		return $this;
-	}
-
-	public function from($sTable, $aColumns = '*')
-	{
-		if(!is_array($sTable)) {
-			$sTable = array($sTable => $sTable);
-		}
-
-		$this->aSelect['from'] = $sTable;
-		$sTable = $this->_addTable($sTable);
-		$this->_addColumns($sTable, $aColumns);
-
-		unset($sTable, $aColumns);
-		return $this;
-	}
-
-	public function join($sTable, $sCondition, $aColumns = '*')
-	{
-		$this->_join('inner', $sTable, $sCondition, $aColumns);
-
-		unset($sTable, $sCondition, $aColumns);
-		return $this;
-	}
-
-	public function joinInner($sTable, $sCondition, $aColumns = '*')
-	{
-		$this->_join('inner', $sTable, $sCondition, $aColumns);
-
-		unset($sTable, $sCondition, $aColumns);
-		return $this;
-	}
-
-	public function joinLeft($sTable, $sCondition, $aColumns = '*')
-	{
-		$this->_join('left', $sTable, $sCondition, $aColumns);
-
-		unset($sTable, $sCondition, $aColumns);
-		return $this;
-	}
-
-	public function joinRight($sTable, $sCondition, $aColumns = '*')
-	{
-		$this->_join('right', $sTable, $sCondition, $aColumns);
-
-		unset($sTable, $sCondition, $aColumns);
-		return $this;
-	}
-
-	public function where($sCondition, $sParameter = NULL)
-	{
-		if(!empty($this->aSelect['where'])) {
-			$this->aSelect['where'] .= ' AND ';
-		}
-
-		if(!is_null($sParameter)) {
-			$sCondition = $this->_escapeString($sCondition, $sParameter);
-		}
-
-		$this->aSelect['where'] .= '(' . $sCondition . ')';
-
-		unset($sCondition, $sParameter);
-		return $this;
-	}
-
-	public function orWhere($sCondition, $sParameter = NULL)
-	{
-		if(!is_null($sParameter)) {
-			$sCondition = $this->_escapeString($sCondition, $sParameter);
-		}
-
-		$this->aSelect['orWhere'][] = $sCondition;
-
-		unset($sCondition, $sParameter);
-		return $this;
-	}
-
-	public function group($aGroup)
-	{
-		$aGroup = (array) $aGroup;
-
-		foreach ($aGroup as $nKey => $sGroup) {
-			if($nKey > 0) {
-				$sGroup = ', ' . $sGroup;
-			}
-			$this->aSelect['group'] .= $sGroup;
-		}
-
-		unset($aGroup, $sGroup);
-		return $this;
-	}
-
-	public function having($sCondition, $sParameter = NULL)
-	{
-		if(!empty($this->aSelect['having'])) {
-			$this->aSelect['having'] .= ' AND ';
-		}
-
-		if(!is_null($sParameter)) {
-			$sCondition = $this->_escape($sCondition, $sParameter);
-		}
-
-		$this->aSelect['having'] .= '(' . $sCondition . ')';
-
-		unset($sCondition, $sParameter);
-		return $this;
-	}
-
-	public function orHaving($sCondition, $sParameter = NULL)
-	{
-		if(!empty($this->aSelect['having'])) {
-			$this->aSelect['having'] = '(' . $this->aSelect['having'] . ') OR ';
-		}
-
-		if(!is_null($sParameter)) {
-			$sCondition = $this->_escape($sCondition, $sParameter);
-		}
-
-		$this->aSelect['having'] .= '(' . $sCondition . ')';
-
-		unset($sCondition, $sParameter);
-		return $this;
-	}
-
-	public function order($aOrder)
-	{
-		$aOrder = (array) $aOrder;
-
-		foreach ($aOrder as $sOrder) {
-			if(!empty($this->aSelect['order'])) {
-				$sOrder = ', ' . $sOrder;
-			}
-			$this->aSelect['order'] .= $sOrder;
-		}
-
-		unset($aOrder, $sOrder);
-		return $this;
-	}
-
-	public function limit($nFrom, $nCount = NULL)
-	{
-		$this->aSelect['limit']['from'] = (int) $nFrom;
-
-		if(!is_null($nCount)) {
-			$this->aSelect['limit']['count'] = (int) $nCount;
-		}
-
-		unset($nFrom, $nCount);
-		return $this;
-	}
-
-	public function page($nPage, $nCount)
-	{
-		$nFrom = ($nPage - 1) * $nCount;
-
-		$this->limit($nFrom, $nCount);
-
-		unset($nPage, $nFrom, $nCount);
-		return $this;
-	}
-
-	public function reset($sSection)
-	{
-		if(isset($this->aEmptySelect[$sSection])) {
-			$this->aSelect[$sSection] = $this->aEmptySelect[$sSection];
-		}
-		elseif('all' == $sSection) {
-			$this->aSelect = $this->aEmptySelect;
-		}
-
-		unset($sSection);
-		return $this;
-	}
-
-	public function union($aSQL)
-	{
-
-		if(is_array($aSQL)) {
-			$this->aSelect['union'] = $aSQL;
-		}
-
-		unset($aSQL);
-		return $this;
-	}
-
-	private function _addTable($sTable)
-	{
-		if(is_array($sTable)) {
-
-			foreach ($sTable as $sKey => $sValue) {
-				$this->aSelect['tables'][$sKey] = $sValue;
-				$sTable = $sKey;
-				break;
-			}
-
-			unset($$sKey, $sValue);
-		}
-		else {
-			$this->aSelect['tables'][$sTable] = $sTable;
-		}
-
-		return $sTable;
-	}
-
-	private function _addColumns($sTable, $aColumns)
-	{
-		$aColumns = (array) $aColumns;
-
-		foreach ($aColumns as $sAlias => $sColumn) {
-			if(!is_string($sAlias)) {
-				$sAlias = $sColumn;
-			}
-
-			$this->aSelect['columns'][$sTable][$sAlias] = $sColumn;
-		}
-
-		unset($sTable, $aColumns, $sAlias, $sColumn);
-	}
-
-	public function _join($sType, $sTable, $sCondition, $aColumns)
-	{
-		if(!is_array($sTable)) {
-			$sTable = array($sTable => $sTable);
-		}
-
-		$this->aSelect['join'][] = array(
-			'type' => $sType,
-			'table' => $sTable,
-			'condition' => $sCondition
-		);
-
-		$sTable = $this->_addTable($sTable);
-		$this->_addColumns($sTable, $aColumns);
-
-		unset($sType, $sTable, $sCondition, $aColumns);
-	}
-
-	private function _finalizeSelect()
-	{
-		#<editor-fold defaultstate="collapsed" desc="Union">
-		if(!empty($this->aSelect['union'])) {
-			$sSQL = '';
-
-			foreach ($this->aSelect['union'] as $nKey => $oSelect) {
-				if($nKey > 0) {
-					$sSQL .= ' UNION ' . chr(13);
-				}
-				$sSQL .= ' (' . (string) $oSelect . ')' . chr(13);
-			}
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Single Select">
-		else {
-			$sSQL = 'SELECT ';
-
-			#<editor-fold defaultstate="collapsed" desc="Distinct">
-			$sSQL .= $this->aSelect['distinct'] . ' ';
-			$sSQL .= chr(13);
-			#</editor-fold>
-			#<editor-fold defaultstate="collapsed" desc="Cache">
-			if(!empty($this->aSelect['cache'])) {
-				$sSQL .= $this->aSelect['cache'] . ' ';
-				$sSQL .= chr(13);
-			}
-			#</editor-fold>
-			#<editor-fold defaultstate="collapsed" desc="Calc rows">
-			if(!empty($this->aSelect['calc'])) {
-				$sSQL .= $this->aSelect['calc'] . ' ';
-				$sSQL .= chr(13);
-			}
-			#</editor-fold>
-			#<editor-fold defaultstate="collapsed" desc="Columns">
-			$sColumns = '';
-			foreach ($this->aSelect['columns'] as $sTable => $aColumns) {
-				$aColumns = (array) $aColumns;
-
-				foreach ($aColumns as $sAlias => $sColumn) {
-					if(!empty($sColumns)) {
-						$sColumns .= ', ' . chr(13);
-					}
-
-					if(FALSE === strstr($sColumn, '(')) {
-						$sColumns .= $this->_quote($sTable) . '.';
-						if('*' == $sColumn) {
-							$sColumns .= $sColumn;
-						}
-						else {
-							$sColumns .= $this->_quote($sColumn);
-						}
-					}
-					else {
-						$sColumns .= $sColumn;
-					}
-
-					if($sAlias != $sColumn) {
-						$sColumns .= ' AS ' . $this->_quote($sAlias);
-					}
-				}
-			}
-			$sSQL .= $sColumns . chr(13);
-			#</editor-fold>
-
-			$sSQL .= ' FROM ';
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="From">
-		if(!empty($this->aSelect['from'])) {
-			foreach ($this->aSelect['from'] as $sAlias => $sRealTable) {
-				$sSQL .= $this->_quote($sRealTable);
-
-				if($sRealTable != $sAlias) {
-					$sSQL .= ' AS ' . $this->_quote($sAlias);
-				}
-				break;
-			}
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Join">
-		if(!empty($this->aSelect['join'])) {
-			foreach ($this->aSelect['join'] as $aJoin) {
-
-				switch ($aJoin['type']) {
-					case 'left':
-						$sSQL .= ' LEFT JOIN ';
-						break;
-					case 'right':
-						$sSQL .= ' RIGHT JOIN ';
-						break;
-					case 'inner':
-					default:
-						$sSQL .= ' INNER JOIN ';
-				}
-
-				foreach ($aJoin['table'] as $sAlias => $sRealTable) {
-					$sSQL .= $this->_quote($sRealTable);
-
-					if($sRealTable != $sAlias) {
-						$sSQL .= ' AS ' . $this->_quote($sAlias);
-					}
-					break;
-				}
-
-				$sSQL .= ' ON ' . $aJoin['condition'];
-			}
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Where">
-		if(!empty($this->aSelect['where'])) {
-			$sSQL .= ' WHERE ' . $this->aSelect['where'];
-			$sSQL .= chr(13);
-		}
-		if(!empty($this->aSelect['orWhere'])) {
-			$sSQL .= ' AND (';
-            foreach($this->aSelect['orWhere'] as $Key => $Condition) {
-                if(!empty($Key)) {
-                    $sSQL .= ' OR ';
-                }
-                $sSQL .= $Condition;
+class Select
+{
+
+    const ALL = 'all';
+    const DISTINCT = 'distinct';
+    const CACHE = 'cache';
+    const CALC_FOUND_ROWS = 'calc';
+    const JOIN = 'join';
+    const GROUP = 'group';
+    const WHERE = 'where';
+    const ORDER = 'order';
+    const LIMIT = 'limit';
+    const UNION = 'union';
+
+    private $_parent = NULL;
+    private $_select = array();
+    private $_emptySelect = array(
+      'distinct' => 'ALL',
+      'cache' => '',
+      'calc' => '',
+      'columns' => array(),
+      'tables' => array(),
+      'from' => array(),
+      'join' => array(),
+      'group' => '',
+      'having' => '',
+      'where' => '',
+      'orWhere' => array(),
+      'order' => '',
+      'limit' => array(
+        'from' => 0,
+        'count' => 0
+      ),
+      'union' => array()
+    );
+
+    public function __construct($parent)
+    {
+        $this->_parent = $parent;
+
+        $this->reset(self::ALL);
+    }
+
+    public function __toString()
+    {
+        $sql = $this->_finalizeSelect();
+
+        return $sql;
+    }
+
+    public function distinct()
+    {
+        $this->_select['distinct'] = 'DISTINCT';
+
+        return $this;
+    }
+
+    public function cache()
+    {
+        $this->_select['cache'] = 'SQL_CACHE';
+
+        return $this;
+    }
+
+    public function noCache()
+    {
+        $this->_select['cache'] = 'SQL_NO_CACHE';
+
+        return $this;
+    }
+
+    public function calcFoundRows()
+    {
+        $this->_select['calc'] = 'SQL_CALC_FOUND_ROWS';
+
+        return $this;
+    }
+
+    public function from($table, $columns = '*')
+    {
+        if ( !is_array($table) ) {
+            $table = array( $table => $table );
+        }
+
+        $this->_select['from'] = $table;
+        $table = $this->_addTable($table);
+        $this->_addColumns($table, $columns);
+
+        unset($table, $columns);
+        return $this;
+    }
+
+    public function join($table, $condition, $columns = '*')
+    {
+        $this->_join('inner', $table, $condition, $columns);
+
+        unset($table, $condition, $columns);
+        return $this;
+    }
+
+    public function joinInner($table, $condition, $columns = '*')
+    {
+        $this->_join('inner', $table, $condition, $columns);
+
+        unset($table, $condition, $columns);
+        return $this;
+    }
+
+    public function joinLeft($table, $condition, $columns = '*')
+    {
+        $this->_join('left', $table, $condition, $columns);
+
+        unset($table, $condition, $columns);
+        return $this;
+    }
+
+    public function joinRight($table, $condition, $columns = '*')
+    {
+        $this->_join('right', $table, $condition, $columns);
+
+        unset($table, $condition, $columns);
+        return $this;
+    }
+
+    public function where($condition, $parameter = NULL)
+    {
+        if ( !empty($this->_select['where']) ) {
+            $this->_select['where'] .= ' AND ';
+        }
+
+        if ( !is_null($parameter) ) {
+            $condition = $this->_escapeString($condition, $parameter);
+        }
+
+        $this->_select['where'] .= '(' . $condition . ')';
+
+        unset($condition, $parameter);
+        return $this;
+    }
+
+    public function orWhere($condition, $parameter = NULL)
+    {
+        if ( !is_null($parameter) ) {
+            $condition = $this->_escapeString($condition, $parameter);
+        }
+
+        $this->_select['orWhere'][] = $condition;
+
+        unset($condition, $parameter);
+        return $this;
+    }
+
+    public function group($groups)
+    {
+        $groups = (array) $groups;
+
+        foreach ( $groups as $key => $group ) {
+            if ( $key > 0 ) {
+                $group = ', ' . $group;
             }
-			$sSQL .= ')'. chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Group">
-		if(!empty($this->aSelect['group'])) {
-			$sSQL .= ' GROUP BY ' . $this->aSelect['group'];
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Having">
-		if(!empty($this->aSelect['having'])) {
-			$sSQL .= ' HAVING ' . $this->aSelect['having'];
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Order">
-		if(!empty($this->aSelect['order'])) {
-			$sSQL .= ' ORDER BY ' . $this->aSelect['order'];
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
-		#<editor-fold defaultstate="collapsed" desc="Limit">
-		if(!empty($this->aSelect['limit']['from'])) {
-			$sSQL .= ' LIMIT ' . $this->aSelect['limit']['from'];
+            $this->_select['group'] .= $group;
+        }
 
-			if(!empty($this->aSelect['limit']['count'])) {
-				$sSQL .= ', ' . $this->aSelect['limit']['count'];
-			}
+        unset($groups, $group);
+        return $this;
+    }
 
-			$sSQL .= chr(13);
-		}
-		#</editor-fold>
+    public function having($condition, $parameter = NULL)
+    {
+        if ( !empty($this->_select['having']) ) {
+            $this->_select['having'] .= ' AND ';
+        }
 
-		return $sSQL;
-	}
+        if ( !is_null($parameter) ) {
+            $condition = $this->_escape($condition, $parameter);
+        }
 
-	private function _quote($sString)
-	{
-		$sString = '`' . $sString . '`';
+        $this->_select['having'] .= '(' . $condition . ')';
 
-		return $sString;
-	}
+        unset($condition, $parameter);
+        return $this;
+    }
 
-	private function _escapeString($sCondition, $sParameter)
-	{
-		if(!is_numeric($sParameter)) {
-			$sParameter = $this->oParent->escapeString($sParameter);
-		}
+    public function orHaving($condition, $parameter = NULL)
+    {
+        if ( !empty($this->_select['having']) ) {
+            $this->_select['having'] = '(' . $this->_select['having'] . ') OR ';
+        }
 
-		$sCondition = str_replace('?', $sParameter, $sCondition);
+        if ( !is_null($parameter) ) {
+            $condition = $this->_escape($condition, $parameter);
+        }
 
-		unset($sParameter);
-		return $sCondition;
-	}
+        $this->_select['having'] .= '(' . $condition . ')';
+
+        unset($condition, $parameter);
+        return $this;
+    }
+
+    public function order($orders)
+    {
+        $orders = (array) $orders;
+
+        foreach ( $orders as $order ) {
+            if ( !empty($this->_select['order']) ) {
+                $order = ', ' . $order;
+            }
+            $this->_select['order'] .= $order;
+        }
+
+        unset($orders, $order);
+        return $this;
+    }
+
+    public function limit($from, $count = NULL)
+    {
+        $this->_select['limit']['from'] = (int) $from;
+
+        if ( !is_null($count) ) {
+            $this->_select['limit']['count'] = (int) $count;
+        }
+
+        unset($from, $count);
+        return $this;
+    }
+
+    public function page($page, $count)
+    {
+        $from = ($page - 1) * $count;
+
+        $this->limit($from, $count);
+
+        unset($page, $from, $count);
+        return $this;
+    }
+
+    public function reset($section)
+    {
+        if ( isset($this->_emptySelect[$section]) ) {
+            $this->_select[$section] = $this->_emptySelect[$section];
+        } elseif ( 'all' == $section ) {
+            $this->_select = $this->_emptySelect;
+        }
+
+        unset($section);
+        return $this;
+    }
+
+    public function union($sql)
+    {
+
+        if ( is_array($sql) ) {
+            $this->_select['union'] = $sql;
+        }
+
+        unset($sql);
+        return $this;
+    }
+
+    private function _addTable($table)
+    {
+        if ( is_array($table) ) {
+
+            foreach ( $table as $key => $value ) {
+                $this->_select['tables'][$key] = $value;
+                $table = $key;
+                break;
+            }
+
+            unset($$key, $value);
+        } else {
+            $this->_select['tables'][$table] = $table;
+        }
+
+        return $table;
+    }
+
+    private function _addColumns($table, $columns)
+    {
+        $columns = (array) $columns;
+
+        foreach ( $columns as $alias => $column ) {
+            if ( !is_string($alias) ) {
+                $alias = $column;
+            }
+
+            $this->_select['columns'][$table][$alias] = $column;
+        }
+
+        unset($table, $columns, $alias, $column);
+    }
+
+    public function _join($type, $table, $condition, $columns)
+    {
+        if ( !is_array($table) ) {
+            $table = array( $table => $table );
+        }
+
+        $this->_select['join'][] = array(
+          'type' => $type,
+          'table' => $table,
+          'condition' => $condition
+        );
+
+        $table = $this->_addTable($table);
+        $this->_addColumns($table, $columns);
+
+        unset($type, $table, $condition, $columns);
+    }
+
+    private function _finalizeSelect()
+    {
+        #<editor-fold defaultstate="collapsed" desc="Union">
+        if ( !empty($this->_select['union']) ) {
+            $sql = '';
+
+            foreach ( $this->_select['union'] as $key => $select ) {
+                if ( $key > 0 ) {
+                    $sql .= ' UNION ' . chr(13);
+                }
+                $sql .= ' (' . (string) $select . ')' . chr(13);
+            }
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Single Select">
+        else {
+            $sql = 'SELECT ';
+
+            #<editor-fold defaultstate="collapsed" desc="Distinct">
+            $sql .= $this->_select['distinct'] . ' ';
+            $sql .= chr(13);
+            #</editor-fold>
+            #<editor-fold defaultstate="collapsed" desc="Cache">
+            if ( !empty($this->_select['cache']) ) {
+                $sql .= $this->_select['cache'] . ' ';
+                $sql .= chr(13);
+            }
+            #</editor-fold>
+            #<editor-fold defaultstate="collapsed" desc="Calc rows">
+            if ( !empty($this->_select['calc']) ) {
+                $sql .= $this->_select['calc'] . ' ';
+                $sql .= chr(13);
+            }
+            #</editor-fold>
+            #<editor-fold defaultstate="collapsed" desc="Columns">
+            $columns = '';
+            foreach ( $this->_select['columns'] as $table => $tableColumns ) {
+                $tableColumns = (array) $tableColumns;
+
+                foreach ( $tableColumns as $alias => $column ) {
+                    if ( !empty($columns) ) {
+                        $columns .= ', ' . chr(13);
+                    }
+
+                    if ( FALSE === strstr($column, '(') ) {
+                        $columns .= $this->_quote($table) . '.';
+                        if ( '*' == $column ) {
+                            $columns .= $column;
+                        } else {
+                            $columns .= $this->_quote($column);
+                        }
+                    } else {
+                        $columns .= $column;
+                    }
+
+                    if ( $alias != $column ) {
+                        $columns .= ' AS ' . $this->_quote($alias);
+                    }
+                }
+            }
+            $sql .= $columns . chr(13);
+            #</editor-fold>
+
+            $sql .= ' FROM ';
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="From">
+        if ( !empty($this->_select['from']) ) {
+            foreach ( $this->_select['from'] as $alias => $realTable ) {
+                $sql .= $this->_quote($realTable);
+
+                if ( $realTable != $alias ) {
+                    $sql .= ' AS ' . $this->_quote($alias);
+                }
+                break;
+            }
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Join">
+        if ( !empty($this->_select['join']) ) {
+            foreach ( $this->_select['join'] as $join ) {
+
+                switch ( $join['type'] ) {
+                    case 'left':
+                        $sql .= ' LEFT JOIN ';
+                        break;
+                    case 'right':
+                        $sql .= ' RIGHT JOIN ';
+                        break;
+                    case 'inner':
+                    default:
+                        $sql .= ' INNER JOIN ';
+                }
+
+                foreach ( $join['table'] as $alias => $realTable ) {
+                    $sql .= $this->_quote($realTable);
+
+                    if ( $realTable != $alias ) {
+                        $sql .= ' AS ' . $this->_quote($alias);
+                    }
+                    break;
+                }
+
+                $sql .= ' ON ' . $join['condition'];
+            }
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Where">
+        if ( !empty($this->_select['where']) ) {
+            $sql .= ' WHERE ' . $this->_select['where'];
+            $sql .= chr(13);
+        }
+        if ( !empty($this->_select['orWhere']) ) {
+            $sql .= ' AND (';
+            foreach ( $this->_select['orWhere'] as $key => $condition ) {
+                if ( !empty($key) ) {
+                    $sql .= ' OR ';
+                }
+                $sql .= $condition;
+            }
+            $sql .= ')' . chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Group">
+        if ( !empty($this->_select['group']) ) {
+            $sql .= ' GROUP BY ' . $this->_select['group'];
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Having">
+        if ( !empty($this->_select['having']) ) {
+            $sql .= ' HAVING ' . $this->_select['having'];
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Order">
+        if ( !empty($this->_select['order']) ) {
+            $sql .= ' ORDER BY ' . $this->_select['order'];
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+        #<editor-fold defaultstate="collapsed" desc="Limit">
+        if ( !empty($this->_select['limit']['from']) ) {
+            $sql .= ' LIMIT ' . $this->_select['limit']['from'];
+
+            if ( !empty($this->_select['limit']['count']) ) {
+                $sql .= ', ' . $this->_select['limit']['count'];
+            }
+
+            $sql .= chr(13);
+        }
+        #</editor-fold>
+
+        return $sql;
+    }
+
+    private function _quote($string)
+    {
+        $string = '`' . $string . '`';
+
+        return $string;
+    }
+
+    private function _escapeString($condition, $parameter)
+    {
+        if ( !is_numeric($parameter) ) {
+            $parameter = $this->_parent->escapeString($parameter);
+        }
+
+        $condition = str_replace('?', $parameter, $condition);
+
+        unset($parameter);
+        return $condition;
+    }
 
 }
 

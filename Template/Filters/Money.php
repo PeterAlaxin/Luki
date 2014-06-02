@@ -24,33 +24,43 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Money {
+class Money
+{
 
-	public function Get($nValue, $sFormat = NULL)
-	{
-		if(!empty($_SERVER["HTTP_USER_AGENT"]) and 0 === preg_match('/windows/i', $_SERVER["HTTP_USER_AGENT"])) {
-			if(empty($sFormat)) {
-				$sReturn = money_format('%!n', (float)$nValue);
-			}
-			elseif('eur' == $sFormat) {
-				$sReturn = money_format('%!n&nbsp;€', (float)$nValue);
-			}
-			else {
-				$sReturn = money_format($sFormat, (float)$nValue);
-			}
-		}
-		else {
-			$sReturn = number_format((float)$nValue, 2, ',', '.');
-			
-			if('eur' == $sFormat) {
-				$sReturn .= '&nbsp;€';
-			}
-		}
-		
-		unset($nValue, $sFormat);
-		return $sReturn;
-	}	
+    public function Get($value, $format = NULL)
+    {
+        if ( !$this->_isWindows() ) {
+            if ( empty($format) ) {
+                $money = money_format('%!n', (float) $value);
+            } elseif ( 'eur' == $format ) {
+                $money = money_format('%!n&nbsp;€', (float) $value);
+            } else {
+                $money = money_format($format, (float) $value);
+            }
+        } else {
+            $money = number_format((float) $value, 2, ',', '.');
 
+            if ( 'eur' == $format ) {
+                $money .= '&nbsp;€';
+            }
+        }
+
+        unset($value, $format);
+        return $money;
+    }
+
+    private function _isWindows()
+    {
+        $isWindows = FALSE;
+        
+        if(!empty($_SERVER["HTTP_USER_AGENT"])) {
+            if(0 === preg_match('/windows/i', $_SERVER["HTTP_USER_AGENT"])) {
+                $isWindows = TRUE;
+            }
+        }
+        
+        return $isWindows;
+    }
 }
 
 # End of file

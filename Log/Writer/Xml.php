@@ -26,47 +26,46 @@ use Luki\Log\Writer\basicInterface;
  * 
  * @package Luki
  */
-class Xml implements basicInterface {
+class Xml implements basicInterface
+{
 
-	private $sFile = NULL;
+    private $_fileName = NULL;
+    private $_content = NULL;
 
-	private $oFile = NULL;
-	
-	public function __construct($sFile='')
-	{
-		$this->sFile = $sFile;
-		
-		if(is_file($sFile)) {
-			$this->oFile = new \SimpleXMLElement($sFile, LIBXML_NOERROR, TRUE);
-		}
-		else {
-			$sFile = '<?xml version="1.0" encoding="UTF-8"?><items></items>';
-			$this->oFile = new \SimpleXMLElement($sFile);			
-		}
-		
-		unset($sFile);
-	}
-	
-	public function __destruct()
-	{
-		file_put_contents($this->sFile, $this->oFile->asXML());
-	}
-	
-	public function Write($sText)
-	{
-		if(is_array($sText)) {
-			$oItem = $this->oFile->addChild('item');
+    public function __construct($fileName = '')
+    {
+        $this->_fileName = $fileName;
 
-			foreach($sText as $sKey => $sValue) {
-				$oItem->addChild($sKey, $sValue);
-			}
-		}
-		else {
-			$this->oFile->addChild('item', $sText);
-		}
-			
-		unset($sText, $sKey, $sValue);
-	}
+        if ( is_file($fileName) ) {
+            $this->_content = new \SimpleXMLElement($fileName, LIBXML_NOERROR, TRUE);
+        } else {
+            $fileName = '<?xml version="1.0" encoding="UTF-8"?><items></items>';
+            $this->_content = new \SimpleXMLElement($fileName);
+        }
+
+        unset($fileName);
+    }
+
+    public function __destruct()
+    {
+        file_put_contents($this->_fileName, $this->_content->asXML());
+    }
+
+    public function Write($content)
+    {
+        if ( is_array($content) ) {
+            $item = $this->_content->addChild('item');
+
+            foreach ( $content as $key => $value ) {
+                $item->addChild($key, $value);
+            }
+        } else {
+            $this->_content->addChild('item', $content);
+        }
+
+        unset($content, $key, $value);
+    }
+
 }
 
 # End of file

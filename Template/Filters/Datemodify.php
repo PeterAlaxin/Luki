@@ -24,17 +24,19 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Datemodify {
+class Datemodify
+{
 
-	public function Get($dValue, $sModifier)
-	{
-		$oDate = new \DateTime($dValue);
-		
-		$dReturn = $oDate->modify($sModifier);
+    public function Get($value, $modifier)
+    {
+        $date = new \DateTime($value);
 
-		unset($dValue, $oDate, $sModifier);
-		return $dReturn;
-	}
+        $dateModified = $date->modify($modifier);
+
+        unset($value, $date, $modifier);
+        return $dateModified;
+    }
+
 }
 
 # End of file

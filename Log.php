@@ -28,166 +28,176 @@ use Luki\Log\Writer\basicInterface as WriterInterface;
  *
  * @package Luki
  */
-class Log {
+class Log
+{
 
-	const EMERGENCY = 0;
-	const ALERT = 1;
-	const CRITICAL = 2;
-	const ERROR = 3;
-	const WARNING = 4;
-	const NOTICE = 5;
-	const INFO = 6;
-	const DEBUG = 7;
+    const EMERGENCY = 0;
+    const ALERT = 1;
+    const CRITICAL = 2;
+    const ERROR = 3;
+    const WARNING = 4;
+    const NOTICE = 5;
+    const INFO = 6;
+    const DEBUG = 7;
 
-	private $aPriority = array(
-		'emergency',
-		'alert',
-		'critical',
-		'error',
-		'warning',
-		'notice',
-		'info',
-		'debug');
-	private $oFormat = NULL;
-	private $oWriter = NULL;
-	private $aValidators = array();
-	private $sTimestampFormat = 'c';
+    private $_priority = array(
+      'emergency',
+      'alert',
+      'critical',
+      'error',
+      'warning',
+      'notice',
+      'info',
+      'debug' );
+    private $_format = NULL;
+    private $_writer = NULL;
+    private $_validators = array();
+    private $_timestampFormat = 'c';
 
-	public function __construct(FormatInterface $oFormat, WriterInterface $oWriter)
-	{
-		$this->oFormat = $oFormat;
-		$this->oWriter = $oWriter;
-        
-        unset($oFormat, $oWriter);
-	}
+    public function __construct(FormatInterface $formatInterface, WriterInterface $writerInterface)
+    {
+        $this->_format = $formatInterface;
+        $this->_writer = $writerInterface;
 
-	public function addValidator($sKey, $oValidator)
-	{
-		$this->aValidators[] = array(
-			'key' => $sKey,
-			'validator' => $oValidator);
+        unset($formatInterface, $writerInterface);
+    }
 
-		unset($sKey, $oValidator);
-		return $this;
-	}
+    public function addValidator($key, $validator)
+    {
+        $this->_validators[] = array(
+          'key' => $key,
+          'validator' => $validator );
 
-	public function setFormat(FormatInterface $oFormat)
-	{
-		$this->oFormat = $oFormat;
+        unset($key, $validator);
+        return $this;
+    }
 
-		unset($oFormat);
-		return $this;
-	}
+    public function setFormat(FormatInterface $formatInterface)
+    {
+        $this->_format = $formatInterface;
 
-	public function setWriter(WriterInterface $oWriter)
-	{
-		$this->oWriter = $oWriter;
+        unset($formatInterface);
+        return $this;
+    }
 
-		unset($oWriter);
-		return $this;
-	}
+    public function setWriter(WriterInterface $writerInterface)
+    {
+        $this->_writer = $writerInterface;
 
-	public function setTimestampFormat($sFormat)
-	{
-		$this->sTimestampFormat = $sFormat;
+        unset($writerInterface);
+        return $this;
+    }
 
-		unset($sFormat);
-		return $this;
-	}
+    public function setTimestampFormat($format)
+    {
+        $this->_timestampFormat = $format;
 
-	public function Log($sMessage, $nPriority)
-	{
-		$this->_Log($sMessage, $nPriority);
+        unset($format);
+        return $this;
+    }
 
-		unset($sMessage, $nPriority);
-	}
+    public function Log($message, $priority)
+    {
+        $this->_Log($message, $priority);
 
-	public function Emergency($sMessage)
-	{
-		$this->_Log($sMessage, self::EMERGENCY);
+        unset($message, $priority);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Emergency($message)
+    {
+        $this->_Log($message, self::EMERGENCY);
 
-	public function Alert($sMessage)
-	{
-		$this->_Log($sMessage, self::ALERT);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Alert($message)
+    {
+        $this->_Log($message, self::ALERT);
 
-	public function Critical($sMessage)
-	{
-		$this->_Log($sMessage, self::CRITICAL);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Critical($message)
+    {
+        $this->_Log($message, self::CRITICAL);
 
-	public function Error($sMessage)
-	{
-		$this->_Log($sMessage, self::ERROR);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Error($message)
+    {
+        $this->_Log($message, self::ERROR);
 
-	public function Warning($sMessage)
-	{
-		$this->_Log($sMessage, self::WARNING);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Warning($message)
+    {
+        $this->_Log($message, self::WARNING);
 
-	public function Notice($sMessage)
-	{
-		$this->_Log($sMessage, self::NOTICE);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Notice($message)
+    {
+        $this->_Log($message, self::NOTICE);
 
-	public function Info($sMessage)
-	{
-		$this->_Log($sMessage, self::INFO);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Info($message)
+    {
+        $this->_Log($message, self::INFO);
 
-	public function Debug($sMessage)
-	{
-		$this->_Log($sMessage, self::DEBUG);
+        unset($message);
+        return $this;
+    }
 
-		unset($sMessage);
-	}
+    public function Debug($message)
+    {
+        $this->_Log($message, self::DEBUG);
 
-	private function _Log($sMessage, $nPriority)
-	{
-		$dNow = date('Y-m-d H:i:s');
-		$sTimestampFormat = Date::DateTimeToFormat($dNow, $this->sTimestampFormat);
-		$bValid = TRUE;
+        unset($message);
+        return $this;
+    }
 
-		$aParameters = array(
-			'timestamp' => $sTimestampFormat,
-			'message' => $sMessage,
-			'priority' => $this->aPriority[$nPriority],
-			'priorityValue' => $nPriority
-		);
+    private function _Log($message, $priority)
+    {
+        $now = date('Y-m-d H:i:s');
+        $timestampFormat = Date::DateTimeToFormat($now, $this->_timestampFormat);
+        $isValid = TRUE;
 
-		foreach ($this->aValidators as $aValidator) {
-			$sValue = $aParameters[$aValidator['key']];
-			$oValidator = $aValidator['validator'];
-			$bValid = $oValidator->isValid($sValue);
-			
-			if(!$bValid) {
-				break;
-			}
-		}
+        $parameters = array(
+          'timestamp' => $timestampFormat,
+          'message' => $message,
+          'priority' => $this->_priority[$priority],
+          'priorityValue' => $priority
+        );
 
-		if($bValid) {
-			$sText = $this->oFormat->Transform($aParameters);
-			$this->oWriter->Write($sText);
-		}
+        foreach ( $this->_validators as $validatorName ) {
+            $value = $parameters[$validatorName['key']];
+            $validator = $validatorName['validator'];
+            $isValid = $validator->isValid($value);
 
-		unset($sMessage, $nPriority, $dNow, $aParameters, $sMessage, $sTimestampFormat, $bValid, $sValue, $oValidator);
-	}
+            if ( !$isValid ) {
+                break;
+            }
+        }
+
+        if ( $isValid ) {
+            $text = $this->_format->Transform($parameters);
+            $this->_writer->Write($text);
+        }
+
+        unset($message, $priority, $now, $parameters, $message, $timestampFormat, $isValid, $value, $validator);
+    }
 
 }
 

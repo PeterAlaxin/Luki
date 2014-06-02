@@ -27,50 +27,98 @@ use Luki\Validator\basicInterface;
  * @abstract
  * @package Luki
  */
-abstract class basicFactory implements basicInterface {
+abstract class basicFactory implements basicInterface
+{
 
-	public $sError = '';
+    private $_error = '';
+    private $_validator = '';
+    private $_message = '';
+    
+    public $isValid;
+    
+    const ALPHA = 'a-zA-ZáäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ';
+    const NUM = '0-9';
+    const CHARS = '\r\n\+\-\*\\\.\,\:\;\%\(\)\/\?\!\&\=\_\@\#\$\^\{\}\"\'\|\`\<\>\~';
+    
+    public function __construct($options = array())
+    {
+        foreach ( $options as $key => $value ) {
+            $this->$key = $value;
+        }
 
-	public function __construct($aOptions=array())
-	{
-		foreach($aOptions as $sKey => $xValue) {
-			$this->$sKey = $xValue;
-		}
-		
-		unset($aOptions, $sKey, $xValue);
-	}
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+        unset($options, $key, $value);
+    }
 
-		if(1 === preg_match($this->sValidator, $xValue)) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
 
-		unset($xValue);
-		return $bReturn;
-	}
+        if ( 1 === preg_match($this->_validator, $value) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
 
-	public function setMessage($sMessage)
-	{
-		$this->sMessage = $sMessage;
-	}
+        unset($value);
+        return $this->isValid;
+    }
 
-	public function getError()
-	{
-		return $this->sError;
-	}
+    public function setMessage($message)
+    {
+        $this->_message = $message;
+    }
+
+    public function getMessage()
+    {
+        return $this->_message;
+    }
+    
+    public function fillMessage($from, $to)
+    {
+        $this->_error = preg_replace($from, $to, $this->_message);
+        
+        unset($from, $to);
+    }
+    
+    public function setValidator($validator)
+    {
+        $this->_validator = $validator;
+    }
+
+    public function getValidator()
+    {
+        return $this->_validator;
+    }
+
+    public function setError($error)
+    {
+        $this->_error = $error;
+    }
+
+    public function getError()
+    {
+        return $this->_error;
+    }
+
+    public function setNoError()
+    {
+        $this->_error = '';
+        $this->isValid = TRUE;
+    }
+    
+    public function getValueLength($value)
+    {
+        $length = NULL;
+
+        if ( is_string($value) ) {
+            $length = strlen($value);
+        } elseif ( is_array($value) ) {
+            $length = count($value);
+        }
+
+        unset($value);
+        return $length;
+    }
 
 }
 

@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Abs {
+class Abs
+{
 
-	public function Get($nValue)
-	{
-		$nReturn = abs($nValue);
-		
-		unset($nValue);
-		return $nReturn;
-	}
+    public function Get($value)
+    {
+        $abs = abs($value);
+
+        unset($value);
+        return $abs;
+    }
+
 }
 
 # End of file

@@ -30,308 +30,286 @@ use Luki\Request\serverAdapter;
  *
  * @package Luki
  */
-class Request {
+class Request
+{
 
-    public $cookie; 
-    public $files; 
-    public $get; 
+    public $cookie;
+    public $files;
+    public $get;
     public $post;
     public $server;
     
-    private $ajax = NULL;
-    private $baseUrl = NULL;
-    private $clientIP = NULL;
-    private $crumb = NULL;
-    private $crumbCount = NULL;
-    private $fullUrl = NULL;
-    private $httpHost = NULL;
-    private $httpUserAgent = NULL;
-    private $languages = NULL;
-    private $pathInfo = NULL;
-    private $protocol = NULL;
-    private $queryString = NULL;
-    private $redirectStatus = NULL;
-    private $requestMethod = NULL;
-    private $requestTime = NULL;
-    private $requestUri = NULL;
-    private $safe = NULL;    
-    private $scriptName = NULL;
-    private $serverName= NULL;
-    private $shortUrl = NULL;
-    private $url = NULL;
-   
-	/**
-	 * Constructor
-	 */
-	public function __construct()
-	{
+    private $_ajax = NULL;
+    private $_baseUrl = NULL;
+    private $_clientIP = NULL;
+    private $_crumb = NULL;
+    private $_crumbCount = NULL;
+    private $_fullUrl = NULL;
+    private $_httpHost = NULL;
+    private $_httpUserAgent = NULL;
+    private $_languages = NULL;
+    private $_pathInfo = NULL;
+    private $_protocol = NULL;
+    private $_queryString = NULL;
+    private $_redirectStatus = NULL;
+    private $_requestMethod = NULL;
+    private $_requestTime = NULL;
+    private $_requestUri = NULL;
+    private $_safe = NULL;
+    private $_scriptName = NULL;
+    private $_serverName = NULL;
+    private $_shortUrl = NULL;
+    private $_url = NULL;
+
+    public function __construct()
+    {
         $this->cookie = new cookieAdapter();
         $this->files = new filesAdapter();
         $this->get = new getAdapter();
         $this->post = new postAdapter();
         $this->server = new serverAdapter();
-	}
-    
+    }
+
     public function getRequestTime()
     {
-        if(is_null($this->requestTime)) {
-            $this->requestTime = $this->server->get('REQUEST_TIME');
+        if ( is_null($this->_requestTime) ) {
+            $this->_requestTime = $this->server->get('REQUEST_TIME');
         }
-        
-        return $this->requestTime;
+
+        return $this->_requestTime;
     }
-    
+
     public function getRequestUri()
     {
-        if(is_null($this->requestUri)) {
-            $this->requestUri = $this->server->get('REQUEST_URI');
+        if ( is_null($this->_requestUri) ) {
+            $this->_requestUri = $this->server->get('REQUEST_URI');
         }
-        
-        return $this->requestUri;        
+
+        return $this->_requestUri;
     }
-    
+
     public function getRequestMethod()
     {
-        if(is_null($this->requestMethod)) {
-            $this->requestMethod = $this->server->get('REQUEST_METHOD');
+        if ( is_null($this->_requestMethod) ) {
+            $this->_requestMethod = $this->server->get('REQUEST_METHOD');
         }
-        
-        return $this->requestMethod;        
+
+        return $this->_requestMethod;
     }
-    
+
     public function getClietnIP()
     {
-        if(is_null($this->clientIP)) {
-            $this->clientIP = $this->server->get('REMOTE_ADDR');
+        if ( is_null($this->_clientIP) ) {
+            $this->_clientIP = $this->server->get('REMOTE_ADDR');
         }
-        
-        return $this->clientIP;
+
+        return $this->_clientIP;
     }
 
     public function getScriptName()
     {
-        if(is_null($this->scriptName)) {
-            $this->scriptName = $this->server->get('SCRIPT_NAME');
+        if ( is_null($this->_scriptName) ) {
+            $this->_scriptName = $this->server->get('SCRIPT_NAME');
         }
-        
-        return $this->scriptName;
+
+        return $this->_scriptName;
     }
-    
+
     public function getPathInfo()
     {
-        if(is_null($this->pathInfo)) {
-            $this->pathInfo = $this->server->get('PATH_INFO');
+        if ( is_null($this->_pathInfo) ) {
+            $this->_pathInfo = $this->server->get('PATH_INFO');
         }
-        
-        return $this->pathInfo;
+
+        return $this->_pathInfo;
     }
-    
+
     public function getRedirectStatus()
     {
-        if(is_null($this->redirectStatus)) {
-            $this->redirectStatus = $this->server->get('REDIRECT_STATUS');
+        if ( is_null($this->_redirectStatus) ) {
+            $this->_redirectStatus = $this->server->get('REDIRECT_STATUS');
         }
-        
-        return $this->redirectStatus;
+
+        return $this->_redirectStatus;
     }
-    
+
     public function getHost()
     {
-        if(is_null($this->httpHost)) {
-            $this->httpHost = $this->server->get('HTTP_HOST');
+        if ( is_null($this->_httpHost) ) {
+            $this->_httpHost = $this->server->get('HTTP_HOST');
         }
-        
-        return $this->httpHost;
+
+        return $this->_httpHost;
     }
-    
+
     public function getUserAgent()
     {
-        if(is_null($this->httpUserAgent)) {
-            $this->httpUserAgent = $this->server->get('HTTP_USER_AGENT');
+        if ( is_null($this->_httpUserAgent) ) {
+            $this->_httpUserAgent = $this->server->get('HTTP_USER_AGENT');
         }
-        
-        return $this->httpUserAgent;
+
+        return $this->_httpUserAgent;
     }
 
     public function getLanguages()
     {
-        if(is_null($this->languages)) {
-            $sLanguages = $this->server->get('HTTP_ACCEPT_LANGUAGE');
-            $aLanguages = explode(',', $sLanguages);
-            
-            foreach($aLanguages as $sLanguage) {
-                $aLanguage = explode(';', $sLanguage);
-                $this->languages[] = $aLanguage[0];
+        if ( is_null($this->_languages) ) {
+            $languages = explode(',', $this->server->get('HTTP_ACCEPT_LANGUAGE'));
+
+            foreach ( $languages as $language ) {
+                $languageExploded = explode(';', $language);
+                $this->_languages[] = $languageExploded[0];
             }
         }
-        
-        unset($sLanguage, $sLanguages, $aLanguage, $aLanguages);
-        return $this->languages;
+
+        unset($language, $languageExploded, $languages);
+        return $this->_languages;
     }
-    
+
     public function getProtocol()
     {
-        if(is_null($this->protocol)) {
-            $this->protocol = 'http';
+        if ( is_null($this->_protocol) ) {
+            $this->_protocol = 'http';
 
-            if($this->isSafe()) {
-                $this->protocol .= 's';
+            if ( $this->isSafe() ) {
+                $this->_protocol .= 's';
             }
 
-            $this->protocol .= '://';
+            $this->_protocol .= '://';
         }
-        
-        return $this->protocol;
+
+        return $this->_protocol;
     }
-    
+
     public function getServerName()
     {
-        if(is_null($this->serverName)) {
-            $this->serverName = $this->server->get('SERVER_NAME');
+        if ( is_null($this->_serverName) ) {
+            $this->_serverName = $this->server->get('SERVER_NAME');
         }
-        
-        return $this->serverName;
+
+        return $this->_serverName;
     }
 
     public function getQueryString()
     {
-        if(is_null($this->queryString)) {
-            $this->queryString = $this->server->get('QUERY_STRING');
+        if ( is_null($this->_queryString) ) {
+            $this->_queryString = $this->server->get('QUERY_STRING');
         }
-        
-        return $this->queryString;
+
+        return $this->_queryString;
     }
 
     public function getBaseUrl()
     {
-        if(is_null($this->baseUrl)) {
-            $sFile = basename($this->getScriptName());
-            $this->baseUrl = ltrim(preg_replace('/' . $sFile . '/', '', $this->scriptName), '/');
+        if ( is_null($this->_baseUrl) ) {
+            $file = '/' . basename($this->getScriptName()) . '/';
+            $this->_baseUrl = ltrim(preg_replace($file, '', $this->_scriptName), '/');
         }
 
-        unset($sFile);
-        return $this->baseUrl;
+        unset($file);
+        return $this->_baseUrl;
     }
 
     public function getFullUrl()
     {
-        if(is_null($this->fullUrl)) {
-            $this->fullUrl = $this->getShortUrl() .
-                             $this->getURL();
+        if ( is_null($this->_fullUrl) ) {
+            $this->_fullUrl = $this->getShortUrl() .
+                    $this->getURL();
         }
-        
-        return $this->fullUrl;
+
+        return $this->_fullUrl;
     }
 
     public function getShortUrl()
     {
-        if(is_null($this->shortUrl)) {
-            $this->shortUrl = $this->getProtocol() .
-                             $this->getHost() . '/' .
-                             $this->getBaseUrl();
+        if ( is_null($this->_shortUrl) ) {
+            $this->_shortUrl = $this->getProtocol() .
+                    $this->getHost() . '/' .
+                    $this->getBaseUrl();
         }
-        
-        return $this->shortUrl;
+
+        return $this->_shortUrl;
     }
 
-    /**
-	 * Get actual URL
-	 * 
-	 * @return string
-	 */
-	public function getURL()
-	{
-        if(is_null($this->url)) {
-            $aFrom = array('?' . $this->getQueryString());
+    public function getURL()
+    {
+        if ( is_null($this->_url) ) {
+            $from = array( '?' . $this->getQueryString() );
             $this->getBaseUrl();
-            if(!empty($this->baseUrl)) {
-                $aFrom[] = '/' . $this->baseUrl;
+            if ( !empty($this->_baseUrl) ) {
+                $from[] = '/' . $this->_baseUrl;
             }
-            $this->url = urldecode($this->getRequestUri());
+            $this->_url = urldecode($this->getRequestUri());
 
-            foreach($aFrom as $sItem) {
-                $this->url = str_replace($sItem, '', $this->url);
+            foreach ( $from as $item ) {
+                $this->_url = str_replace($item, '', $this->_url);
             }
-            
-            if('/' == substr($this->url, 0, 1)) {
-                $this->url = substr($this->url, 1);
+
+            if ( '/' == substr($this->_url, 0, 1) ) {
+                $this->_url = substr($this->_url, 1);
             }
         }
-        
-        unset($aFrom);
-		return $this->url;
-	}
 
-    /**
-	 * Get crumb
-	 *
-	 * @param integer $nIndex Index on route
-	 * @return string Crumb from route
-	 */
-	public function getCrumb($nIndex=NULL)
-	{
-        if(is_null($this->crumb)) {
-            $this->crumb = explode('/', $this->getURL());
+        unset($from, $item);
+        return $this->_url;
+    }
+
+    public function getCrumb($index = NULL)
+    {
+        if ( is_null($this->_crumb) ) {
+            $this->_crumb = explode('/', $this->getURL());
         }
 
-		$sReturn = NULL;
+        $crumb = NULL;
 
-		if(is_null($nIndex)) {
-			$sReturn = $this->crumb;
-		}
-		else {
-            $nIndex = (int)$nIndex;
-			if(!empty($this->crumb[$nIndex])) {
-				$sReturn = $this->crumb[$nIndex];
-			}
-		}
+        if ( is_null($index) ) {
+            $crumb = $this->_crumb;
+        } else {
+            $index = (int) $index;
+            if ( !empty($this->_crumb[$index]) ) {
+                $crumb = $this->_crumb[$index];
+            }
+        }
 
-		unset($nIndex);
+        unset($index);
+        return $crumb;
+    }
 
-		return $sReturn;
-	}
-    
-    /**
-     * Return crumb count
-     * @return integer
-     */
     public function getCrumbCount()
     {
-        if(is_null($this->crumbCount)) {
-            $this->crumbCount = count($this->getCrumb());
+        if ( is_null($this->_crumbCount) ) {
+            $this->_crumbCount = count($this->getCrumb());
         }
-        
-        return $this->crumbCount;
+
+        return $this->_crumbCount;
     }
-    
+
     public function isAjax()
     {
-        if(is_null($this->ajax)) {
-            if(strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest' ) {
-                $this->ajax = TRUE;
-            }
-            else {
-                $this->ajax = FALSE;
+        if ( is_null($this->_ajax) ) {
+            if ( strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest' ) {
+                $this->_ajax = TRUE;
+            } else {
+                $this->_ajax = FALSE;
             }
         }
-        
-        return $this->ajax;
+
+        return $this->_ajax;
     }
-    
+
     public function isSafe()
     {
-        if(is_null($this->safe)) {
-            if($this->server->get('HTTPS') === NULL) {
-                $this->safe = FALSE;
-            }
-            else {
-                $this->safe = TRUE;
+        if ( is_null($this->_safe) ) {
+            if ( $this->server->get('HTTPS') === NULL ) {
+                $this->_safe = FALSE;
+            } else {
+                $this->_safe = TRUE;
             }
         }
-        
-        return $this->safe;
+
+        return $this->_safe;
     }
-    
+
 }
 
 # End of file

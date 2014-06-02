@@ -26,39 +26,34 @@ use Luki\Data\MySQL\Result as Result;
  *
  * @package Luki
  */
-class mysqlResult extends Result implements \Iterator {
+class mysqlResult extends Result implements \Iterator
+{
 
-	/**
-	 * Constructor
-	 *
-	 * @param object|resource SQL result
-	 * @uses Result::fetchRow() Fetch one row from result
-	 */
-	function __construct($oResult)
-	{
-		$this->oResult = $oResult;
+    function __construct($result)
+    {
+        $this->result = $result;
 
-		if(is_resource($this->oResult)) {
-			$this->nRecords = mysql_num_rows($this->oResult);
-			
-			if(!empty($this->nRecords)) {
-				$this->rewind();
-			}
-		}
+        if ( is_resource($this->result) ) {
+            $this->numberOfRecords = mysql_num_rows($this->result);
 
-		unset($oResult);
-	}
+            if ( !empty($this->numberOfRecords) ) {
+                $this->rewind();
+            }
+        }
 
-	public function _setRecord()
-	{
-		$this->aRow = FALSE;
-		
-		if( $this->nPosition >= 0 and 
-			$this->nPosition < $this->nRecords and 
-			mysql_data_seek($this->oResult, $this->nPosition)) {
-			$this->aRow = mysql_fetch_assoc($this->oResult, MYSQL_ASSOC);
-		}
-	}
+        unset($result);
+    }
+
+    public function _setRecord()
+    {
+        $this->row = FALSE;
+
+        if ( $this->position >= 0 and
+                $this->position < $this->numberOfRecords and
+                mysql_data_seek($this->result, $this->position) ) {
+            $this->row = mysql_fetch_assoc($this->result, MYSQL_ASSOC);
+        }
+    }
 
 }
 

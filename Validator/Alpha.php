@@ -26,11 +26,18 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Alpha extends basicFactory {
-
-	public $sValidator = '/^[a-zA-ZáäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ]*$/';
-	
-	public $sMessage = 'The value "%value%" contains characters other than letters!';
+class Alpha extends basicFactory
+{
+    public function __construct($options)
+    {
+        parent::__construct($options);
+        
+        $validator = '/^[' . self::ALPHA . ']*$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" contains characters other than letters!');
+        
+        unset($options, $validator);
+    }
 
 }
 

@@ -27,91 +27,90 @@ use Luki\Request;
  *
  * @package Luki
  */
-class Dispatcher {
-    
-    private $oCrumb;
-    
-    private $oConfig;
-    
-    private $bDispatched = FALSE;
-    
-    private $aCrumb = array();
-    
-    private $oControler;
-    
-	/**
-	 * Constructor
-	 */
-	public function __construct(Request $oRequest, Config $oConfig)
-	{
-        $this->oCrumb = $oRequest;
-        $this->oConfig = $oConfig;
-        $this->aCrumb = $oRequest->getCrumb();
-        
-        unset($oConfig, $oRequest);
+class Dispatcher
+{
+
+    private $_crumb;
+    private $_config;
+    private $_isDispatched = FALSE;
+    private $_crumbArray = array();
+    private $_controller;
+
+    public function __construct(Request $request, Config $config)
+    {
+        $this->_crumb = $request;
+        $this->_config = $config;
+        $this->_crumbArray = $request->getCrumb();
+
+        unset($config, $request);
     }
-    
+
     public function Dispatch()
     {
-        $this->bDispatched = FALSE;
-        $nCount = $this->oCrumb->getCrumbCount();
-        $aRoutes = $this->oConfig->getSections();
-        
-        foreach($aRoutes as $sRoute) {
-            $aRoute = $this->oConfig->getSection($sRoute);
-            
-            if($aRoute['count'] <= $nCount) {
-                $this->_checkRoute($aRoute);
-                
-                if($this->bDispatched) {
-                    $this->_prepareController($aRoute);
-                    $sOutput = $this->oControler->getOutput();
-                    return $sOutput;
+        $this->_isDispatched = FALSE;
+        $count = $this->_crumb->getCrumbCount();
+        $routes = $this->_config->getSections();
+
+        foreach ($routes as $oneRoute) {
+            $route = $this->_config->getSection($oneRoute);
+
+            if ($route['count'] <= $count) {
+                $this->_checkRoute($route);
+
+                if ($this->_isDispatched) {
+                    $this->_prepareController($route);
+                    $output = $this->_controller->getOutput();
+                    return $output;
                 }
             }
         }
     }
-    
-    private function _checkRoute($aRoute) 
+
+    private function _checkRoute($route)
     {
-        $aUrl = explode('/', (string)$aRoute['url']);
-        $bEqual = TRUE;
+        if (is_array($route['url'])) {
+            $route['url'] = '';
+            $route['count'] = 0;
+        }
         
-        for($i=0; $i<$aRoute['count']; $i++) {
-            if($aUrl[$i] != $this->aCrumb[$i]) {
-                $bEqual = FALSE;
+        $url = explode('/', (string) $route['url']);
+        $isEqual = TRUE;
+
+        for ($i = 0; $i < $route['count']; $i++) {
+            if ($url[$i] != $this->_crumbArray[$i]) {
+                $isEqual = FALSE;
                 break;
             }
         }
-        
-        $this->bDispatched = $bEqual;
-        
-        unset($aRoute, $aUrl, $bEqual, $i);
+
+        $this->_isDispatched = $isEqual;
+
+        unset($route, $url, $isEqual, $i);
     }
-    
-    private function _prepareController($aRoute)
+
+    private function _prepareController($route)
     {
-     	$sController = $aRoute['modul'] . '\\' . $aRoute['controller'];
-		$this->oControler = new $sController;
-        
-        $aMethods = get_class_methods(get_class($this->oControler));
-        
-		if(in_array('preDispatch', $aMethods)) {
-			$this->oControler->preDispatch();
-		}
+        $controller = $route['modul'] . '\\' . $route['controller'];
+        $this->_controller = new $controller;
 
-		$sAction = $aRoute['action'] . 'Action';
-		if(in_array($sAction, $aMethods)) {
-			$this->oControler->$sAction();
-		}
-		elseif(in_array('indexAction', $aMethods)) {
-			$this->oControler->indexAction();
-		}
+        $methods = get_class_methods(get_class($this->_controller));
 
-		if(in_array('postDispatch', $aMethods)) {
-			$this->oControler->postDispatch();
-		}
-        
-        unset($aRoute, $sController, $aMethods, $sAction);
+        if (in_array('preDispatch', $methods)) {
+            $this->_controller->preDispatch();
+        }
+
+        $action = $route['action'] . 'Action';
+        if (in_array($action, $methods)) {
+            $this->_controller->$action();
+        } elseif (in_array('indexAction', $methods)) {
+            $this->_controller->indexAction();
+        }
+
+        if (in_array('postDispatch', $methods)) {
+            $this->_controller->postDispatch();
+        }
+
+        unset($route, $controller, $methods, $action);
     }
+
 }

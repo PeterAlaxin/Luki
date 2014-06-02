@@ -24,33 +24,34 @@ namespace Luki\Data;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function __construct($aOptions);
+    public function __construct($options);
 
-	public function Query($sSQL);
+    public function Query($sql);
 
-	public function Select();
+    public function Select();
 
-	public function Insert($sTable, $aValues);
+    public function Insert($table, $values);
 
-	public function Update($sTable, $aValues, $sWhere);
-	
-	public function Delete($sTable, $sWhere);
+    public function Update($table, $values, $where);
 
-	public function getLastID($sTable);
+    public function Delete($table, $where);
 
-	public function getUpdated($sTable);
-	
-	public function getDeleted($sTable);
+    public function getLastID($table);
 
-	public function escapeString($sString);
-	
-	public function saveLastID($sTable);
-	
-	public function saveUpdated($sTable);
+    public function getUpdated($table);
 
-	public function saveDeleted($sTable);
+    public function getDeleted($table);
+
+    public function escapeString($string);
+
+    public function saveLastID($table);
+
+    public function saveUpdated($table);
+
+    public function saveDeleted($table);
 }
 
 # End of file

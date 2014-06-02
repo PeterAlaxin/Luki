@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Preset {
+class Preset
+{
 
-	public function Get($sValue, $sDefault = '')
-	{
-		$sReturn = empty($sValue) ? $sDefault : $sValue;
-		
-		unset($sValue, $sDefault);
-		return $sReturn;
-	}
+    public function Get($value, $default = '')
+    {
+        $preset = empty($value) ? $default : $value;
+
+        unset($value, $default);
+        return $preset;
+    }
+
 }
 
 # End of file

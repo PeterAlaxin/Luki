@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Jsonencode {
+class Jsonencode
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = json_encode($sValue);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $json = json_encode($value);
+
+        unset($value);
+        return $json;
+    }
+
 }
 
 # End of file

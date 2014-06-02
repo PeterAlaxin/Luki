@@ -16,6 +16,7 @@
  * @subpackage Class
  * @filesource
  */
+
 namespace Luki\Log\Format;
 
 /**
@@ -23,11 +24,12 @@ namespace Luki\Log\Format;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function __construct($sFormat);
+    public function __construct($format);
 
-	public function Transform($aParameters);
+    public function Transform($parameters);
 }
 
 # End of file

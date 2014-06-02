@@ -26,32 +26,34 @@ use Luki\Log\Format\basicInterface;
  * 
  * @package Luki
  */
-class Simple implements basicInterface {
+class Simple implements basicInterface
+{
 
-	private $sFormat = '';
-	
-	public function __construct($sFormat='')
-	{
-		if(empty($sFormat)) {
-			$sFormat = '%timestamp%: %priority% (%priorityValue%): %message%';
-		}
-		
-		$this->sFormat = $sFormat;
-		
-		unset($sFormat);
-	}
-	
-	public function Transform($aParameters)
-	{
-		$sText = $this->sFormat;
-		
-		foreach($aParameters as $sKey => $sValue) {
-			$sText = preg_replace('/%' . $sKey . '%/', $sValue, $sText);			
-		}
-		
-		unset($aParameters, $sKey, $sValue);
-		return $sText;
-	}
+    private $_format = '';
+
+    public function __construct($format = '')
+    {
+        if ( empty($format) ) {
+            $format = '%timestamp%: %priority% (%priorityValue%): %message%';
+        }
+
+        $this->_format = $format;
+
+        unset($format);
+    }
+
+    public function Transform($parameters)
+    {
+        $content = $this->_format;
+
+        foreach ( $parameters as $key => $value ) {
+            $content = preg_replace('/%' . $key . '%/', $value, $content);
+        }
+
+        unset($parameters, $key, $value);
+        return $content;
+    }
+
 }
 
 # End of file

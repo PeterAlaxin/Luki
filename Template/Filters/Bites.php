@@ -24,26 +24,25 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Bites {
+class Bites
+{
 
-	public function Get($nValue)
-	{
-		if($nValue < 1024) {
-			$nReturn = number_format($nValue, 0) . '&nbsp;B';
-		}
-		elseif($nValue < 1048576) {
-			$nReturn = number_format($nValue/1024, 2, ',', '.') . '&nbsp;kB';
-		}
-		elseif($nValue < 1073741824) {
-			$nReturn = number_format($nValue/1048576, 2, ',', '.') . '&nbsp;MB';
-		}
-		else {
-			$nReturn = number_format($nValue/1073741824, 2, ',', '.') . '&nbsp;GB';
-		}
+    public function Get($value)
+    {
+        if ( $value < 1024 ) {
+            $bites = number_format($value, 0) . '&nbsp;B';
+        } elseif ( $value < 1048576 ) {
+            $bites = number_format($value / 1024, 2, ',', '.') . '&nbsp;kB';
+        } elseif ( $value < 1073741824 ) {
+            $bites = number_format($value / 1048576, 2, ',', '.') . '&nbsp;MB';
+        } else {
+            $bites = number_format($value / 1073741824, 2, ',', '.') . '&nbsp;GB';
+        }
 
-		unset($nValue);
-		return $nReturn;
-	}
+        unset($value);
+        return $bites;
+    }
+
 }
 
 # End of file

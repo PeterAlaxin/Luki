@@ -24,15 +24,17 @@ namespace Luki\Template\Functions;
  * 
  * @package Luki
  */
-class Range {
+class Range
+{
 
-	public function Get($nBegin, $nEnd, $nStep = 1)
-	{
-        $aRange = range($nBegin, $nEnd, $nStep);
-                
-        unset($nBegin, $nEnd, $nStep);
-        return $aRange;
-	}
+    public function Get($begin, $end, $step = 1)
+    {
+        $range = range($begin, $end, $step);
+
+        unset($begin, $end, $step);
+        return $range;
+    }
+
 }
 
 # End of file

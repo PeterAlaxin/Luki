@@ -26,38 +26,60 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Between extends basicFactory {
+class Between extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" is not between "%min%" and "%max%"!';
-	
-	public $min = 0;
-	
-	public $max = 0;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public $min = 0;
+    public $max = 0;
 
-		if($xValue > $this->min and $xValue < $this->max) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-			$this->sError = preg_replace('/%min%/', $this->min, $this->sError);
-			$this->sError = preg_replace('/%max%/', $this->max, $this->sError);
-		}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-		unset($xValue);
-		return $bReturn;
-	}
+        $this->setMessage('The value "%value%" is not between "%min%" and "%max%"!');
+        
+        unset($options);
+    }
 
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( (float) $value >= $this->min and (float) $value <= $this->max ) {
+            $this->setNoError();
+        } else {
+            $from = array( '/%value%/', '/%min%/', '/%max%/' );
+            $to = array( $value, $this->min, $this->max );
+            $this->fillMessage($from, $to);
+        }
+
+        unset($value, $from, $to);
+        return $this->isValid;
+    }
+
+    public function setMin($min)
+    {
+        $this->min = (float) $min;
+
+        unset($min);
+    }
+
+    public function getMin()
+    {
+        return $this->min;
+    }
+
+    public function setMax($max)
+    {
+        $this->max = (float) $max;
+
+        unset($max);
+    }
+
+    public function getMax()
+    {
+        return $this->max;
+    }
 
 }
 

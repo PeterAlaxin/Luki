@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class GoogleCode extends basicFactory {
+class GoogleCode extends basicFactory
+{
 
-	public $sValidator = '/^UA-([0-9]{7,8})-([0-9]{1,2})$/';
-	
-	public $sMessage = 'The value "%value%" is not valid Google analytics code!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+
+        $validator = '/^UA-([0-9]{7,8})-([0-9]{1,2})$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" is not valid Google analytics code!');
+
+        unset($options, $validator);
+    }
 
 }
 

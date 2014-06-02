@@ -24,15 +24,27 @@ namespace Luki\Validator;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function __construct($aOptions);
-	
-	public function isValid($xValue);
+    public function __construct($options);
 
-	public function setMessage($sMessage);
+    public function isValid($value);
 
-	public function getError();
+    public function setMessage($message);
+    
+    public function getMessage();
+
+    public function setValidator($validator);
+    
+    public function getValidator();
+
+    public function getError();
+
+    public function setNoError();
+    
+    public function getValueLength($value);
+
 }
 
 # End of file

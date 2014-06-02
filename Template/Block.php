@@ -28,25 +28,25 @@ use Luki\Loader,
  *
  * @package Luki
  */
-class Block {
+class Block
+{
 
-    protected $aBlock;
-    protected $sContent = '';
-    protected $sTransformedContent = '';
-    protected $aVariables = array();
-    protected $aOperators = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
-    protected $aLogic = array("is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
-      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd");
+    protected $_block;
+    protected $_content = '';
+    protected $_transformedContent = '';
+    protected $_variables = array();
+    protected $_operators = array( "(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and" );
+    protected $_logic = array( "is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
+      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd" );
 
-    public function __construct($Block)
+    public function __construct($block)
     {
-        $this->aBlock = $Block;
+        $this->_block = $block;
 
-        if(is_array($Block)) {
-            $this->sContent = $Block[2];
-        }
-        else {
-            $this->sContent = $Block;
+        if ( is_array($block) ) {
+            $this->_content = $block[2];
+        } else {
+            $this->_content = $block;
         }
 
         $this->_defineVariables();
@@ -55,226 +55,228 @@ class Block {
         $this->_ifBlock();
         $this->_includeBlock();
         $this->_transformVariables();
-                
-        unset($Block);
+
+        unset($block);
     }
 
     public function getContent()
     {
-        return $this->sTransformedContent;
+        return $this->_transformedContent;
     }
 
     public function getVariables()
     {
-        return $this->aVariables;
+        return $this->_variables;
     }
 
     private function _defineVariables()
     {
-        $aMatches = array();
-        preg_match_all('/{{ ((block)(\()(.*)(\))|(.*)) }}/U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        $matches = array();
+        preg_match_all('/{{ ((block)(\()(.*)(\))|(.*)) }}/U', $this->_content, $matches, PREG_SET_ORDER);
 
-        foreach ($aMatches as $aVariable) {
-            if(empty($aVariable[2])) {
-                $this->aVariables[] = new Variable($aVariable[1]);
+        foreach ( $matches as $variable ) {
+            if ( empty($variable[2]) ) {
+                $this->_variables[] = new Variable($variable[1]);
             }
         }
 
-        unset($aMatches, $aVariable);
+        unset($matches, $variable);
     }
 
     private function _setVariables()
     {
-        $aMatches = array();
-        preg_match_all('|{% set (.*) = (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        $matches = array();
+        preg_match_all('|{% set (.*) = (.*) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
-        foreach($aMatches as $aMatch) {
-            $this->sContent = str_replace($aMatch[0], '<?php $this->aData["' . $aMatch[1] . '"] = ' . $this->_transformToVariable($aMatch[2]) . '; ?>', $this->sContent);
+        foreach ( $matches as $match ) {
+            $text = '<?php $this->aData["' . $match[1] . '"] = ' . $this->_transformToVariable($match[2]) . '; ?>';
+            $this->_content = str_replace($match[0], $text, $this->_content);
         }
-        
-        unset($aMatches, $aMatch);
+
+        unset($matches, $match, $text);
     }
 
     private function _transformVariables()
     {
-        $this->sTransformedContent = $this->sContent;
-        foreach ($this->aVariables as $oVariable) {
-            $this->sTransformedContent = str_replace('{{ ' . $oVariable->getContent() . ' }}', $oVariable->getCode(), $this->sTransformedContent);
+        $this->_transformedContent = $this->_content;
+        foreach ( $this->_variables as $variable ) {
+            $from = '{{ ' . $variable->getContent() . ' }}';
+            $to = $variable->getCode();
+            $this->_transformedContent = str_replace($from, $to, $this->_transformedContent);
         }
 
-        unset($oVariable);
+        unset($variable, $from, $to);
     }
 
     private function _forBlock()
     {
-        $aMatches = array();
-        preg_match_all('|{% for (.*) in (.*) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        $matches = array();
+        preg_match_all('|{% for (.*) in (.*) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
-        foreach($aMatches as $aMatch) {
+        foreach ( $matches as $match ) {
 
-            $this->aVariables[] = new Variable($aMatch[1]);
-            $sVariable = $this->_transformToVariable($aMatch[2], TRUE);
-            
-            $sFor = Template::phpRow('<?php '); 
-            $sFor .= Template::phpRow('if(empty(' . $sVariable . ')) { ' . $sVariable . ' = array(); }', 2); 
-            $sFor .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $sVariable . ';', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2); 
-            $sFor .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2); 
-            $sFor .= $this->_elseFor($aMatch);
-            $sFor .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $aMatch[1] . '"]) {', 2);
-            $sFor .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["revindex"]--;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["revindex1"]--;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["first"] = $this->aData["loop"]["index"] == 0 ? TRUE : FALSE;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["last"] = $this->aData["loop"]["index1"] == $this->aData["loop"]["length"] ? TRUE : FALSE;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["even"] = $this->aData["loop"]["index1"]/2 == round($this->aData["loop"]["index1"]/2) ? TRUE : FALSE;', 3);
-            $sFor .= Template::phpRow('$this->aData["loop"]["odd"] = !$this->aData["loop"]["even"]', 3);
-            $sFor .= Template::phpRow(' ?>', 1); 
-            
-            $this->sContent = str_replace($aMatch[0], $sFor, $this->sContent);
+            $this->_variables[] = new Variable($match[1]);
+            $variable = $this->_transformToVariable($match[2], TRUE);
+
+            $for = Template::phpRow('<?php ');
+            $for .= Template::phpRow('if(empty(' . $variable . ')) { ' . $variable . ' = array(); }', 2);
+            $for .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $variable . ';', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2);
+            $for .= $this->_elseFor($match);
+            $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $match[1] . '"]) {', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["revindex"]--;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["revindex1"]--;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["first"] = $this->aData["loop"]["index"] == 0 ? TRUE : FALSE;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["last"] = $this->aData["loop"]["index1"] == $this->aData["loop"]["length"] ? TRUE : FALSE;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["even"] = $this->aData["loop"]["index1"]/2 == round($this->aData["loop"]["index1"]/2) ? TRUE : FALSE;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["odd"] = !$this->aData["loop"]["even"]', 3);
+            $for .= Template::phpRow(' ?>', 1);
+
+            $this->_content = str_replace($match[0], $for, $this->_content);
         }
-        
-        $sEndFor = Template::phpRow('<?php }'); 
-        $sEndFor .= '$this->aData["loop"] = array_pop($this->aLoop);';
-        $sEndFor .= Template::phpRow(' ?>', 1); 
-        $this->sContent = str_replace('{% endfor %}', $sEndFor, $this->sContent);
-        
-        unset($aMatches, $aMatch, $sFor, $sEndFor, $sVariable);
+
+        $endFor = Template::phpRow('<?php }');
+        $endFor .= '$this->aData["loop"] = array_pop($this->aLoop);';
+        $endFor .= Template::phpRow(' ?>', 1);
+        $this->_content = str_replace('{% endfor %}', $endFor, $this->_content);
+
+        unset($matches, $match, $for, $endFor, $variable);
     }
 
-    private function _elseFor($aMatch)
+    private function _elseFor($match)
     {
-        $aMatches = array();
-        $sElseFor = '';
-        preg_match_all('|(' . $aMatch[0] . ')([\s\S]*)({% elsefor %})([\s\S]*)({% endfor %})|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        $matches = array();
+        $elseFor = '';
+        $regexp = '|(' . $match[0] . ')([\s\S]*)({% elsefor %})([\s\S]*)({% endfor %})|U';
         
-        if(!empty($aMatches)) {
-            $sElseFor .= Template::phpRow('if(0 == $this->aData["loop"]["length"]) {', 2); 
-            $sElseFor .= Template::phpRow(' ?>', 1);
-            $sElseFor .= $aMatches[0][4];
-            $sElseFor .= Template::phpRow('<?php '); 
-            $sElseFor .= Template::phpRow('}', 2); 
+        preg_match_all($regexp, $this->_content, $matches, PREG_SET_ORDER);
 
-            $this->sContent = str_replace($aMatches[0][3] . $aMatches[0][4], '', $this->sContent);
+        if ( !empty($matches) ) {
+            $elseFor .= Template::phpRow('if(0 == $this->aData["loop"]["length"]) {', 2);
+            $elseFor .= Template::phpRow(' ?>', 1);
+            $elseFor .= $matches[0][4];
+            $elseFor .= Template::phpRow('<?php ');
+            $elseFor .= Template::phpRow('}', 2);
+
+            $this->_content = str_replace($matches[0][3] . $matches[0][4], '', $this->_content);
         }
-        
-        unset($aMatch, $aMatches);
-        return $sElseFor;
+
+        unset($match, $matches, $regexp);
+        return $elseFor;
     }
-    
+
     private function _ifBlock()
     {
-        $aMatches = array();
-        preg_match_all('|{% if (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
+        $matches = array();
+        preg_match_all('|{% if (.+) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
-        foreach($aMatches as $aMatch) {
+        foreach ( $matches as $match ) {
 
-            $aSubMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $aMatch[1], $aSubMatches, PREG_SET_ORDER);
+            $subMatches = array();
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
 
-            $sCondition = '';
-            
-            foreach($aSubMatches as $aSubMatch) {
-                if(in_array($aSubMatch[0], $this->aOperators) or is_numeric($aSubMatch[0])) {
-                    $sCondition .= $aSubMatch[0]; 
+            $condition = '';
+
+            foreach ( $subMatches as $subMatch ) {
+                if ( in_array($subMatch[0], $this->_operators) or is_numeric($subMatch[0]) ) {
+                    $condition .= $subMatch[0];
+                } elseif ( in_array($subMatch[0], $this->_logic) ) {
+                    $condition = $this->_generateTest($match, $subMatch);
+                } elseif ( empty($subMatch[0]) ) {
+                    $condition .= ' ';
+                } else {
+                    $condition .= $this->_transformToVariable($subMatch[0], TRUE);
                 }
-                elseif(in_array($aSubMatch[0], $this->aLogic)) {
-                    $sCondition = $this->_generateTest($aMatch, $aSubMatch);
-                }
-                elseif(empty($aSubMatch[0])) {
-                    $sCondition .= ' ';
-                }
-                else {
-                     $sCondition .= $this->_transformToVariable($aSubMatch[0], TRUE);
-                }
-            }            
-        
-            $this->sContent = str_replace($aMatch[0], Template::phpRow('<?php if(' . trim($sCondition) . ') { ?>', 0, 0), $this->sContent);
-        }        
-        
-        $this->sContent = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->sContent);
-        $this->sContent = str_replace('{% endif %}', Template::phpRow('<?php } ?>', 0, 0), $this->sContent);
-        
-        unset($aMatch, $aMatches, $aSubMatches, $aSubMatch, $sCondition);
+            }
+
+            $this->_content = str_replace($match[0], Template::phpRow('<?php if(' . trim($condition) . ') { ?>', 0, 0), $this->_content);
+        }
+
+        $this->_content = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->_content);
+        $this->_content = str_replace('{% endif %}', Template::phpRow('<?php } ?>', 0, 0), $this->_content);
+
+        unset($match, $matches, $subMatches, $subMatch, $condition);
     }
 
     private function _includeBlock()
     {
-        $aMatches = array();
-        preg_match_all('|{% include (.+) with (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
-        
-        foreach($aMatches as $aMatch) {
-            $sTemplate = $this->_transformToTemplate($aMatch[1]);
-            $sVariable = $this->_transformToVariable($aMatch[2]);
-            
-            $sInclude = Template::phpRow('<?php '); 
-            $sInclude .= Template::phpRow('$oTemplate = new Luki\Template("' . $sTemplate . '", ' . $sVariable . ');', 2);
-            $sInclude .= Template::phpRow('echo $oTemplate->Render();', 2);
-            $sInclude .= Template::phpRow(' ?>', 1); 
-        
-            $this->sContent = str_replace($aMatch[0], $sInclude, $this->sContent);
-        }
-        
-        $aMatches = array();
-        preg_match_all('|{% include (.+) %}|U', $this->sContent, $aMatches, PREG_SET_ORDER);
-        
-        foreach($aMatches as $aMatch) {
-            $sTemplate = $this->_transformToTemplate($aMatch[1]);
+        $matches = array();
+        preg_match_all('|{% include (.+) with (.+) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
-            $sInclude = Template::phpRow('<?php '); 
-            $sInclude .= Template::phpRow('$oTemplate = new Luki\Template("' . $sTemplate . '");', 2);
-            $sInclude .= Template::phpRow('echo $oTemplate->Render();', 2);
-            $sInclude .= Template::phpRow(' ?>', 1); 
-        
-            $this->sContent = str_replace($aMatch[0], $sInclude, $this->sContent);
+        foreach ( $matches as $match ) {
+            $template = $this->_transformToTemplate($match[1]);
+            $variable = $this->_transformToVariable($match[2]);
+
+            $include = Template::phpRow('<?php ');
+            $include .= Template::phpRow('$oTemplate = new Luki\Template("' . $template . '", ' . $variable . ');', 2);
+            $include .= Template::phpRow('echo $oTemplate->Render();', 2);
+            $include .= Template::phpRow(' ?>', 1);
+
+            $this->_content = str_replace($match[0], $include, $this->_content);
         }
-        
-        unset($aMatches, $aMatch, $sInclude, $sTemplate, $sVariable);
+
+        $matches = array();
+        preg_match_all('|{% include (.+) %}|U', $this->_content, $matches, PREG_SET_ORDER);
+
+        foreach ( $matches as $match ) {
+            $template = $this->_transformToTemplate($match[1]);
+
+            $include = Template::phpRow('<?php ');
+            $include .= Template::phpRow('$oTemplate = new Luki\Template("' . $template . '");', 2);
+            $include .= Template::phpRow('echo $oTemplate->Render();', 2);
+            $include .= Template::phpRow(' ?>', 1);
+
+            $this->_content = str_replace($match[0], $include, $this->_content);
+        }
+
+        unset($matches, $match, $include, $template, $variable);
     }
-    
-    private function _transformToTemplate($sTemplate)
-    {
-        $aTemplate = explode('/', $sTemplate);
-        $aNewTemplate = array();
 
-        foreach($aTemplate as $nKey => $sItem) {
-            if($nKey+1 == count($aTemplate)) {
-                $aNewTemplate[] = 'template';
+    private function _transformToTemplate($template)
+    {
+        $templates = explode('/', $template);
+        $newTemplate = array();
+
+        foreach ( $templates as $key => $item ) {
+            if ( $key + 1 == count($templates) ) {
+                $newTemplate[] = 'template';
             }
-            $aNewTemplate[] = $sItem;
+            $newTemplate[] = $item;
         }
 
-        $sTemplate = str_replace(array('"', "'"), array('', ''), implode('/', $aNewTemplate));
-        $sReturn = Loader::isFile($sTemplate);
-        
-        unset($sTemplate, $aTemplate, $aNewTemplate, $nKey, $sItem);
-        return $sReturn;
+        $template = str_replace(array( '"', "'" ), array( '', '' ), implode('/', $newTemplate));
+        $transformedTemplate = Loader::isFile($template);
+
+        unset($template, $templates, $newTemplate, $key, $item);
+        return $transformedTemplate;
     }
-    
-    private function _transformToVariable($sVariable, $bAddToVariables = FALSE)
+
+    private function _transformToVariable($variableName, $addToVariables = FALSE)
     {
-        $oVariable = new Variable($sVariable);
-        $sVariable = $oVariable->getVariable();
-        
-        if($bAddToVariables) {
-            $this->aVariables[] = $oVariable;
+        $variable = new Variable($variableName);
+        $variableName = $variable->getVariable();
+
+        if ( $addToVariables ) {
+            $this->_variables[] = $variable;
         }
-        
-        unset($oVariable, $bAddToVariables);
-        return $sVariable;
+
+        unset($variable, $addToVariables);
+        return $variableName;
     }
-    
-    private function _generateTest($aMatch, $aSubMatch)
+
+    private function _generateTest($match, $subMatch)
     {
-        $sCondition = '';
-        $sTest = str_replace('is ', '', str_replace('is not ', '', $aSubMatch[0]));
-                
-        switch($sTest) {
+        $condition = '';
+        $test = str_replace('is ', '', str_replace('is not ', '', $subMatch[0]));
+
+        switch ( $test ) {
             case 'blank':
             case 'constant':
             case 'defined':
@@ -282,19 +284,20 @@ class Block {
             case 'iterable':
             case 'null':
             case 'odd':
-                $aCondition = explode(' ', $aMatch[1]);
-                $sVariable = $this->_transformToVariable($aCondition[0]);
-                $sCondition .= '$this->aTests["' . $sTest . '"]->Is(' . $sVariable . ')';
+                $conditions = explode(' ', $match[1]);
+                $variable = $this->_transformToVariable($conditions[0]);
+                $condition .= '$this->aTests["' . $test . '"]->Is(' . $variable . ')';
                 break;
         }
-        
-        if(strpos($aSubMatch[0], ' not ') > 0) {
-            $sCondition = '!' . $sCondition;
+
+        if ( strpos($subMatch[0], ' not ') > 0 ) {
+            $condition = '!' . $condition;
         }
 
-        unset($aMatch, $aSubMatch, $sTest, $aCondition, $sVariable);
-        return $sCondition;
+        unset($match, $subMatch, $test, $conditions, $variable);
+        return $condition;
     }
+
 }
 
 # End of file

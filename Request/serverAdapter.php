@@ -24,16 +24,13 @@ namespace Luki\Request;
  * 
  * @package Luki
  */
-class serverAdapter extends basicAdapter {
+class serverAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $sFileName
-	 */
-	public function __construct()
-	{
-        $this->saveInputs($_SERVER);        
-	}
+    public function __construct()
+    {
+        $this->saveInputs($_SERVER);
+    }
 
 }
 

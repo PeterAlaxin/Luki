@@ -24,11 +24,12 @@ namespace Luki\Navigation\Format;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function setFormat($sFormat);
+    public function setFormat($sFormat);
 
-	public function Format($aOptions);
+    public function Format($aOptions);
 }
 
 # End of file

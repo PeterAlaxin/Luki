@@ -28,94 +28,73 @@ use Luki\Storage;
  *
  * @package Luki
  */
-class Session {
+class Session
+{
 
-	public static $aLimiters = array('public', 
-      'private_no_expire', 
-      'private', 
-      'nocache');
+    public static $limiters = array( 'public',
+      'private_no_expire',
+      'private',
+      'nocache' );
 
-	/**
-	 * Start session
-	 *
-	 * @return string Actual Session ID
-	 * @uses PROGRAM Program name for Session name
-	 */
-	public static function Start($sType = 'nocache')
-	{
-		if(!in_array($sType, self::$aLimiters)) {
-			$sType = 'nocache';
-		}
-
-		session_cache_limiter($sType);
-		session_set_cookie_params(0, "/", NULL, FALSE, TRUE);
-
-		session_start();
-		$sID = session_id();
-
-        if(Storage::isProfiler()) {
-            Storage::Profiler()->Add('Session', $sID);
-        }
-        
-		unset($sType);
-		return $sID;
-	}
-
-	/**
-	 * Restart session
-	 *
-	 * @return array Old and new Session ID
-	 * @uses Session::Start() Define first session
-	 */
-	public static function Restart()
-	{
-		if(!isset($_SESSION)) {
-			self::Start();
-		}
-
-		$aReturn = array('old' => session_id());
-
-		session_regenerate_id(TRUE);
-		$aReturn['new'] = session_id();
-
-        if(Storage::isProfiler()) {
-            Storage::Profiler()->Add('Session', $aReturn['new']);
+    public static function Start($chacheType = 'nocache')
+    {
+        if ( !in_array($chacheType, self::$limiters) ) {
+            $chacheType = 'nocache';
         }
 
-        return $aReturn;
-	}
+        session_cache_limiter($chacheType);
+        session_set_cookie_params(0, "/", NULL, FALSE, TRUE);
 
-	/**
-	 * Destroy session
-	 *
-	 * @uses Session::Restart() Destroy existing session and create new
-	 */
-	public static function Destroy()
-	{
-		$bReturn = FALSE;
-		$sSessionName = session_name();
-		$sSessionCookie = session_get_cookie_params();
+        session_start();
+        $sessionId = session_id();
 
-		self::Restart();
-		if(session_destroy()) {
-			setcookie(
-				$sSessionName, 
-				false, 
-				$sSessionCookie['lifetime'], 
-				$sSessionCookie['path'], 
-				$sSessionCookie['domain'], 
-				$sSessionCookie['secure']
-			);
-			$bReturn = TRUE;
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Session', $sessionId);
+        }
 
-            if(Storage::isProfiler()) {
+        unset($chacheType);
+        return $sessionId;
+    }
+
+    public static function Restart()
+    {
+        if ( !isset($_SESSION) ) {
+            self::Start();
+        }
+
+        $sessionIds = array( 'old' => session_id() );
+
+        session_regenerate_id(TRUE);
+        $sessionIds['new'] = session_id();
+
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Session', $sessionIds['new']);
+        }
+
+        return $sessionIds;
+    }
+
+    public static function Destroy()
+    {
+        $isDestroyed = FALSE;
+        $sessionName = session_name();
+        $sessionCookie = session_get_cookie_params();
+
+        self::Restart();
+        if ( session_destroy() ) {
+            setcookie(
+                    $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'], $sessionCookie['secure']
+            );
+            $isDestroyed = TRUE;
+
+            if ( Storage::isProfiler() ) {
                 Storage::Profiler()->Add('Session', session_id());
             }
-		}
-        
-		unset($sSessionCookie, $sSessionName);
-		return $bReturn;
-	}
+        }
+
+        unset($sessionCookie, $sessionName);
+        return $isDestroyed;
+    }
 
 }
 

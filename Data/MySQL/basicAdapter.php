@@ -26,179 +26,167 @@ use Luki\Data\basicInterface;
  * 
  * @package Luki
  */
-abstract class basicAdapter implements basicInterface {
+abstract class basicAdapter implements basicInterface
+{
 
-	public $aLastID = array();
-	
-	public $nLastID = 0;
+    public $allLlastID = array();
+    public $lastID = 0;
+    public $allUpdated = array();
+    public $updated = 0;
+    public $allDeleted = array();
+    public $deleted = 0;
 
-	public $aUpdated = array();
-	
-	public $nUpdated = 0;
+    public function Select()
+    {
+        
+    }
 
-	public $aDeleted = array();
-	
-	public $nDeleted = 0;
+    public function Insert($table, $values)
+    {
+        $isFirst = TRUE;
+        $sql = 'INSERT INTO `' . $table . '` SET ';
 
-	public function Select()
-	{
-	}
-	
-	public function Insert($sTable, $aValues)
-	{
-		$bFirst = TRUE;
-		$sSQL = 'INSERT INTO `' . $sTable . '` SET ';
-		
-		foreach($aValues as $sKey => $sValue) {
-			if(!$bFirst) {
-				$sSQL .= ', ';
-			}
-            else {
-                $bFirst = FALSE;
+        foreach ( $values as $key => $value ) {
+            if ( !$isFirst ) {
+                $sql .= ', ';
+            } else {
+                $isFirst = FALSE;
             }
-			
-			$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
-		}
-		
-		$oResult = $this->Query($sSQL);
 
-		if(FALSE !== $oResult) {
-			$this->saveLastID($sTable);
-		}
-		
-		unset($sTable, $aValues, $sKey, $sValue, $sSQL, $bFirst);
-		return $oResult;
-	}
-	
-	public function Update($sTable, $aValues, $aWhere)
-	{
-		$bResult = FALSE;
-		
-		if(!empty($sTable) and !empty($aValues)) {
-					
-			$bFirst = TRUE;
-			$sSQL = 'UPDATE `' . $sTable . '` SET ';
+            $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+        }
 
-			foreach($aValues as $sKey => $sValue) {
-				if(!$bFirst) {
-					$sSQL .= ', ';
-				}
-                else {
-                    $bFirst = FALSE;
+        $result = $this->Query($sql);
+
+        if ( FALSE !== $result ) {
+            $this->saveLastID($table);
+        }
+
+        unset($table, $values, $key, $value, $sql, $isFirst);
+        return $result;
+    }
+
+    public function Update($table, $values, $where)
+    {
+        $result = FALSE;
+
+        if ( !empty($table) and ! empty($values) ) {
+
+            $isFirst = TRUE;
+            $sql = 'UPDATE `' . $table . '` SET ';
+
+            foreach ( $values as $key => $value ) {
+                if ( !$isFirst ) {
+                    $sql .= ', ';
+                } else {
+                    $isFirst = FALSE;
                 }
 
-				$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
-			}
-			
-			if(!empty($aWhere)) {
-				$bFirst = TRUE;
-				$sSQL .= ' WHERE ';
-				
-				foreach($aWhere as $sKey => $sValue) {
-					if(!$bFirst) {
-						$sSQL .= ' AND ';
-					}
-                    else {
-                        $bFirst = FALSE;
+                $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+            }
+
+            if ( !empty($where) ) {
+                $isFirst = TRUE;
+                $sql .= ' WHERE ';
+
+                foreach ( $where as $key => $value ) {
+                    if ( !$isFirst ) {
+                        $sql .= ' AND ';
+                    } else {
+                        $isFirst = FALSE;
                     }
 
-					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
-				}
-			
-			}
-			
-			$bResult = $this->Query($sSQL);
-		}
-		
-		if(FALSE !== $bResult) {
-			$this->saveUpdated($sTable);
-		}
+                    $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+                }
+            }
 
-		unset($sTable, $aValues, $aWhere, $bFirst, $sSQL, $sKey, $sValue);
-		return $bResult;
-	}
-	
-	public function Delete($sTable, $aWhere)
-	{
-		$bResult = FALSE;
-		
-		if(!empty($sTable)) {
-					
-			$sSQL = 'DELETE FROM `' . $sTable . '`';
+            $result = $this->Query($sql);
+        }
 
-			if(!empty($aWhere)) {
-				$bFirst = TRUE;
-				$sSQL .= ' WHERE ';
-				
-				foreach($aWhere as $sKey => $sValue) {
-					if(!$bFirst) {
-						$sSQL .= ' AND ';
-					}
-                    else {
-                        $bFirst = FALSE;
+        if ( FALSE !== $result ) {
+            $this->saveUpdated($table);
+        }
+
+        unset($table, $values, $where, $isFirst, $sql, $key, $value);
+        return $result;
+    }
+
+    public function Delete($table, $where)
+    {
+        $result = FALSE;
+
+        if ( !empty($table) ) {
+
+            $sql = 'DELETE FROM `' . $table . '`';
+
+            if ( !empty($where) ) {
+                $isFirst = TRUE;
+                $sql .= ' WHERE ';
+
+                foreach ( $where as $key => $value ) {
+                    if ( !$isFirst ) {
+                        $sql .= ' AND ';
+                    } else {
+                        $isFirst = FALSE;
                     }
 
-					$sSQL .= '`' . $sKey . '`="' . $this->escapeString($sValue) . '"';
-				}
-			
-			}
-			
-			$bResult = $this->Query($sSQL);
-		}
-		
-		if(FALSE !== $bResult) {
-			$this->saveDeleted($sTable);
-		}
+                    $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+                }
+            }
 
-		unset($sTable, $aWhere, $bFirst, $sSQL, $sKey, $sValue);
-		return $bResult;
-	}
-	
-	public function getLastID($sTable='')
-	{
-		$nLastID = FALSE;
-		
-		if(empty($sTable)) {
-			$nLastID = $this->nLastID;
-		}
-		elseif(isset($this->aLastID[$sTable])) {
-			$nLastID = $this->aLastID[$sTable];
-		}
-		
-		unset($sTable);
-		return $nLastID;
-	}
-	
-	public function getUpdated($sTable='')
-	{
-		$nUpdated = FALSE;
-		
-		if(empty($sTable)) {
-			$nUpdated = $this->nUpdated;
-		}
-		elseif(isset($this->aUpdated[$sTable])) {
-			$nUpdated = $this->aUpdated[$sTable];
-		}
-		
-		unset($sTable);
-		return $nUpdated;
-	}
-	
-	public function getDeleted($sTable='')
-	{
-		$nDeleted = FALSE;
-		
-		if(empty($sTable)) {
-			$nDeleted = $this->nDeleted;
-		}
-		elseif(isset($this->aDeleted[$sTable])) {
-			$nDeleted = $this->aDeleted[$sTable];
-		}
-		
-		unset($sTable);
-		return $nDeleted;
-	}
-	
+            $result = $this->Query($sql);
+        }
+
+        if ( FALSE !== $result ) {
+            $this->saveDeleted($table);
+        }
+
+        unset($table, $where, $isFirst, $sql, $key, $value);
+        return $result;
+    }
+
+    public function getLastID($table = '')
+    {
+        $lastId = FALSE;
+
+        if ( empty($table) ) {
+            $lastId = $this->lastID;
+        } elseif ( isset($this->allLlastID[$table]) ) {
+            $lastId = $this->allLlastID[$table];
+        }
+
+        unset($table);
+        return $lastId;
+    }
+
+    public function getUpdated($table = '')
+    {
+        $updated = FALSE;
+
+        if ( empty($table) ) {
+            $updated = $this->updated;
+        } elseif ( isset($this->allUpdated[$table]) ) {
+            $updated = $this->allUpdated[$table];
+        }
+
+        unset($table);
+        return $updated;
+    }
+
+    public function getDeleted($table = '')
+    {
+        $deleted = FALSE;
+
+        if ( empty($table) ) {
+            $deleted = $this->deleted;
+        } elseif ( isset($this->allDeleted[$table]) ) {
+            $deleted = $this->allDeleted[$table];
+        }
+
+        unset($table);
+        return $deleted;
+    }
+
 }
 
 # End of file

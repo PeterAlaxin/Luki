@@ -28,89 +28,91 @@ use Luki\Data\basicInterface;
  *
  * @package Luki
  */
-class Data {
+class Data
+{
 
-	private $oDataAdapter = NULL;
+    private $_dataAdapter = NULL;
 
-	/**
-	 * Data constructor
-	 */
-	public function __construct(basicInterface $oDataAdapter)
-	{
-		$this->oDataAdapter = $oDataAdapter;
-
-		unset($oDataAdapter);
-	}
-
-    public static function findAdapter($sAdapter)
+    /**
+     * Data constructor
+     */
+    public function __construct(basicInterface $dataAdapter)
     {
-        $sAdapter = __NAMESPACE__ . '\Data\\' . $sAdapter . 'Adapter';
-        
-        return $sAdapter;
+        $this->_dataAdapter = $dataAdapter;
+
+        unset($dataAdapter);
     }
 
-	public function Select()
-	{
-		$oSelect = $this->oDataAdapter->Select();
+    public static function findAdapter($adapter)
+    {
+        $adapter = __NAMESPACE__ . '\Data\\' . $adapter . 'Adapter';
 
-		return $oSelect;
-	}
+        return $adapter;
+    }
 
-	public function Insert($sTable, $aValues)
-	{
-		$nLastID = $this->oDataAdapter->Insert($sTable, $aValues);
-		
-		unset($sTable, $aValues);
-		return $nLastID;
-	}
-	
-	public function Update($sTable, $aValues, $aWhere=NULL)
-	{
-		$bResult = $this->oDataAdapter->Update($sTable, $aValues, $aWhere);
-		
-		unset($sTable, $aValues, $aWhere);
-		return $bResult;
-	}
-	
-	public function Delete($sTable, $aWhere=NULL)
-	{
-		$bResult = $this->oDataAdapter->Delete($sTable, $aWhere);
-		
-		unset($sTable, $aWhere);
-		return $bResult;
-	}
-	
-	public function Query($sSelect)
-	{
-		$oResult = $this->oDataAdapter->Query($sSelect);
+    public function Select()
+    {
+        $select = $this->_dataAdapter->Select();
 
-		unset($sSelect);
-		return $oResult;
-	}
+        return $select;
+    }
 
-	public function getLastID($sTable='')
-	{
-		$nLastID = $this->oDataAdapter->getLastID($sTable);
-		
-		unset($sTable);
-		return $nLastID;
-	}
+    public function Insert($table, $values)
+    {
+        $lastId = $this->_dataAdapter->Insert($table, $values);
 
-	public function getUpdated($sTable='')
-	{
-		$nUpdated = $this->oDataAdapter->getUpdated($sTable);
-		
-		unset($sTable);
-		return $nUpdated;
-	}
+        unset($table, $values);
+        return $lastId;
+    }
 
-	public function getDeleted($sTable='')
-	{
-		$nDeleted = $this->oDataAdapter->getDeleted($sTable);
-		
-		unset($sTable);
-		return $nDeleted;
-	}
+    public function Update($table, $values, $where = NULL)
+    {
+        $result = $this->_dataAdapter->Update($table, $values, $where);
+
+        unset($table, $values, $where);
+        return $result;
+    }
+
+    public function Delete($table, $where = NULL)
+    {
+        $result = $this->_dataAdapter->Delete($table, $where);
+
+        unset($table, $where);
+        return $result;
+    }
+
+    public function Query($select)
+    {
+        $result = $this->_dataAdapter->Query($select);
+
+        unset($select);
+        return $result;
+    }
+
+    public function getLastID($table = '')
+    {
+        $lastId = $this->_dataAdapter->getLastID($table);
+
+        unset($table);
+        return $lastId;
+    }
+
+    public function getUpdated($table = '')
+    {
+        $updated = $this->_dataAdapter->getUpdated($table);
+
+        unset($table);
+        return $updated;
+    }
+
+    public function getDeleted($table = '')
+    {
+        $deleted = $this->_dataAdapter->getDeleted($table);
+
+        unset($table);
+        return $deleted;
+    }
+
 }
 
 # End of file

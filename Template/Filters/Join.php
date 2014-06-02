@@ -24,20 +24,21 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Join {
+class Join
+{
 
-	public function Get($sValue, $sSeparator = '')
-	{
-		if(is_array($sValue)) {
-			$sReturn = implode($sSeparator, $sValue);
-		}
-		else {
-			$sReturn = $sValue;
-		}
-		
-		unset($sValue, $sSeparator);
-		return $sReturn;
-	}
+    public function Get($value, $separator = '')
+    {
+        if ( is_array($value) ) {
+            $join = implode($separator, $value);
+        } else {
+            $join = $value;
+        }
+
+        unset($value, $separator);
+        return $join;
+    }
+
 }
 
 # End of file

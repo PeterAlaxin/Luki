@@ -26,76 +26,77 @@ use Luki\Cache\basicInterface;
  * 
  * @package Luki
  */
-class fileAdapter implements basicInterface {
+class fileAdapter implements basicInterface
+{
 
-	private $sPath;
+    private $_path;
 
-	public function __construct($Options = array())
-	{
-		if(empty($Options) or !is_array($Options)) {
-			$Options = array('path' => '/tmp/');
-		}
-		$this->sPath = $Options['path'];
+    public function __construct($options = array())
+    {
+        if ( empty($options) or ! is_array($options) ) {
+            $options = array( 'path' => '/tmp/' );
+        }
+        $this->_path = $options['path'];
 
-		unset($Options);
-	}
+        unset($options);
+    }
 
-	public function Set($Key, $Value = '', $ExpirationInSeconds = 0)
-	{
-		$isSet = FALSE;
-		$ValueContent = array('expiration' => $ExpirationInSeconds,
-						'created' => time(),
-						'value' => $Value);
+    public function Set($key, $value = '', $expirationInSeconds = 0)
+    {
+        $isSet = FALSE;
+        $content = array( 'expiration' => $expirationInSeconds,
+          'created' => time(),
+          'value' => $value );
 
-		if(FALSE !== file_put_contents($this->sPath . $Key, serialize($ValueContent), LOCK_EX)) {
-			$isSet = TRUE;			
-		}
+        if ( FALSE !== file_put_contents($this->_path . $key, serialize($content), LOCK_EX) ) {
+            $isSet = TRUE;
+        }
 
-		unset($Key, $Value, $ExpirationInSeconds, $ValueContent);
-		return $isSet;
-	}
+        unset($key, $value, $expirationInSeconds, $content);
+        return $isSet;
+    }
 
-	public function Get($Key)
-	{
-		$Value = FALSE;
+    public function Get($key)
+    {
+        $value = FALSE;
 
-		if(is_file($this->sPath . $Key)) {
-			$ValueContent = unserialize(file_get_contents($this->sPath . $Key));
-			if(!$this->isExpired($ValueContent)) {
-				$Value = $ValueContent['value'];
-			}
-            else {
-                $this->Delete($Key);
+        if ( is_file($this->_path . $key) ) {
+            $content = unserialize(file_get_contents($this->_path . $key));
+            if ( !$this->isExpired($content) ) {
+                $value = $content['value'];
+            } else {
+                $this->Delete($key);
             }
-		}
+        }
 
-		unset($Key, $ValueContent);
-		return $Value;
-	}
+        unset($key, $content);
+        return $value;
+    }
 
-	public function Delete($Key)
-	{
-		$isDeleted = FALSE;
+    public function Delete($key)
+    {
+        $isDeleted = FALSE;
 
-		if(is_file($this->sPath . $Key)) {
-			$isDeleted = unlink($this->sPath . $Key);
-		}
+        if ( is_file($this->_path . $key) ) {
+            $isDeleted = unlink($this->_path . $key);
+        }
 
-		unset($Key);
-		return $isDeleted;
-	}
+        unset($key);
+        return $isDeleted;
+    }
 
-    private function isExpired($ValueContent)
+    private function isExpired($content)
     {
         $isExpired = TRUE;
-        
-        if($ValueContent['expiration'] == 0 or time() < $ValueContent['created'] + $ValueContent['expiration']) {
+
+        if ( $content['expiration'] == 0 or time() < $content['created'] + $content['expiration'] ) {
             $isExpired = FALSE;
         }
-        
-        unset($ValueContent);
+
+        unset($content);
         return $isExpired;
     }
+
 }
 
 # End of file

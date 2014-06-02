@@ -36,27 +36,28 @@ use Luki\Time;
  *
  * @package Luki
  */
-class Starter {
+class Starter
+{
 
     const LOADER_NOT_EXISTS = 'Loader file "%s" does not exists!';
 
-    public static function Start($sStarterFile)
+    public static function Start($starterFile)
     {
-        ob_start(array('self', 'sanitizeOutput'));
+        ob_start(array( 'self', 'sanitizeOutput' ));
 
-        $nMemory = memory_get_usage();
+        $memoryUsage = memory_get_usage();
 
         self::installLoader();
 
-        $aMicrotime = Time::explodeMicrotime();
+        $microTime = Time::explodeMicrotime();
 
-        self::openStarterFile($sStarterFile);
+        self::openStarterFile($starterFile);
         self::initFolders();
         self::addPathToLoader();
         self::setLocale();
         self::setTimezone();
         self::initRequest();
-        self::initProfiler($aMicrotime, $nMemory);
+        self::initProfiler($microTime, $memoryUsage);
         self::initSession();
         self::initCache();
         self::initDatabase();
@@ -66,181 +67,178 @@ class Starter {
 
         ob_end_flush();
 
-        unset($sStarterFile, $aMicrotime, $nMemory);
+        unset($starterFile, $microTime, $memoryUsage);
         exit;
     }
 
     public static function installLoader()
     {
         try {
-            $sLoaderFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Loader.php';
+            $loaderFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Loader.php';
 
-            if(is_file($sLoaderFile)) {
-                require_once($sLoaderFile);
+            if ( is_file($loaderFile) ) {
+                require_once($loaderFile);
                 Loader::Init();
-            }
-            else {
-                throw new \Exception(sprintf(self::LOADER_NOT_EXISTS, $sLoaderFile));
+            } else {
+                throw new \Exception(sprintf(self::LOADER_NOT_EXISTS, $loaderFile));
             }
         }
-        catch (\Exception $oException) {
-            exit($oException->getMessage());
+        catch ( \Exception $exception ) {
+            exit($exception->getMessage());
         }
 
-        unset($sLoaderFile);
+        unset($loaderFile);
     }
 
-    public static function openStarterFile($sStarterFile)
+    public static function openStarterFile($starterFile)
     {
-        $sAdapter = Config::findAdapter($sStarterFile);
-        $oAdapter = new $sAdapter($sStarterFile);
+        $adapterName = Config::findAdapter($starterFile);
+        $adapter = new $adapterName($starterFile);
 
-        Storage::Set('Configuration', new Config($oAdapter));
-      
-        if('development' == Storage::Configuration()->getValue('environment', 'definition')) {
+        Storage::Set('Configuration', new Config($adapter));
+
+        if ( 'development' == Storage::Configuration()->getValue('environment', 'definition') ) {
             Storage::Set('Development', TRUE);
         }
-        
-        unset($sStarterFile, $sAdapter, $oAdapter);
+
+        unset($starterFile, $adapterName, $adapter);
     }
 
     public static function initFolders()
     {
-        $oFolders = Storage::Configuration()->getSection('folder');
-        
-        foreach ($oFolders as $sKey => $sPath) {
-            Storage::Set($sKey, $sPath);
+        $folders = Storage::Configuration()->getSection('folder');
+
+        foreach ( $folders as $key => $path ) {
+            Storage::Set($key, $path);
         }
-        
-        unset($oFolders, $sKey, $sPath);
+
+        unset($folders, $key, $path);
     }
-    
+
     public static function initRequest()
     {
         Storage::Set('Request', new Request());
-
         Storage::Request()->getFullUrl();
     }
 
-    public static function initProfiler($aMicrotime, $nMemory)
+    public static function initProfiler($microTime, $memory)
     {
-        if(Storage::isDevelopment()) {
-            Storage::Set('Profiler', new Profiler($aMicrotime, $nMemory));
+        if ( Storage::isDevelopment() ) {
+            Storage::Set('Profiler', new Profiler($microTime, $memory));
         }
     }
 
     public static function initCache()
     {
-        $aCache = Storage::Configuration()->getSection('cache');
+        $cache = Storage::Configuration()->getSection('cache');
 
-        if(!empty($aCache)) {
-            $sAdapter = Cache::findAdapter($aCache['adapter']);
-            $oAdapter = new $sAdapter($aCache);
-            Storage::Set('Cache', new Cache($oAdapter));
+        if ( !empty($cache) ) {
+            $adapterName = Cache::findAdapter($cache['adapter']);
+            $adapter = new $adapterName($cache);
+            Storage::Set('Cache', new Cache($adapter));
 
-            if(!empty($aCache['expiration'])) {
-                Storage::Cache()->setExpiration($aCache['expiration']);
+            if ( !empty($cache['expiration']) ) {
+                Storage::Cache()->setExpiration($cache['expiration']);
             }
 
-            if(isset($aCache['useCache'])) {
-                Storage::Cache()->useCache($aCache['useCache']);
+            if ( isset($cache['useCache']) ) {
+                Storage::Cache()->useCache($cache['useCache']);
             }
         }
 
-        unset($aCache, $sAdapter, $oAdapter);
+        unset($cache, $adapterName, $adapter);
     }
 
     public static function addPathToLoader()
     {
-        $aLoader = Storage::Configuration()->getSection('loader');
+        $loader = Storage::Configuration()->getSection('loader');
 
-        if(!empty($aLoader)) {
-            foreach ($aLoader as $sPath) {
-                if(is_array($sPath)) {
-                    foreach($sPath as $sPathOne) {
-                        Loader::addPath($sPathOne);
+        if ( !empty($loader) ) {
+            foreach ( $loader as $path ) {
+                if ( is_array($path) ) {
+                    foreach ( $path as $onePath ) {
+                        Loader::addPath($onePath);
                     }
-                }
-                else {
-                    Loader::addPath($sPath);                
+                } else {
+                    Loader::addPath($path);
                 }
             }
         }
 
-        unset($aLoader, $sPath, $sPathOne);
+        unset($loader, $path, $onePath);
     }
 
     public static function initDatabase()
     {
-        $aDatabases = Storage::Configuration()->getSection('database');
+        $databases = Storage::Configuration()->getSection('database');
 
-        if(!empty($aDatabases)) {
-            foreach ($aDatabases as $sName => $aDatabase) {
-                $sAdapter = Data::findAdapter($aDatabase['adapter']);
-                $oAdapter = new $sAdapter($aDatabase);
-                Storage::Set($sName, $oAdapter);
+        if ( !empty($databases) ) {
+            foreach ( $databases as $name => $database ) {
+                $adapterName = Data::findAdapter($database['adapter']);
+                $adapter = new $adapterName($database);
+                Storage::Set($name, $adapter);
             }
         }
 
-        unset($aDatabases, $sName, $aDatabase, $sAdapter, $oAdapter);
+        unset($databases, $name, $database, $adapterName, $adapter);
     }
 
     public static function initTemplate()
     {
-        $sPath = Storage::Configuration()->getValue('twigPath', 'definition');
-        Template::setPath($sPath);
+        $path = Storage::Configuration()->getValue('twigPath', 'definition');
+        Template::setPath($path);
 
-        unset($sPath);
+        unset($path);
     }
 
     public static function initSession()
     {
-        $sSessionType = Storage::Configuration()->getValue('session', 'definition');
+        $sessionType = Storage::Configuration()->getValue('session', 'definition');
 
-        if(!empty($sSessionType)) {
-            Session::Start($sSessionType);
+        if ( !empty($sessionType) ) {
+            Session::Start($sessionType);
         }
 
-        unset($sSessionType);
+        unset($sessionType);
     }
 
     public static function setTimezone()
     {
-        $sTimeZone = Storage::Configuration()->getValue('timezone', 'definition');
+        $timeZone = Storage::Configuration()->getValue('timezone', 'definition');
 
-        if(!empty($sTimeZone)) {
-            date_default_timezone_set($sTimeZone);
+        if ( !empty($timeZone) ) {
+            date_default_timezone_set($timeZone);
         }
 
-        unset($sTimeZone);
+        unset($timeZone);
     }
 
     public static function setLocale()
     {
-        $sLocale = Storage::Configuration()->getValue('locale', 'definition');
+        $locale = Storage::Configuration()->getValue('locale', 'definition');
 
-        if(!empty($sLocale)) {
-            setlocale(LC_ALL, $sLocale);
+        if ( !empty($locale) ) {
+            setlocale(LC_ALL, $locale);
         }
 
-        unset($sLocale);
+        unset($locale);
     }
 
     public static function dispatchURL()
     {
-        $sDispatcher = Storage::Configuration()->getValue('dispatcher', 'definition');
-        $sAdapter = Config::findAdapter($sDispatcher);
-        $oAdapter = new $sAdapter($sDispatcher);
+        $dispatcherName = Storage::Configuration()->getValue('dispatcher', 'definition');
+        $adapterName = Config::findAdapter($dispatcherName);
+        $adapter = new $adapterName($dispatcherName);
 
-        $oDispatcher = new Dispatcher(Storage::Request(), new Config($oAdapter));
-        echo $oDispatcher->Dispatch();
+        $dispatcher = new Dispatcher(Storage::Request(), new Config($adapter));
+        echo $dispatcher->Dispatch();
 
-        unset($sDispatcher, $sAdapter, $oAdapter, $oDispatcher);
+        unset($dispatcher, $adapterName, $adapter, $dispatcherName);
     }
 
     public static function sanitizeOutput($output)
     {
-        if(!Storage::isDevelopment()) {
+        if ( !Storage::isDevelopment() ) {
             $search = array(
               '/\>[^\S ]+/s', //strip whitespaces after tags, except space
               '/[^\S ]+\</s', //strip whitespaces before tags, except space
@@ -253,7 +251,7 @@ class Starter {
             );
             $output = preg_replace($search, $replace, $output);
         }
-        
+
         unset($search, $replace);
         return $output;
     }

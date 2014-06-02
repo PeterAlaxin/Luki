@@ -24,28 +24,27 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Last {
+class Last
+{
 
-	public function Get($sValue)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				$sReturn = mb_substr($sValue, -1);
-				break;
-			case 'array':
-				$sValue = array_reverse($sValue);
-				foreach($sValue as $sVal) {
-					$sReturn = $sVal;
-					break;
-				}
-				break;
-			default:
-				$sReturn = $sValue;
-		}
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                $last = mb_substr($value, -1);
+                break;
+            case 'array':
+                $value = array_reverse($value);
+                $last = array_slice($value, 0, 1);
+                break;
+            default:
+                $last = $value;
+        }
+
+        unset($value);
+        return $last;
+    }
+
 }
 
 # End of file

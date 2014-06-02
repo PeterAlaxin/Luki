@@ -26,34 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Regex extends basicFactory {
+class Regex extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" does not match regular expression "%regex%"!';
+    public $regex = NULL;
 
-	public $regex = NULL;
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+        $this->setMessage('The value "%value%" does not match regular expression "%regex%"!');
 
-		if(1 === preg_match($this->regex, $xValue)) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-			$this->sError = preg_replace('/%regex%/', $this->regex, $this->sError);
-		}
+        unset($options);
+    }
 
-		unset($xValue);
-		return $bReturn;
-	}
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( 1 === preg_match($this->regex, $value) ) {
+            $this->setNoError();
+        } else {
+            $from = array( '/%value%/', '/%regex%/' );
+            $to = array( $value, $this->regex );
+            $this->fillMessage($from, $to);
+        }
+
+        unset($value, $from, $to);
+        return $this->isValid;
+    }
+
+    public function setRegex($regex)
+    {
+        $this->regex = (float) $regex;
+
+        unset($regex);
+    }
+
+    public function getRegex()
+    {
+        return $this->regex;
+    }
 
 }
 

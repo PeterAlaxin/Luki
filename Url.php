@@ -24,61 +24,44 @@ namespace Luki;
  *
  * @package Luki
  */
-class Url {
+class Url
+{
 
-	/**
-	 * Make link
-	 *
-	 * @param mixed $xLink String for conversion
-	 * @return sting
-	 * @uses Storage::Set() Save Dispatcher object to Storage
-	 * @uses Language::getTranslation() Get translation to file
-	 * @uses Language::removeDiacritic() Remove diacritic from string
-	 * @uses Dispatcher::makeCoolURL() Make cool url for SEO
-	 */
-	public static function makeLink($xLink)
-	{
-		$sLink = '';
+    public static function makeLink($value)
+    {
+        $link = '';
 
-		if(is_string($xLink)) {
-            $sLink = mb_strtolower($xLink, 'UTF-8');                
-            $sLink = html_entity_decode($sLink, ENT_QUOTES, 'UTF-8');
-            $sLink = preg_replace("/[^a-z0-9-._~:?#[\]@!$&'()*+:=ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǺǻǼǽǾǿ]/u", '-', $sLink);
-            $sLink = str_replace('&', '-and-', $sLink);
-            $sLink = urlencode($sLink);
-            $sLink = str_replace('+', '-', $sLink);
-            $sLink = preg_replace('/--+/u', '-', $sLink);
-            $sLink = trim($sLink, '.-_');
-            $sLink = urldecode($sLink);
-            
-		}
-		elseif(is_array($xLink)) {
+        if ( is_string($value) ) {
+            $link = mb_strtolower($value, 'UTF-8');
+            $link = html_entity_decode($link, ENT_QUOTES, 'UTF-8');
+            $link = preg_replace("/[^a-z0-9-._~:?#[\]@!$&'()*+:=ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǺǻǼǽǾǿ]/u", '-', $link);
+            $link = str_replace('&', '-and-', $link);
+            $link = urlencode($link);
+            $link = str_replace('+', '-', $link);
+            $link = preg_replace('/--+/u', '-', $link);
+            $link = trim($link, '.-_');
+            $link = urldecode($link);
+        } elseif ( is_array($value) ) {
 
-			foreach ($xLink as $xLinkPart) {
-				$sLink .= self::makeLink((string) $xLinkPart) . '/';
-			}
-		}
-		else {
-			$sLink = self::makeLink((string) $xLink);
-		}
-
-		unset($xLink, $xLinkPart);
-		return $sLink;
-	}
-
-    /**
-	 * Reload page
-	 *
-	 * @param string Link to reload
-	 * @param integer Response number
-	 */
-	static public function Reload($sLink = '', $nResponse = 302)
-	{
-		if(!empty($sLink)) {
-    		header('Location: ' . $sLink, TRUE, $nResponse);
-        	exit;
+            foreach ( $value as $linkPart ) {
+                $link .= self::makeLink((string) $linkPart) . '/';
+            }
+        } else {
+            $link = self::makeLink((string) $value);
         }
-	}
+
+        unset($value, $linkPart);
+        return $link;
+    }
+
+    static public function Reload($link = '', $response = 302)
+    {
+        if ( !empty($link) ) {
+            header('Location: ' . $link, TRUE, $response);
+            exit;
+        }
+    }
+
 }
 
 # End of file

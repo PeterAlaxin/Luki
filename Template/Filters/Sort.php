@@ -24,22 +24,24 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Sort {
+class Sort
+{
 
-	public function Get($sValue)
-	{
-		switch(gettype($sValue)) {
-			case 'array':
-				asort($sValue);
-				$sReturn = $sValue; 
-				break;
-			default:
-				$sReturn = $sValue;
-		}
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        switch ( gettype($value) ) {
+            case 'array':
+                asort($value);
+                $sort = $value;
+                break;
+            default:
+                $sort = $value;
+        }
+
+        unset($value);
+        return $sort;
+    }
+
 }
 
 # End of file

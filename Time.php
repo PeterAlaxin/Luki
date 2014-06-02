@@ -28,193 +28,159 @@ use Luki\Date;
  *
  * @package Luki
  */
-class Time {
+class Time
+{
 
-	public static $sFormat = 'H:i:s';
-    
-	public static $sTimeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
-    
-	private static $aSections = array();
+    public static $format = 'H:i:s';
+    public static $timeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
+    private static $_sections = array();
 
-	/**
-	 * Set output time format
-	 * 
-	 * @param type $sFormat
-	 */
-	public static function setFormat($sFormat = 'H:i:s')
-	{
-		$bReturn = FALSE;
-
-		$oDate = date_create('now');
-		if(FALSE !== $oDate->format($sFormat)) {
-			self::$sFormat = $sFormat;
-			$bReturn = TRUE;
-		}
-
-		unset($sFormat);
-		return $bReturn;
-	}
-
-	/**
-	 * Get current format
-	 */
-	public static function getFormat()
-	{
-		return self::$sFormat;
-	}
-
-	/**
-	 * Reset output time format to default
-	 * 
-	 * @param type $sFormat
-	 */
-	public static function resetFormat()
-	{
-		self::$sFormat = 'H:i:s';
-	}
-
-	public static function explodeMicrotime()
-	{
-		list($usec, $sec) = explode(" ", microtime());
-		$nReturn = ((float) $usec + (float) $sec);
-
-		unset($usec, $sec);
-		return $nReturn;
-	}
-
-	public static function DateTimeToFormat($dDateTime, $sFormat = 'r')
-	{
-		$dDate = Date::DateTimeToFormat($dDateTime, $sFormat);
-
-		unset($dDateTime, $sFormat);
-		return $dDate;
-	}
-
-	public static function DateTimeToMicrotime($dDateTime)
-	{
-		$sMicro = Date::DateTimeToMicrotime($dDateTime);
-
-		unset($dDateTime);
-		return $sMicro;
-	}
-
-    public static function convertUtcToTimezone($dDateTime)
+    public static function setFormat($format = 'H:i:s')
     {
-        $sTimeZone = date_default_timezone_get();
-        
-        $dateTimeZoneHere = new \DateTimeZone($sTimeZone);
-        $dateTimeZoneUTC = new \DateTimeZone("UTC");
-        
-        $dateTimeUTC = new \DateTime($dDateTime, $dateTimeZoneUTC);
-        
-        $nOffset = $dateTimeZoneHere->getOffset($dateTimeUTC);         
-        $oInterval = new \DateInterval('PT' . abs($nOffset) . 'S');
-        
-        if($nOffset < 0) {
-            $oInterval->invert = 1;
+        $isSet = FALSE;
+
+        $date = date_create('now');
+        if ( FALSE !== $date->format($format) ) {
+            self::$format = $format;
+            $isSet = TRUE;
         }
-        
-        $dateTimeUTC->add($oInterval);
+
+        unset($format);
+        return $isSet;
+    }
+
+    public static function getFormat()
+    {
+        return self::$format;
+    }
+
+    public static function resetFormat()
+    {
+        self::$format = 'H:i:s';
+    }
+
+    public static function explodeMicrotime()
+    {
+        list($usec, $sec) = explode(" ", microtime());
+        $microTime = ((float) $usec + (float) $sec);
+
+        unset($usec, $sec);
+        return $microTime;
+    }
+
+    public static function DateTimeToFormat($dateTime, $format = 'r')
+    {
+        $date = Date::DateTimeToFormat($dateTime, $format);
+
+        unset($dateTime, $format);
+        return $date;
+    }
+
+    public static function DateTimeToMicrotime($dateTime)
+    {
+        $microTime = Date::DateTimeToMicrotime($dateTime);
+
+        unset($dateTime);
+        return $microTime;
+    }
+
+    public static function convertUtcToTimezone($dateTime)
+    {
+        $timeZone = date_default_timezone_get();
+
+        $dateTimeZoneHere = new \DateTimeZone($timeZone);
+        $dateTimeZoneUTC = new \DateTimeZone("UTC");
+
+        $dateTimeUTC = new \DateTime($dateTime, $dateTimeZoneUTC);
+
+        $offset = $dateTimeZoneHere->getOffset($dateTimeUTC);
+        $interval = new \DateInterval('PT' . abs($offset) . 'S');
+
+        if ( $offset < 0 ) {
+            $interval->invert = 1;
+        }
+
+        $dateTimeUTC->add($interval);
         $dateTimeHere = $dateTimeUTC->format('Y-m-d H:i:s');
-        
-        unset($dDateTime, $sTimeZone, $dateTimeZoneHere, $dateTimeZoneUTC, $dateTimeUTC, $nOffset, $oInterval);
+
+        unset($dateTime, $timeZone, $dateTimeZoneHere, $dateTimeZoneUTC, $dateTimeUTC, $offset, $interval);
         return $dateTimeHere;
     }
-    
-	/**
-	 * Start stopwatch
-	 * 
-	 * @return float 
-	 */
-	public static function stopwatchStart($sSection = 'default', $aMicrotime = NULL)
-	{
-		$nReturn = FALSE;
-        
-		if(!empty($sSection)) {
-            if(empty($aMicrotime)) {
-                $aMicrotime = self::explodeMicrotime();
+
+    public static function stopwatchStart($section = 'default', $microTime = NULL)
+    {
+        $start = FALSE;
+
+        if ( !empty($section) ) {
+            if ( empty($microTime) ) {
+                $microTime = self::explodeMicrotime();
             }
-            
-			self::$aSections[$sSection] = array(
-				'start' => $aMicrotime,
-				'stop' => 0,
-				'result' => 0);
-			$nReturn = self::$aSections[$sSection]['start'];
-		}
-		
-		unset($sSection);
-		return $nReturn;
-	}
 
-	/**
-	 * Get time when stopwatch started
-	 * 
-	 * @return float
-	 */
-	public static function getStopwatchStart($sSection = 'default')
-	{
-		$nReturn = FALSE;
-		
-		if(!empty(self::$aSections[$sSection])) {
-			$nReturn = self::$aSections[$sSection]['start'];
-		}
-		
-		unset($sSection);
-		return $nReturn;
-	}
+            self::$_sections[$section] = array(
+              'start' => $microTime,
+              'stop' => 0,
+              'result' => 0 );
+            $start = self::$_sections[$section]['start'];
+        }
 
-	/**
-	 * Stop stopwatch
-	 * 
-	 * @return float
-	 */
-	public static function stopwatchStop($sSection = 'default')
-	{
-		$nReturn = FALSE;
-		
-		if(!empty(self::$aSections[$sSection])) {
-			self::$aSections[$sSection]['stop'] = self::explodeMicrotime();
-			self::$aSections[$sSection]['result'] = self::$aSections[$sSection]['stop'] - self::$aSections[$sSection]['start'];
-			$nReturn = self::$aSections[$sSection]['stop'];
-		}
-		
-		unset($sSection);
-		return $nReturn;
-	}
+        unset($section);
+        return $start;
+    }
 
-	/**
-	 * Get time when stopwatch stoped
-	 * 
-	 * @return float
-	 */
-	public static function getStopwatchStop($sSection = 'default')
-	{
-		$nReturn = FALSE;
-		
-		if(!empty(self::$aSections[$sSection])) {
-			$nReturn = self::$aSections[$sSection]['stop'];
-		}
-		
-		unset($sSection);
-		return $nReturn;
-	}
+    public static function getStopwatchStart($section = 'default')
+    {
+        $start = FALSE;
 
-	/**
-	 * Return stopwatch time in seconds
-	 * 
-	 * @return float
-	 */
-	public static function getStopwatch($sSection = 'default')
-	{
-		$nReturn = FALSE;
-		
-		if(!empty(self::$aSections[$sSection])) {
-			$nReturn = self::$aSections[$sSection]['result'];
-		}
-		
-		unset($sSection);
-		return $nReturn;
-	}
+        if ( !empty(self::$_sections[$section]) ) {
+            $start = self::$_sections[$section]['start'];
+        }
+
+        unset($section);
+        return $start;
+    }
+
+    public static function stopwatchStop($section = 'default')
+    {
+        $stop = FALSE;
+
+        if ( !empty(self::$_sections[$section]) ) {
+            $stop = self::explodeMicrotime();
+            self::$_sections[$section]['stop'] = $stop;
+            self::$_sections[$section]['result'] = $stop - self::$_sections[$section]['start'];
+        }
+
+        unset($section);
+        return $stop;
+    }
+
+    public static function getStopwatchStop($section = 'default')
+    {
+        $stop = FALSE;
+
+        if ( !empty(self::$_sections[$section]) ) {
+            $stop = self::$_sections[$section]['stop'];
+        }
+
+        unset($section);
+        return $stop;
+    }
+
+    public static function getStopwatch($section = 'default')
+    {
+        $result = FALSE;
+
+        if ( !empty(self::$_sections[$section]) ) {
+
+            if ( empty(self::$_sections[$section]['result']) ) {
+                self::stopwatchStop($section);
+            }
+
+            $result = self::$_sections[$section]['result'];
+        }
+
+        unset($section);
+        return $result;
+    }
 
 }
 

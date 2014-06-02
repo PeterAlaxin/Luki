@@ -24,24 +24,27 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Slice {
+class Slice
+{
 
-	public function Get($sValue, $nStart = 0, $nLength = 1)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				$sReturn = mb_substr($sValue, $nStart, $nLength, 'UTF-8');
-				break;
-			case 'array':
-				$sReturn = array_slice($sValue, $nStart, $nLength);
-				break;
-			default:
-				$sReturn = $sValue;
-		}
-		
-		unset($sValue, $nStart, $nLength);
-		return $sReturn;
-	}
+    public function Get($value, $start = 0, $length = 1)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                $encoding = mb_detect_encoding($value);
+                $slice = mb_substr($value, $start, $length, $encoding);
+                break;
+            case 'array':
+                $slice = array_slice($value, $start, $length);
+                break;
+            default:
+                $slice = $value;
+        }
+
+        unset($value, $start, $length, $encoding);
+        return $slice;
+    }
+
 }
 
 # End of file

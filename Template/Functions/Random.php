@@ -24,28 +24,30 @@ namespace Luki\Template\Functions;
  * 
  * @package Luki
  */
-class Random {
+class Random
+{
 
-	public function Get($sValue = NULL)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				$sReturn = substr($sValue, mt_rand(0, strlen($sValue)-1), 1);
-				break;
-			case 'array':
-				$sReturn = $sValue[mt_rand(0, count($sValue)-1)];
-				break;
-			case 'integer':
-				$sReturn = mt_rand(0, $sValue);
-				break;
-			case 'NULL':
-			default :
-				$sReturn = mt_rand();
-		}
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value = NULL)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                $random = substr($value, mt_rand(0, strlen($value) - 1), 1);
+                break;
+            case 'array':
+                $random = $value[mt_rand(0, count($value) - 1)];
+                break;
+            case 'integer':
+                $random = mt_rand(0, $value);
+                break;
+            case 'NULL':
+            default :
+                $random = mt_rand();
+        }
+
+        unset($value);
+        return $random;
+    }
+
 }
 
 # End of file

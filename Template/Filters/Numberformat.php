@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Numberformat {
+class Numberformat
+{
 
-	public function Get($nValue, $nDecimal = 2, $sDecimals = ',', $sThousands = '.')
-	{
-		$nReturn = number_format($nValue, $nDecimal, $sDecimals, $sThousands);
+    public function Get($value, $decimal = 2, $delimiterDecimals = ',', $delimiterThousands = '.')
+    {
+        $number = number_format($value, $decimal, $delimiterDecimals, $delimiterThousands);
 
-		unset($nValue);
-		return $nReturn;
-	}
+        unset($value);
+        return $number;
+    }
+
 }
 
 # End of file

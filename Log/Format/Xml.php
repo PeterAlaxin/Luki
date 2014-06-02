@@ -26,24 +26,26 @@ use Luki\Log\Format\basicInterface;
  * 
  * @package Luki
  */
-class Xml implements basicInterface {
+class Xml implements basicInterface
+{
 
-	public function __construct($sFormat='')
-	{
-		unset($sFormat);
-	}
-	
-	public function Transform($aParameters)
-	{
-		$aText = array();
-		
-		foreach($aParameters as $sKey => $sValue) {
-			$aText[$sKey] = $sValue;
-		}
-		
-		unset($aParameters, $sKey, $sValue);
-		return $aText;
-	}
+    public function __construct($format = '')
+    {
+        unset($format);
+    }
+
+    public function Transform($parameters)
+    {
+        $content = array();
+
+        foreach ( $parameters as $key => $value ) {
+            $content[$key] = $value;
+        }
+
+        unset($parameters, $key, $value);
+        return $content;
+    }
+
 }
 
 # End of file

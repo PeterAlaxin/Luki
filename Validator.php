@@ -24,33 +24,34 @@ namespace Luki;
  *
  * @package Luki
  */
-class Validator {
+class Validator
+{
 
-	private static $sError = '';
+    private static $_error = '';
 
-	public static function isValid($xValue, $sValidator, $aOptions = array(), $sMessage = '')
-	{
-		$oValidator = new $sValidator($aOptions);
-		self::$sError = '';
+    public static function isValid($value, $validatorName, $options = array(), $message = '')
+    {
+        $validator = new $validatorName($options);
+        self::$_error = '';
 
-		if(!empty($sMessage)) {
-			$oValidator->setMessage($sMessage);
-		}
+        if ( !empty($message) ) {
+            $validator->setMessage($message);
+        }
 
-		$bReturn = $oValidator->isValid($xValue);
+        $isValid = $validator->isValid($value);
 
-		if(!$bReturn) {
-			self::$sError = $oValidator->getError();
-		}
+        if ( !$isValid ) {
+            self::$_error = $validator->getError();
+        }
 
-		unset($xValue, $sValidator, $aOptions, $oValidator, $sMessage);
-		return $bReturn;
-	}
+        unset($value, $validatorName, $options, $validator, $message);
+        return $isValid;
+    }
 
-	public static function getError()
-	{
-		return self::$sError;
-	}
+    public static function getError()
+    {
+        return self::$_error;
+    }
 
 }
 

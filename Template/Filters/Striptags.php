@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Striptags {
+class Striptags
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = strip_tags($sValue);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $stripped = strip_tags($value);
+
+        unset($value);
+        return $stripped;
+    }
+
 }
 
 # End of file

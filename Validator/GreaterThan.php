@@ -26,35 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class GreaterThan extends basicFactory {
+class GreaterThan extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" not greater then "%min%"!';
-	
-	public $min = 0;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public $min = 0;
 
-		if($xValue > $this->min) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-			$this->sError = preg_replace('/%min%/', $this->min, $this->sError);
-		}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-		unset($xValue);
-		return $bReturn;
-	}
+        $this->setMessage('The value "%value%" not greater then "%min%"!');
+        
+        unset($options);
+    }
 
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( $value > $this->min ) {
+            $this->setNoError();
+        } else {
+            $from = array( '/%value%/', '/%min%/' );
+            $to = array( $value, $this->min );
+            $this->fillMessage($from, $to);
+        }
+
+        unset($value, $from, $to);
+        return $this->isValid;
+    }
+
+    public function setMin($min)
+    {
+        $this->min = (float) $min;
+
+        unset($min);
+    }
+
+    public function getMin()
+    {
+        return $this->min;
+    }
 
 }
 

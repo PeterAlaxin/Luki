@@ -24,20 +24,21 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Merge {
+class Merge
+{
 
-	public function Get($sValue, $aMerge)
-	{
-		if(is_array($sValue) and is_array($aMerge)) {
-			$aReturn = array_merge($sValue, $aMerge);
-		}
-		else {
-			$aReturn = $sValue;
-		}
-		
-		unset($sValue, $aMerge);
-		return $aReturn;
-	}
+    public function Get($value, $mergeWith)
+    {
+        if ( is_array($value) and is_array($mergeWith) ) {
+            $merge = array_merge($value, $mergeWith);
+        } else {
+            $merge = $value;
+        }
+
+        unset($value, $mergeWith);
+        return $merge;
+    }
+
 }
 
 # End of file

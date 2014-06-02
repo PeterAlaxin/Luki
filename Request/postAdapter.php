@@ -24,16 +24,13 @@ namespace Luki\Request;
  * 
  * @package Luki
  */
-class postAdapter extends basicAdapter {
+class postAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $sFileName
-	 */
-	public function __construct()
-	{
+    public function __construct()
+    {
         $this->saveInputs($_POST);
-	}
+    }
 
 }
 

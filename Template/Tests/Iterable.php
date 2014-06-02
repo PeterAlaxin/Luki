@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Iterable {
+class Iterable
+{
 
-	public function Is($sValue)
-	{
-		
-		$bReturn = is_array($sValue);
-		
-		unset($sValue);
-		return $bReturn;
-	}
+    public function Is($value)
+    {
+
+        $isIterable = is_array($value);
+
+        unset($value);
+        return $isIterable;
+    }
+
 }
 
 # End of file

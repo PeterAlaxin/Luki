@@ -24,15 +24,18 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Title {
+class Title
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = mb_convert_case($sValue, MB_CASE_TITLE, 'UTF-8');
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $encoding = mb_detect_encoding($value);
+        $title = mb_convert_case($value, MB_CASE_TITLE, $encoding);
+
+        unset($value, $encoding);
+        return $title;
+    }
+
 }
 
 # End of file

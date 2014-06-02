@@ -26,50 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class LengthMin extends basicFactory {
+class LengthMin extends basicFactory
+{
 
-	public $sMessage = 'The length is less then "%min%"!';
-		
-	public $min = 0;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
-		$nLength = $this->_getLength($xValue);
+    public $min = 0;
 
-		if($nLength >= $this->min) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%min%/', $this->min, $this->sMessage);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	private function _getLength($xValue)
-	{
-		$nLength = NULL;
-		
-		if(is_string($xValue)) {
-			$nLength = strlen($xValue);
-		}
-		elseif(is_array($xValue)) {
-			$nLength = count($xValue);
-		}
-		
-		unset($xValue);
-		return $nLength;
-	}
-	
+        $this->setMessage('The length is less then "%min%"!');
+
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+        $length = $this->getValueLength($value);
+
+        if ( $length >= $this->min ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%min%/', $this->min);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+
+    public function setMin($min)
+    {
+        $this->min = (float) $min;
+
+        unset($min);
+    }
+
+    public function getMin()
+    {
+        return $this->min;
+    }
+
 }
 
 # End of file

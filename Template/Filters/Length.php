@@ -24,24 +24,26 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Length {
+class Length
+{
 
-	public function Get($sValue)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				$nReturn = strlen($sValue);
-				break;
-			case 'array':
-				$nReturn = count($sValue);
-				break;
-			default:
-				$nReturn = $sValue;
-		}
-		
-		unset($sValue);
-		return $nReturn;
-	}
+    public function Get($value)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                $length = strlen($value);
+                break;
+            case 'array':
+                $length = count($value);
+                break;
+            default:
+                $length = $value;
+        }
+
+        unset($value);
+        return $length;
+    }
+
 }
 
 # End of file

@@ -24,26 +24,28 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Escape {
+class Escape
+{
 
-	public function Get($sValue, $sStrategy = 'html', $sCharset = 'UTF-8')
-	{
-		switch($sStrategy) {
-			case 'js':
-				$sReturn = htmlspecialchars($sValue, ENT_QUOTES, $sCharset);
-				$sReturn = json_encode($sReturn);
-				break;
-			case 'url':
-				$sReturn = urlencode($sValue);
-				break;
-			case 'html':
-			default:
-				$sReturn = htmlspecialchars($sValue, ENT_QUOTES, $sCharset);
-		}
-		
-		unset($sValue, $sStrategy, $sCharset);
-		return $sReturn;
-	}
+    public function Get($value, $strategy = 'html', $charset = 'UTF-8')
+    {
+        switch ( $strategy ) {
+            case 'js':
+                $escaped = htmlspecialchars($value, ENT_QUOTES, $charset);
+                $escaped = json_encode($escaped);
+                break;
+            case 'url':
+                $escaped = urlencode($value);
+                break;
+            case 'html':
+            default:
+                $escaped = htmlspecialchars($value, ENT_QUOTES, $charset);
+        }
+
+        unset($value, $strategy, $charset);
+        return $escaped;
+    }
+
 }
 
 # End of file

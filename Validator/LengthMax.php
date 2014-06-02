@@ -26,50 +26,47 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class LengthMax extends basicFactory {
+class LengthMax extends basicFactory
+{
 
-	public $sMessage = 'The length is greater then "%max%"!';
-		
-	public $max = 0;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
-		$nLength = $this->_getLength($xValue);
+    public $max = 0;
+    
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-		if($nLength <= $this->max) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%max%/', $this->max, $this->sMessage);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
+        $this->setMessage('The length is greater then "%max%"!');
 
-	private function _getLength($xValue)
-	{
-		$nLength = NULL;
-		
-		if(is_string($xValue)) {
-			$nLength = strlen($xValue);
-		}
-		elseif(is_array($xValue)) {
-			$nLength = count($xValue);
-		}
-		
-		unset($xValue);
-		return $nLength;
-	}
-	
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+        $nLength = $this->getValueLength($value);
+
+        if ( $nLength <= $this->max ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%max%/', $this->max);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+
+    public function setMax($max)
+    {
+        $this->max = (float) $max;
+
+        unset($max);
+    }
+
+    public function getMax()
+    {
+        return $this->max;
+    }
+
 }
 
 # End of file

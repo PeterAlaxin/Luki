@@ -27,159 +27,159 @@ use Luki\Navigation\Format\basicInterface;
  * 
  * @package Luki
  */
-class Menu implements basicInterface {
+class Menu implements basicInterface
+{
 
-	private $sParentLevel = 'ul';
-	private $sParentString = '<%ParentLevel% id="%ParentID%" class="%ParentClass%">%Content%</%ParentLevel%>';
-	private $sChildLevel = 'li';
-	private $sChildString = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%</%ChildLevel%>';
-	private $sFormat = '<a href="%url%" title="%title%" class="%class% %active%" target="%target%">%label%</a>';
-	private $oNavigation = NULL;
-	private $nStart = 0;
-	private $bStarted = FALSE;
-	private $bAll = FALSE;
-	private $sID = '';
-	private $sClass = '';
-	private $aUsed = array(
-		'label',
-		'title',
-		'class',
-		'target',
-		'active'
-	);
-	private $aOptions = array(
-		'parentLevel' => 'sParentLevel',
-		'parentString' => 'sParentString',
-		'childLevel' => 'sChildLevel',
-		'childString' => 'sChildString',
-		'start' => 'nStart',
-		'format' => 'sFormat',
-		'all' => 'bAll',
-		'id' => 'sID',
-		'class' => 'sClass',
-	);
+    private $_parentLevel = 'ul';
+    private $_parentString = '<%ParentLevel% id="%ParentID%" class="%ParentClass%">%Content%</%ParentLevel%>';
+    private $_childLevel = 'li';
+    private $_childString = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%</%ChildLevel%>';
+    private $_format = '<a href="%url%" title="%title%" class="%class% %active%" target="%target%">%label%</a>';
+    private $_navigation = NULL;
+    private $_start = 0;
+    private $_isStarted = FALSE;
+    private $_isAll = FALSE;
+    private $_id = '';
+    private $_class = '';
+    private $_used = array(
+      'label',
+      'title',
+      'class',
+      'target',
+      'active'
+    );
+    private $_options = array(
+      'parentLevel' => '_parentLevel',
+      'parentString' => '_parentString',
+      'childLevel' => '_childLevel',
+      'childString' => '_childString',
+      'start' => '_start',
+      'format' => '_format',
+      'all' => '_isAll',
+      'id' => '_id',
+      'class' => '_class',
+    );
 
-	public function __construct(Navigation $oNavigation)
-	{
-		$this->oNavigation = $oNavigation;
+    public function __construct(Navigation $navigation)
+    {
+        $this->_navigation = $navigation;
 
-		unset($oNavigation);
-	}
+        unset($navigation);
+    }
 
-	public function setFormat($sFormat)
-	{
-		$this->sFormat = $sFormat;
+    public function setFormat($format)
+    {
+        $this->_format = $format;
 
-		unset($sFormat);
-		return $this;
-	}
+        unset($format);
+        return $this;
+    }
 
-	public function Format($aOptions = array())
-	{
-		$sContent = '';
+    public function Format($options = array())
+    {
+        $content = '';
 
-		if(!empty($aOptions)) {
-			$this->_setupOptions($aOptions);
-		}
+        if ( !empty($options) ) {
+            $this->_setupOptions($options);
+        }
 
-		foreach ($this->oNavigation->getNavigation() as $oItem) {
+        foreach ( $this->_navigation->getNavigation() as $item ) {
 
-			if('' == $oItem->hidden or $this->bAll) {
-				$sContent .= $this->_childLevel($oItem, $oItem->crumb);
-			}
-		}
+            if ( '' == $item->hidden or $this->_isAll ) {
+                $content .= $this->_childLevel($item, $item->crumb);
+            }
+        }
 
-		$sReturn = preg_replace('/%Content%/', $sContent, $this->_parentLevel($this->sID, $this->sClass));
+        $formatedContent = preg_replace('/%Content%/', $content, $this->_parentLevel($this->_id, $this->_class));
 
-		unset($aOptions, $sContent, $oItem);
-		return $sReturn;
-	}
+        unset($options, $content, $item);
+        return $formatedContent;
+    }
 
-	private function _setupOptions($aOptions)
-	{
+    private function _setupOptions($options)
+    {
 
-		foreach ($aOptions as $sKey => $sValue) {
-			if(!empty($this->aOptions[$sKey])) {
-				$sOptionsKey = $this->aOptions[$sKey];
-				$this->$sOptionsKey = $sValue;
-			}
-		}
+        foreach ( $options as $key => $value ) {
+            if ( !empty($this->_options[$key]) ) {
+                $optionsKey = $this->_options[$key];
+                $this->$optionsKey = $value;
+            }
+        }
 
-		unset($aOptions, $sKey, $sValue);
-	}
+        unset($options, $key, $value, $optionsKey);
+    }
 
-	private function _format($oItem, $sCrumb)
-	{
-		$sFormat = $this->sFormat;
+    private function _format($item, $crumb)
+    {
+        $format = $this->_format;
 
-		foreach ($this->aUsed as $sKey) {
-			$sFormat = preg_replace('/%' . $sKey . '%/', $oItem->$sKey, $sFormat);
-		}
+        foreach ( $this->_used as $key ) {
+            $format = preg_replace('/%' . $key . '%/', $item->$key, $format);
+        }
 
-		$sReturn = preg_replace('/%url%/', $sCrumb, $sFormat);
+        $formatedUrl = preg_replace('/%url%/', $crumb, $format);
 
-		unset($oItem, $sCrumb, $sFormat, $sKey);
-		return $sReturn;
-	}
+        unset($item, $crumb, $format, $key);
+        return $formatedUrl;
+    }
 
-	private function _childLevel($oItem, $sCrumb = '')
-	{
-		$sReturn = '';
+    private function _childLevel($item, $crumb = '')
+    {
+        $formatedChildLevel = '';
 
-		if('' != $oItem->hidden and !$this->bAll) {
-			return $sReturn;
-		}
+        if ( '' != $item->hidden and ! $this->_isAll ) {
+            return $formatedChildLevel;
+        }
 
-		if(!$this->bStarted and $this->nStart > 0) {
-			if($oItem->id == $this->nStart) {
-				$this->bStarted = TRUE;
-			}
-		}
+        if ( !$this->_isStarted and $this->_start > 0 ) {
+            if ( $item->_id == $this->_start ) {
+                $this->_isStarted = TRUE;
+            }
+        }
 
-		if(0 == $this->nStart or $this->bStarted) {
-			$sReturn = preg_replace('/%hidden%/', $oItem->hidden, $this->sChildString);
-			$sReturn = preg_replace('/%ChildLevel%/', $this->sChildLevel, $sReturn);
-			$sReturn = preg_replace('/%ChildID%/', $oItem->id, $sReturn);
-			$sReturn = preg_replace('/%ChildClass%/', $oItem->class, $sReturn);
-			$sReturn = preg_replace('/%Content%/', $this->_format($oItem, $sCrumb), $sReturn);
-		}
+        if ( 0 == $this->_start or $this->_isStarted ) {
+            $from = array('/%hidden%/', '/%ChildLevel%/', '/%ChildID%/', '/%ChildClass%/', '/%Content%/');
+            $to = array($item->hidden, $this->_childLevel, $item->_id, $item->_class, $this->_format($item, $crumb));
+            
+            $formatedChildLevel = preg_replace($from, $to, $this->_childString);
+        }
 
-		$aNavigation = $oItem->getNavigation();
+        $navigation = $item->getNavigation();
 
-		if(count($aNavigation) > 0) {
-			$sContentChild = '';
+        if ( count($navigation) > 0 ) {
+            $childContent = '';
 
-			foreach ($aNavigation as $oItemChild) {
-				$sContentChild .= $this->_childLevel($oItemChild, $sCrumb . '/' . $oItemChild->crumb);
-			}
+            foreach ( $navigation as $childItem ) {
+                $childContent .= $this->_childLevel($childItem, $crumb . '/' . $childItem->crumb);
+            }
 
-			if(0 == $this->nStart or $this->bStarted) {
-				$sReturn .= preg_replace('/%Content%/', $sContentChild, $this->_parentLevel($oItem->id, 'sub'));
-			}
-			else {
-				$sReturn .= $sContentChild;
-			}
-		}
+            if ( 0 == $this->_start or $this->_isStarted ) {
+                $formatedChildLevel .= preg_replace('/%Content%/', $childContent, $this->_parentLevel($item->_id, 'sub'));
+            } else {
+                $formatedChildLevel .= $childContent;
+            }
+        }
 
-		if($this->bStarted and $this->nStart > 0) {
-			if($oItem->id == $this->nStart) {
-				$this->bStarted = FALSE;
-			}
-		}
+        if ( $this->_isStarted and $this->_start > 0 ) {
+            if ( $item->_id == $this->_start ) {
+                $this->_isStarted = FALSE;
+            }
+        }
 
-		unset($oItem, $sCrumb, $aNavigation, $sContentChild, $oItemChild);
-		return $sReturn;
-	}
+        unset($item, $crumb, $navigation, $childContent, $childItem, $from, $to);
+        return $formatedChildLevel;
+    }
 
-	private function _parentLevel($sID = '', $sClass = '')
-	{
-		$sReturn = preg_replace('/%ParentLevel%/', $this->sParentLevel, $this->sParentString);
-		$sReturn = preg_replace('/%ParentID%/', $sID, $sReturn);
-		$sReturn = preg_replace('/%ParentClass%/', $sClass, $sReturn);
+    private function _parentLevel($id = '', $class = '')
+    {
+        $from = array('/%ParentLevel%/', '/%ParentID%/', '/%ParentClass%/');
+        $to = array($this->_parentLevel, $id, $class);
+        
+        $formatedParentLevel = preg_replace($from, $to, $this->_parentString);
 
-		unset($sID, $sClass);
-		return $sReturn;
-	}
+        unset($id, $class, $from, $to);
+        return $formatedParentLevel;
+    }
 
 }
 

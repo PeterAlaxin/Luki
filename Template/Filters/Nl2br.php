@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Nl2br {
+class Nl2br
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = nl2br($sValue, TRUE);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $nlbr = nl2br($value, TRUE);
+
+        unset($value);
+        return $nlbr;
+    }
+
 }
 
 # End of file

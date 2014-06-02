@@ -26,43 +26,37 @@ namespace Luki;
  *
  * @package Luki
  */
-class File {
+class File
+{
 
-	/**
-	 * Define mime type for file
-	 * @param string $sFileName
-	 * @return string
-	 * @assert (__FILE__) == 'text/x-php'
-	 * @assert ('abc') == NULL
-	 * @assert () == NULL
-	 */
-	public static function getMimeType($sFileName = '')
-	{
-		$sMimeType = NULL;
+    public static function getMimeType($file = '')
+    {
+        $mimeType = NULL;
 
-		if(is_file($sFileName)) {
-			$oFileInfo = new \finfo(FILEINFO_MIME_TYPE);
-			$sMimeType = $oFileInfo->file($sFileName);
-		}
+        if ( is_file($file) ) {
+            $fileInfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $fileInfo->file($file);
+        }
 
-		unset($sFileName, $oFileInfo);
-		return $sMimeType;
-	}
+        unset($file, $fileInfo);
+        return $mimeType;
+    }
 
-	public static function getFilesInDirectory($sDirectory) 
-	{
-		$aFiles = array();
-		$oDir = dir($sDirectory); 
-		
-		while(($sDir = $oDir->read()) !== false) {
-			if($sDir != '.' and $sDir != '..') {
-				$aFiles[] = $sDir; 
-			}	
-		} 
-		asort($aFiles);
-		
-		return $aFiles;
-	}
+    public static function getFilesInDirectory($directory)
+    {
+        $files = array();
+        $dir = dir($directory);
+
+        while ( ($dirName = $dir->read()) !== false ) {
+            if ( $dirName != '.' and $dirName != '..' ) {
+                $files[] = $dirName;
+            }
+        }
+        asort($files);
+
+        return $files;
+    }
+
 }
 
 # End of file

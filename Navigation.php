@@ -26,54 +26,54 @@ use Luki\Navigation\Item;
  *
  * @package Luki
  */
-class Navigation {
+class Navigation
+{
 
-	private $aNavigation = array();
+    private $_navigations = array();
 
-	public function addItem(Item $oItem)
-	{
-		$nParent = $oItem->parent;
-		
-		if(0 == $nParent) {
-			$this->aNavigation[] = $oItem;
-		}
-		else {
-			$oFoundItem = $this->getItem($nParent);
+    public function addItem(Item $item)
+    {
+        $parent = $item->parent;
 
-			if(!empty($oFoundItem)) {
-				$oFoundItem->addItem($oItem);
-			}
-		}
-		
-		return $this;
-	}
+        if ( 0 == $parent ) {
+            $this->_navigations[] = $item;
+        } else {
+            $parentItem = $this->getItem($parent);
 
-	public function getItem($nID)
-	{
-		$oFoundItem = NULL;
+            if ( !empty($parentItem) ) {
+                $parentItem->addItem($item);
+            }
+        }
 
-		foreach ($this->aNavigation as $oItem) {
-			if($nID == $oItem->id) {
-				$oFoundItem = $oItem;
-				break;
-			}
-			else {
-				$oFoundItem = $oItem->getItem($nID);
+        unset($item, $parent, $parentItem);
+        return $this;
+    }
 
-				if(!empty($oFoundItem)) {
-					break;
-				}
-			}
-		}
+    public function getItem($itemId)
+    {
+        $foundItem = NULL;
 
-		unset($nID, $oItem);
-		return $oFoundItem;
-	}
-	
-	public function getNavigation()
-	{
-		return $this->aNavigation;
-	}
+        foreach ( $this->_navigations as $item ) {
+            if ( $itemId == $item->id ) {
+                $foundItem = $item;
+                break;
+            } else {
+                $foundItem = $item->getItem($itemId);
+
+                if ( !empty($foundItem) ) {
+                    break;
+                }
+            }
+        }
+
+        unset($itemId, $item);
+        return $foundItem;
+    }
+
+    public function getNavigation()
+    {
+        return $this->_navigations;
+    }
 
 }
 

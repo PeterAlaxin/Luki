@@ -26,48 +26,40 @@ use Luki\Config\basicAdapter;
  * 
  * @package Luki
  */
-class iniAdapter extends basicAdapter {
+class iniAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $File
-	 */
-	public function __construct($File, $allowCreate = FALSE)
-	{
-        parent::__construct($File, $allowCreate);
-        
-		$this->Configuration = parse_ini_file($this->File, TRUE);
+    public function __construct($fileName, $allowCreate = FALSE)
+    {
+        parent::__construct($fileName, $allowCreate);
 
-		unset($File, $allowCreate);
-	}
+        $this->configuration = parse_ini_file($this->fileName, TRUE);
 
-	/**
-	 * Save configuration to specific file
-	 * @param array $aConfiguration Configuration
-	 * @param string $sFileName File to store configuration
-	 * @return boolean
-	 */
-	public function saveConfiguration()
-	{
+        unset($fileName, $allowCreate);
+    }
+
+    public function saveConfiguration()
+    {
         parent::saveConfiguration();
-        
-		$OutputContent = '';
-        
-		foreach ($this->Configuration as $Section => $Values) {
-			$OutputContent .= '[' . $Section . ']' . chr(10);
 
-            foreach ($Values as $sKey => $sValue) {
-				$OutputContent .= $sKey . ' = "' . $sValue . '"' . chr(10);
-			}
-			
-            $OutputContent .= chr(10);
-		}
+        $content = '';
 
-        $isSaved = $this->saveToFile($OutputContent);
+        foreach ( $this->configuration as $section => $values ) {
+            $content .= '[' . $section . ']' . chr(10);
 
-		unset($OutputContent, $Section, $Values, $sKey, $sValue);
-		return $isSaved;
-	}
+            foreach ( $values as $key => $value ) {
+                $content .= $key . ' = "' . $value . '"' . chr(10);
+            }
+
+            $content .= chr(10);
+        }
+
+        $isSaved = $this->saveToFile($content);
+
+        unset($content, $section, $values, $key, $value);
+        return $isSaved;
+    }
+
 }
 
 # End of file

@@ -24,15 +24,18 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Lower {
+class Lower
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = mb_convert_case($sValue, MB_CASE_LOWER, 'UTF-8');
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $encoding = mb_detect_encoding($value);
+        $lower = mb_convert_case($value, MB_CASE_LOWER, $encoding);
+
+        unset($value, $encoding);
+        return $lower;
+    }
+
 }
 
 # End of file

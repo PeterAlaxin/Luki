@@ -24,27 +24,28 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Convertencoding {
+class Convertencoding
+{
 
-	protected $aList = array();
-	
-	public function __construct()
-	{
-		$this->aList = mb_list_encodings();
-	}
-	
-	public function Get($sValue, $sFrom='UTF-8', $sTo='ISO-8859-1')
-	{
-		if(in_array($sFrom, $this->aList) and in_array($sTo, $this->aList)) {
-			$sReturn = mb_convert_encoding($sValue, $sTo, $sFrom);
-		}
-		else {
-			$sReturn = $sValue;
-		}
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    protected $_list = array();
+
+    public function __construct()
+    {
+        $this->_list = mb_list_encodings();
+    }
+
+    public function Get($value, $from = 'UTF-8', $to = 'ISO-8859-1')
+    {
+        if ( in_array($from, $this->_list) and in_array($to, $this->_list) ) {
+            $converted = mb_convert_encoding($value, $to, $from);
+        } else {
+            $converted = $value;
+        }
+
+        unset($value);
+        return $converted;
+    }
+
 }
 
 # End of file

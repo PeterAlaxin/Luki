@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Digit extends basicFactory {
+class Digit extends basicFactory
+{
 
-	public $sValidator = '/^[0-9]*$/';
-	
-	public $sMessage = 'The value "%value%" contains characters other than numbers!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+        
+        $validator = '/^[' . self::NUM . ']*$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" contains characters other than numbers!');
+        
+        unset($options, $validator);
+    }
 
 }
 

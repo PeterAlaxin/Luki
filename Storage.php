@@ -26,84 +26,60 @@ namespace Luki;
  *
  * @package Luki
  */
-class Storage {
+class Storage
+{
 
-	/**
-	 * Flag for installed storage
-	 *
-	 * @access private
-	 */
-	private static $_storage = array();
+    private static $_storage = array();
 
-	/**
-	 * Set data to storage
-	 *
-	 * @param string $sName Variable name
-	 * @param mixed $xValue Variable value
-	 * @uses Storage::_Init() Initialization storage
-	 */
-	public static function Set($sName, $xValue = '')
-	{
-		$bReturn = FALSE;
+    public static function Set($name, $value = '')
+    {
+        $isSet = FALSE;
 
-		if(is_string($sName)) {
-			self::$_storage[$sName] = $xValue;
-			$bReturn = TRUE;
-		}
+        if ( is_string($name) ) {
+            self::$_storage[$name] = $value;
+            $isSet = TRUE;
+        }
 
-		unset($sName, $xValue);
-		return $bReturn;
-	}
+        unset($name, $value);
+        return $isSet;
+    }
 
-	/**
-	 * Get data from storage
-	 *
-	 * @param string $sName Variable name
-	 * @return mixed Variable value
-	 * @uses Storage::isSaved() Check if variable defined
-	 */
-	public static function Get($sName)
-	{
-		$xReturn = NULL;
+    public static function Get($name)
+    {
+        $value = NULL;
 
-		if(self::isSaved($sName)) {
-			$xReturn = self::$_storage[$sName];
-		}
+        if ( self::isSaved($name) ) {
+            $value = self::$_storage[$name];
+        }
 
-		unset($sName);
-		return $xReturn;
-	}
+        unset($name);
+        return $value;
+    }
 
-	/**
-	 * Check if variable saved
-	 *
-	 * @param string $sName Variable name
-	 */
-	public static function isSaved($sName)
-	{
-		$bReturn = FALSE;
+    public static function isSaved($name)
+    {
+        $isFound = FALSE;
 
-		if(is_string($sName) and isset(self::$_storage[$sName])) {
-			$bReturn = TRUE;
-		}
+        if ( is_string($name) and isset(self::$_storage[$name]) ) {
+            $isFound = TRUE;
+        }
 
-		unset($sName);
-		return $bReturn;
-	}
-    
-     public static function __callStatic($sMethod, $aArguments)
-     {
-         if('is' == substr($sMethod, 0, 2)) {
-             $sVariable = substr($sMethod, 2);
-             $xReturn = self::isSaved($sVariable);
-         }
-         else {
-             $xReturn = self::Get($sMethod);             
-         }
-         
-         unset($sMethod, $aArguments, $sVariable);
-         return $xReturn;
-     }
+        unset($name);
+        return $isFound;
+    }
+
+    public static function __callStatic($method, $arguments)
+    {
+        if ( 'is' == substr($method, 0, 2) ) {
+            $variable = substr($method, 2);
+            $value = self::isSaved($variable);
+        } else {
+            $value = self::Get($method);
+        }
+
+        unset($method, $arguments, $variable);
+        return $value;
+    }
 
 }
 

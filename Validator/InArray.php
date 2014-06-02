@@ -26,41 +26,55 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class InArray extends basicFactory {
+class InArray extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" is not in the test array!';
-		
-	public $aValues = array();
-	
-	public function __construct($aOptions)
-	{
-		$this->aValues = $aOptions;
-		
-		unset($aOptions);
-	}
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public $values = array();
 
-		if(in_array($xValue, $this->aValues)) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
-	
+    public function __construct($options)
+    {
+        parent::__construct($options);
+        
+        $this->setMessage('The value "%value%" is not in the test array!');
+        
+        unset($options);
+    }
+
+
+
+    /**
+     * Validation
+     * 
+     * @param mixed $value 
+     * @return bool
+     */
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( in_array($value, $this->values) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+    
+    public function setValues($values)
+    {
+        $this->values = (array) $values;
+
+        unset($values);
+    }
+
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+
 }
 
 # End of file

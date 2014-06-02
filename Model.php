@@ -29,80 +29,83 @@ use Luki\Url;
  *
  * @package Luki
  */
-abstract class Model {
-	
-	public $aData = array();
-	
-	public function addData($sName, basicInterface $oDataAdapter)
-	{
-		$this->aData[$sName] = new Data($oDataAdapter);
-		
-		unset($sName, $oDataAdapter);
-		return $this;
-	}
-	
-	public function getData($sName)
-	{
-		$oReturn = NULL;
-		
-		if(isset($this->aData[$sName])) {
-			$oReturn = $this->aData[$sName];
-		}
-		
-		unset($sName);
-		return $oReturn;
-	}
-	
-	public function getAdapter($aOptions) 
-	{
-		$oAdapter = FALSE;
+abstract class Model
+{
 
-		if(!empty($aOptions['adapter'])) {
-			$sAdapterName = $aOptions['adapter'] . 'Adapter';		
-			$oAdapter = new $sAdapterName($aOptions);
-		}
-		
-		return $oAdapter;
-	}
+    public $data = array();
 
-    public function getFromCache($sName='') 
+    public function addData($name, basicInterface $dataAdapter)
     {
-        $xCache = FALSE;
-        
-        if(Storage::isCache() and Storage::Cache()->isUsedCache()) {            
-            $sName = $this->_getCacheName($sName);        
-            $xCache = Storage::Cache()->Get($sName);
-        }
-        
-        unset($sName);
-        return $xCache;
-    }
-    
-    public function setToCache($sContent, $sName='', $nExpiration=3600)
-    {
-        if(Storage::isCache()) {
-            $sName = $this->_getCacheName($sName);
-            Storage::Cache()->Set($sName, $sContent, $nExpiration);
-        }
-        
-        unset($sContent, $sName, $nExpiration);
-    }
-    
-    private function _getCacheName($sName)
-    {
-        $aCallers = debug_backtrace();
-        $sNewName = $aCallers[2]['class'] . '_' . $aCallers[2]['function'];
+        $this->data[$name] = new Data($dataAdapter);
 
-        if(!empty($sName)) {
-            $sNewName .= '_' . $sName;
-        }
-        elseif(!empty($aCallers[2]['args'])) {
-            $sNewName .= '_' . Url::makeLink(implode('_', $aCallers[2]['args']), FALSE);
-        }
-        
-        unset($aCallers, $sName);
-        return $sNewName;
+        unset($name, $dataAdapter);
+        return $this;
     }
+
+    public function getData($name)
+    {
+        $dataAdapter = NULL;
+
+        if ( isset($this->data[$name]) ) {
+            $dataAdapter = $this->data[$name];
+        }
+
+        unset($name);
+        return $dataAdapter;
+    }
+
+    public function getAdapter($options)
+    {
+        $dataAdapter = FALSE;
+
+        if ( !empty($options['adapter']) ) {
+            $adapterName = $options['adapter'] . 'Adapter';
+            $dataAdapter = new $adapterName($options);
+        }
+
+        unset($options, $adapterName);
+        return $dataAdapter;
+    }
+
+    public function getFromCache($name = '')
+    {
+        $cache = FALSE;
+
+        if ( Storage::isCache() and Storage::Cache()->isUsedCache() ) {
+            $name = $this->_getCacheName($name);
+            $cache = Storage::Cache()->Get($name);
+        }
+
+        unset($name);
+        return $cache;
+    }
+
+    public function setToCache($content, $name = '', $expiration = 3600)
+    {
+        if ( Storage::isCache() ) {
+            $name = $this->_getCacheName($name);
+            Storage::Cache()->Set($name, $content, $expiration);
+        }
+
+        unset($content, $name, $expiration);
+        return $this;
+    }
+
+    private function _getCacheName($name)
+    {
+        $callers = debug_backtrace();
+        $newName = $callers[2]['class'] . '_' . $callers[2]['function'];
+
+        if ( !empty($name) ) {
+            $newName .= '_' . $name;
+        } elseif ( !empty($callers[2]['args']) ) {
+            $newName .= '_' . Url::makeLink(implode('_', $callers[2]['args']), FALSE);
+        }
+
+        unset($callers, $name);
+        return $newName;
+    }
+
 }
 
 # End of file

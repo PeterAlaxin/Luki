@@ -24,23 +24,24 @@ namespace Luki\Config;
  * 
  * @package Luki
  */
-interface basicInterface {
+interface basicInterface
+{
 
-	public function __construct($File, $allowCreate);
+    public function __construct($fileName, $allowCreate);
 
-	public function setFilename($File);
+    public function setFilename($fileName);
 
-	public function getFilename();
-    
-	public function getSections();
+    public function getFilename();
 
-	public function setConfiguration($aConfiguration);
+    public function getSections();
 
-	public function getConfiguration();
+    public function setConfiguration($configuration);
 
-	public function saveConfiguration();
-    
-    public function createConfigFile($File, $allowCreate);
+    public function getConfiguration();
+
+    public function saveConfiguration();
+
+    public function createConfigFile($fileName, $allowCreate);
 }
 
 # End of file

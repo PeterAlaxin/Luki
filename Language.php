@@ -26,162 +26,161 @@ use Luki\Config;
  *
  * @package Luki
  */
-class Language {
+class Language
+{
 
-	private $sLanguagesPath = NULL;
-	private $aLanguages = array();
+    private $_languagesPath = NULL;
+    private $_languages = array();
 
-	public function __construct($sName, $sFile)
-	{
-		$this->sLanguagesPath = dirname($sFile);
+    public function __construct($name, $file)
+    {
+        $this->_languagesPath = dirname($file);
+        $this->addToLanguages($name, $file);
 
-		$this->addToLanguages($sName, $sFile);
+        unset($name, $file);
+    }
 
-		unset($sName, $sFile);
-	}
+    public function Get($text, $key = '', $sectionName = '')
+    {
+        $translation = NULL;
 
-	public function Get($sText, $sName = '', $sSection = '')
-	{
-		$sTranslation = NULL;
+        if ( !empty($key) ) {
+            $translation = $this->_languages[$key]->getValue($text, $sectionName);
+        } else {
+            foreach ( $this->_languages as $language ) {
+                $translation = $language->getValue($text, $sectionName);
 
-		if(!empty($sName)) {
-			$sTranslation = $this->aLanguages[$sName]->getValue($sText, $sSection);
-		}
-		else {
-			foreach ($this->aLanguages as $oLanguage) {
-				$sTranslation = $oLanguage->getValue($sText, $sSection);
+                if ( !empty($translation) ) {
+                    break;
+                }
+            }
+        }
 
-				if(!empty($sTranslation)) {
-					break;
-				}
-			}
-		}
+        unset($text, $key, $sectionName, $language);
+        return $translation;
+    }
 
-		unset($sText, $sName, $sSection, $oLanguage);
-		return $sTranslation;
-	}
+    public function Find($text)
+    {
+        $translation = NULL;
 
-	public function Find($sText)
-	{
-		$sTranslation = NULL;
+        foreach ( $this->_languages as $language ) {
+            $sections = $language->getSections();
 
-		foreach ($this->aLanguages as $oLanguage) {
-			$aSections = $oLanguage->getSections();
+            foreach ( $sections as $section ) {
+                $translation = $language->getValue($text, $section);
 
-			foreach ($aSections as $sSection) {
-				$sTranslation = $oLanguage->getValue($sText, $sSection);
+                if ( !empty($translation) ) {
+                    break;
+                }
+            }
 
-				if(!empty($sTranslation)) {
-					break;
-				}
-			}
+            if ( !empty($translation) ) {
+                break;
+            }
+        }
 
-			if(!empty($sTranslation)) {
-				break;
-			}
-		}
+        unset($text, $language, $sections, $section);
+        return $translation;
+    }
 
-		unset($sText, $oLanguage, $aSections, $sSection);
-		return $sTranslation;
-	}
+    public function addToLanguages($name, $file)
+    {
+        $adapterName = Config::findAdapter($file);
 
-	public function addToLanguages($sName, $sFile)
-	{
-        $sAdapter = Config::findAdapter($sFile);
+        if ( is_file($file) ) {
+            $adapter = new $adapterName($file);
+        } elseif ( is_file($this->_languagesPath . PATH_SEPARATOR . $file) ) {
+            $adapter = new $adapterName($this->_languagesPath . PATH_SEPARATOR . $file);
+        }
+
+        $this->_languages[$name] = new Config($adapter);
+
+        unset($name, $file);
+        return $this;
+    }
+
+    public function getSection($name, $sectionName = '')
+    {
+        $section = $this->_languages[$name]->getSection($sectionName);
+
+        unset($name, $sectionName);
+        return $section;
+    }
+
+    public function setSection($name, $sectionName)
+    {
+        $isSet = $this->_languages[$name]->setDefaultSection($sectionName);
+
+        unset($name, $sectionName);
+        return $isSet;
+    }
+
+    public function getSections($sectionName)
+    {
+        $sections = $this->_languages[$sectionName]->getSections();
+
+        unset($sectionName);
+        return $sections;
+    }
+
+    public function getPath()
+    {
+        return $this->_languagesPath;
+    }
+
+    public function setPath($newPath)
+    {
+        $oldPath = $this->_languagesPath;
+
+        if ( is_dir($newPath) ) {
+            $this->_languagesPath = $newPath;
+        } else {
+            $oldPath = FALSE;
+        }
+
+        unset($newPath);
+        return $oldPath;
+    }
+
+    public static function getPreferdLanguage()
+    {
+        $languages = self::getAllowedLanguages();
+
+        foreach ( $languages as $prefered => $version ) {
+            if ( !empty($prefered) ) {
+                break;
+            }
+        }
+
+        unset($languages, $version);
+        return $prefered;
+    }
+
+    public static function getAllowedLanguages()
+    {
+        $languages = array();
+        $acceptLanguages = filter_input(INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE');
         
-		if(is_file($sFile)) {
-            $oAdapter = new $sAdapter($sFile);
-		}
-		elseif(is_file($this->sLanguagesPath . PATH_SEPARATOR . $sFile)) {
-            $oAdapter = new $sAdapter($this->sLanguagesPath . PATH_SEPARATOR . $sFile);
-		}
+        if ( isset($acceptLanguages) ) {
+            preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $acceptLanguages, $parsed);
 
-        $this->aLanguages[$sName] = new Config($oAdapter);
+            if ( !empty($parsed[1]) and ! empty($parsed[4]) ) {
+                $languages = array_combine($parsed[1], $parsed[4]);
 
-		unset($sName, $sFile);
-	}
+                foreach ( $languages as $language => $version ) {
+                    if ( empty($version) or ' ' == $version ) {
+                        $languages[$language] = '1.0';
+                    }
+                }
 
-	public function getSection($sName, $sSection = '')
-	{
-		$aSection = $this->aLanguages[$sName]->getSection($sSection);
+                arsort($languages, SORT_NUMERIC);
+            }
+        }
 
-		unset($sName, $sSection);
-		return $aSection;
-	}
-
-	public function setSection($sName, $sSection)
-	{
-		$bReturn = $this->aLanguages[$sName]->setDefaultSection($sSection);
-
-		unset($sName, $sSection);
-		return $bReturn;
-	}
-
-	public function getSections($sName)
-	{
-		$aSections = $this->aLanguages[$sName]->getSections();
-
-		unset($sName);
-		return $aSections;
-	}
-
-	public function getPath()
-	{
-		return $this->sLanguagesPath;
-	}
-
-	public function setPath($sPath)
-	{
-		$sOldPath = $this->sLanguagesPath;
-
-		if(is_dir($sPath)) {
-			$this->sLanguagesPath = $sPath;
-		}
-		else {
-			$sOldPath = FALSE;
-		}
-
-		unset($sPath);
-		return $sOldPath;
-	}
-
-	public static function getPreferdLanguage()
-	{
-		$aLanguages = self::getAllowedLanguages();
-
-		foreach ($aLanguages as $sPrefered => $sVersion) {
-			if(!empty($sPrefered)) {
-				break;
-			}
-		}
-
-		unset($aLanguages, $sVersion);
-		return $sPrefered;
-	}
-
-	public static function getAllowedLanguages()
-	{
-		$aLangs = array();
-
-		if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $aParsed);
-
-			if(!empty($aParsed[1]) and !empty($aParsed[4])) {
-				$aLangs = array_combine($aParsed[1], $aParsed[4]);
-
-				foreach ($aLangs as $sLanguage => $sVersion) {
-					if(empty($sVersion) or ' ' == $sVersion) {
-						$aLangs[$sLanguage] = '1.0';
-					}
-				}
-
-				arsort($aLangs, SORT_NUMERIC);
-			}
-		}
-
-		unset($aParsed, $sLanguage, $sVersion);
-		return $aLangs;
-	}
+        unset($parsed, $language, $version, $acceptLanguages);
+        return $languages;
+    }
 
 }
 

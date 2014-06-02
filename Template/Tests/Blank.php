@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Blank {
+class Blank
+{
 
-	public function Is($sValue)
-	{
-		
-		$bReturn = empty($sValue);
-		
-		unset($sValue);
-		return $bReturn;
-	}
+    public function Is($value)
+    {
+
+        $isBlank = empty($value);
+
+        unset($value);
+        return $isBlank;
+    }
+
 }
 
 # End of file

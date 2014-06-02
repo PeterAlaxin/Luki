@@ -24,15 +24,17 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Raw {
+class Raw
+{
 
-	public function Get($sValue)
-	{
-		$sReturn = rawurlencode($sValue);
-		
-		unset($sValue);
-		return $sReturn;
-	}
+    public function Get($value)
+    {
+        $raw = rawurlencode($value);
+
+        unset($value);
+        return $raw;
+    }
+
 }
 
 # End of file

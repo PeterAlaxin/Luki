@@ -26,41 +26,46 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class InString extends basicFactory {
+class InString extends basicFactory
+{
 
-	public $sMessage = 'The value "%value%" is not in the test string!';
-		
-	public $sString = array();
-	
-	public function __construct($aOptions)
-	{
-		$this->sString = $aOptions;
-		
-		unset($aOptions);
-	}
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+    public $string = '';
 
-		if(1 == preg_match('/' . (string)$xValue . '/i', $this->sString)) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
-	
+    public function __construct($options)
+    {
+        parent::__construct($options);
+
+        $this->setMessage('The value "%value%" is not in the test string!');
+        
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( 1 == preg_match('/' . (string) $value . '/i', $this->string) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
+
+    public function setString($string)
+    {
+        $this->string = (string) $string;
+
+        unset($string);
+    }
+
+    public function getString()
+    {
+        return $this->string;
+    }
+
 }
 
 # End of file

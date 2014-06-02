@@ -24,16 +24,18 @@ namespace Luki\Template\Tests;
  * 
  * @package Luki
  */
-class Even {
+class Even
+{
 
-	public function Is($nValue)
-	{
-		
-		$bReturn = (floor($nValue/2) == ($nValue/2));
-		
-		unset($nValue);
-		return $bReturn;
-	}
+    public function Is($value)
+    {
+
+        $isEven = (floor($value / 2) == ($value / 2));
+
+        unset($value);
+        return $isEven;
+    }
+
 }
 
 # End of file

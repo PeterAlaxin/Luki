@@ -26,53 +26,62 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class LengthBetween extends basicFactory {
+class LengthBetween extends basicFactory
+{
 
-	public $sMessage = 'The length is not between "%min%" and "%max%"!';
-		
-	public $min = 0;
-	
-	public $max = 0;
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
-		$nLength = $this->_getLength($xValue);
+    public $min = 0;
+    public $max = 0;
 
-		if($nLength >= $this->min and $nLength <= $this->max) {
-			$this->sError = '';
-			$bReturn = TRUE;	
-		}
-		else {
-			$this->sError = preg_replace('/%min%/', $this->min, $this->sMessage);
-			$this->sError = preg_replace('/%max%/', $this->max, $this->sError);
-		}
-				
-		unset($xValue);
-		return $bReturn;
-	}
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	private function _getLength($xValue)
-	{
-		$nLength = NULL;
-		
-		if(is_string($xValue)) {
-			$nLength = strlen($xValue);
-		}
-		elseif(is_array($xValue)) {
-			$nLength = count($xValue);
-		}
-		
-		unset($xValue);
-		return $nLength;
-	}
-	
+        $this->setMessage('The length is not between "%min%" and "%max%"!');
+
+        unset($options);
+    }
+
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+        $lenght = $this->getValueLength($value);
+
+        if ( $lenght >= $this->min and $lenght <= $this->max ) {
+            $this->setNoError();
+        } else {
+            $from = array( '/%min%/', '/%max%/' );
+            $to = array( $this->min, $this->max );
+            $this->fillMessage($from, $to);
+        }
+
+        unset($value, $from, $to);
+        return $this->isValid;
+    }
+
+    public function setMin($min)
+    {
+        $this->min = (float) $min;
+
+        unset($min);
+    }
+
+    public function getMin()
+    {
+        return $this->min;
+    }
+
+    public function setMax($max)
+    {
+        $this->max = (float) $max;
+
+        unset($max);
+    }
+
+    public function getMax()
+    {
+        return $this->max;
+    }
+
 }
 
 # End of file

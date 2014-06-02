@@ -24,51 +24,52 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Split {
+class Split
+{
 
-	public function Get($sValue, $sSeparator = '', $nLimit = 0)
-	{
-		switch(gettype($sValue)) {
-			case 'string':
-				if(empty($sSeparator)) {
-					$aValue = preg_split("//u", $sValue, NULL, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-					
-					if($nLimit > 0) {
-						$aNewValue = array();
-						$nCount = 0;
-						$sItem = ''; 
+    public function Get($value, $separator = '', $limit = 0)
+    {
+        switch ( gettype($value) ) {
+            case 'string':
+                if ( empty($separator) ) {
+                    $values = preg_split("//u", $value, NULL, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 
-						foreach($aValue as $sValue) {
-							$sItem .= $sValue;
-							$nCount++;
-						
-							if($nCount == $nLimit) {
-								$nCount = 0;
-								$aNewValue[] = $sItem;
-								$sItem = '';
-							}
-						}
-						
-						if(!empty($sItem)) {
-							$aNewValue[] = $sItem;							
-						}
-						
-						$aValue = $aNewValue;
-					}
-				}
-				else {
-					$aValue = preg_split("/" . $sSeparator . "/u", $sValue, $nLimit, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-				}
+                    if ( $limit > 0 ) {
+                        $newValue = array();
+                        $count = 0;
+                        $item = '';
 
-				$sReturn = $aValue;
-				break;
-			default:
-				$sReturn = $sValue;
-		}
-		
-		unset($sValue, $aValue);
-		return $sReturn;
-	}
+                        foreach ( $values as $value ) {
+                            $item .= $value;
+                            $count++;
+
+                            if ( $count == $limit ) {
+                                $count = 0;
+                                $newValue[] = $item;
+                                $item = '';
+                            }
+                        }
+
+                        if ( !empty($item) ) {
+                            $newValue[] = $item;
+                        }
+
+                        $values = $newValue;
+                    }
+                } else {
+                    $values = preg_split("/" . $separator . "/u", $value, $limit, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                }
+
+                $split = $values;
+                break;
+            default:
+                $split = $value;
+        }
+
+        unset($value, $values);
+        return $split;
+    }
+
 }
 
 # End of file

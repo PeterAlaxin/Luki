@@ -26,46 +26,47 @@ use Luki\Cache\basicInterface;
  * 
  * @package Luki
  */
-class memoryAdapter implements basicInterface {
+class memoryAdapter implements basicInterface
+{
 
-	private $oMemcache;
+    private $_memcache;
 
-	public function __construct($Options = array())
-	{
-		if(empty($Options) or !is_array($Options)) {
-			$Options = array(
-				'server' => 'localhost',
-				'port' => '11211');
-		}
-		$this->oMemcache = new \Memcache;
-		$this->oMemcache->connect($Options['server'], $Options['port']);
+    public function __construct($options = array())
+    {
+        if ( empty($options) or ! is_array($options) ) {
+            $options = array(
+              'server' => 'localhost',
+              'port' => '11211' );
+        }
+        $this->_memcache = new \Memcache;
+        $this->_memcache->connect($options['server'], $options['port']);
 
-		unset($Options);
-	}
+        unset($options);
+    }
 
-	public function Set($Key, $Value = '', $ExpirationInSeconds = 0)
-	{
-		$isSet = $this->oMemcache->set($Key, serialize($Value), MEMCACHE_COMPRESSED, $ExpirationInSeconds);
+    public function Set($key, $value = '', $expirationInSeconds = 0)
+    {
+        $isSet = $this->_memcache->set($key, serialize($value), MEMCACHE_COMPRESSED, $expirationInSeconds);
 
-		unset($Key, $Value, $ExpirationInSeconds);
-		return $isSet;
-	}
+        unset($key, $value, $expirationInSeconds);
+        return $isSet;
+    }
 
-	public function Get($Key)
-	{
-		$sValue = unserialize($this->oMemcache->get($Key, MEMCACHE_COMPRESSED));
+    public function Get($key)
+    {
+        $value = unserialize($this->_memcache->get($key, MEMCACHE_COMPRESSED));
 
-		unset($Key);
-		return $sValue;
-	}
+        unset($key);
+        return $value;
+    }
 
-	public function Delete($Key)
-	{
-		$isDeleted = $this->oMemcache->delete($Key);
+    public function Delete($key)
+    {
+        $isDeleted = $this->_memcache->delete($key);
 
-		unset($Key);
-		return $isDeleted;
-	}
+        unset($key);
+        return $isDeleted;
+    }
 
 }
 

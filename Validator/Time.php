@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Time extends basicFactory {
+class Time extends basicFactory
+{
 
-	public $sValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
-	
-	public $sMessage = 'The value "%value%" is not valid time!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+
+        $validator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" is not valid time!');
+
+        unset($options, $validator);
+    }
 
 }
 

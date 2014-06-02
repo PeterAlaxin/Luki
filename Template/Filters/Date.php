@@ -24,29 +24,30 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Date {
+class Date
+{
 
-	public function Get($dValue, $sFormat = '%d.%m.%Y', $sTimezone = '')
-	{
-        if(empty($sTimezone)) {
-            $sTimezone = date_default_timezone_get();
+    public function Get($value, $format = '%d.%m.%Y', $timeZoneName = '')
+    {
+        if ( empty($timeZoneName) ) {
+            $timeZoneName = date_default_timezone_get();
         }
-        
-		$oTimezone = new \DateTimeZone($sTimezone);
-		
-		if(is_a($dValue, 'DateTime')) {
-			$oDate = $dValue;
-			$oDate->setTimezone($oTimezone);
-		}
-		else {
-			$oDate = new \DateTime($dValue, $oTimezone);
-		}
-		
-		$dReturn = strftime($sFormat, $oDate->getTimestamp());
-        
-		unset($dValue, $sFormat, $sTimezone, $oDate, $oTimezone);
-		return $dReturn;
-	}
+
+        $timeZone = new \DateTimeZone($timeZoneName);
+
+        if ( is_a($value, 'DateTime') ) {
+            $date = $value;
+            $date->setTimezone($timeZone);
+        } else {
+            $date = new \DateTime($value, $timeZone);
+        }
+
+        $formatedDate = strftime($format, $date->getTimestamp());
+
+        unset($value, $format, $timeZoneName, $date, $timeZone);
+        return $formatedDate;
+    }
+
 }
 
 # End of file

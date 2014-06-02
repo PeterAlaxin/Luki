@@ -24,17 +24,19 @@ namespace Luki\Template\Filters;
  * 
  * @package Luki
  */
-class Replace {
+class Replace
+{
 
-	public function Get($sValue, $aParameters)
-	{
-        foreach($aParameters as $sFrom => $sTo) {
-            $sValue = str_replace($sFrom, $sTo, $sValue);
+    public function Get($value, $parameters)
+    {
+        foreach ( $parameters as $from => $to ) {
+            $value = str_replace($from, $to, $value);
         }
 
-        unset($aParameters, $sFrom, $sTo);
-        return $sValue;
-	}
+        unset($parameters, $from, $to);
+        return $value;
+    }
+
 }
 
 # End of file

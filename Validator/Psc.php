@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Psc extends basicFactory {
+class Psc extends basicFactory
+{
 
-	public $sValidator = '/^[0-9]{3}[ ]?[0-9]{2}$/';
-	
-	public $sMessage = 'The value "%value%" is not valid PSC!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+
+        $validator = '/^[0-9]{3}[ ]?[0-9]{2}$/';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" is not valid PSC!');
+
+        unset($options, $validator);
+    }
 
 }
 

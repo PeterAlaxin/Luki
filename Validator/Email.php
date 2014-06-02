@@ -26,11 +26,19 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class Email extends basicFactory {
+class Email extends basicFactory
+{
 
-	public $sValidator = '/^([a-z0-9\+\._\/&!][-a-z0-9\+\._\/&!]*)@(([a-z0-9][-a-z0-9]*\.)([-a-z0-9]+\.)*[a-z]{2,})$/i';
-	
-	public $sMessage = 'The value "%value%" is not valid e-mail address!';
+    public function __construct($options)
+    {
+        parent::__construct($options);
+
+        $validator = '/^([a-z0-9\+\._\/&!][-a-z0-9\+\._\/&!]*)@(([a-z0-9][-a-z0-9]*\.)([-a-z0-9]+\.)*[a-z]{2,})$/i';
+        $this->setValidator($validator);
+        $this->setMessage('The value "%value%" is not valid e-mail address!');
+
+        unset($options, $validator);
+    }
 
 }
 

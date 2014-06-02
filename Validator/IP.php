@@ -26,32 +26,31 @@ use Luki\Validator\basicFactory;
  * 
  * @package Luki
  */
-class IP extends basicFactory {
+class IP extends basicFactory
+{
+    public function __construct($options)
+    {
+        parent::__construct($options);
 
-	public $sMessage = 'The value "%value%" is not valid IPv4 or IPv6 address!';
-	
-	/**
-	 * Validation
-	 * 
-	 * @param mixed $xValue 
-	 * @return bool
-	 */
-	public function isValid($xValue)
-	{
-		$bReturn = FALSE;
+        $this->setMessage('The value "%value%" is not valid IPv4 or IPv6 address!');
 
-		if(FALSE !== filter_var($xValue, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) or 
-		   FALSE !== filter_var($xValue, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-			$this->sError = '';
-			$bReturn = TRUE;
-		}
-		else {
-			$this->sError = preg_replace('/%value%/', $xValue, $this->sMessage);
-		}
+        unset($options);
+    }
 
-		unset($xValue);
-		return $bReturn;
-	}
+    public function isValid($value)
+    {
+        $this->isValid = FALSE;
+
+        if ( FALSE !== filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) or
+                FALSE !== filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        unset($value);
+        return $this->isValid;
+    }
 
 }
 

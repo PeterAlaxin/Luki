@@ -24,120 +24,94 @@ namespace Luki\Data\MySQL;
  *
  * @package Luki
  */
-class Result implements \Iterator {
+class Result implements \Iterator
+{
 
-	/**
-	 * Position
-	 * @var integer
-	 */
-	public $nPosition = 0;
+    public $position = 0;
+    public $result = NULL;
+    public $row = NULL;
+    public $numberOfRecords = 0;
 
-	/**
-	 * Result
-	 * @var object
-	 */
-	public $oResult = NULL;
+    public function rewind()
+    {
+        $this->position = 0;
+        $this->_setRecord();
 
-	/**
-	 * Row data
-	 * @var array
-	 */
-	public $aRow = NULL;
+        return $this;
+    }
 
-	/**
-	 * Records count
-	 * @var integer
-	 */
-	public $nRecords = 0;
+    public function current()
+    {
+        return $this->row;
+    }
 
-	public function rewind()
-	{
-		$this->nPosition = 0;
-		$this->_setRecord();
-		
-		return $this;
-	}
+    public function key()
+    {
+        return $this->position;
+    }
 
-	public function current()
-	{
-		return $this->aRow;
-	}
+    public function next()
+    {
+        $this->position++;
+        $this->_setRecord();
 
-	public function key()
-	{
-		return $this->nPosition;
-	}
+        return $this;
+    }
 
-	public function next()
-	{
-		$this->nPosition++;
-		$this->_setRecord();
-		
-		return $this;
-	}
+    public function valid()
+    {
+        return (boolean) $this->row;
+    }
 
-	public function valid()
-	{
-		return (boolean)$this->aRow;
-	}
+    public function first()
+    {
+        $this->position = 0;
+        $this->_setRecord();
 
-	public function first()
-	{
-		$this->nPosition = 0;
-		$this->_setRecord();
-		
-		return $this;
-	}
+        return $this;
+    }
 
-	public function last()
-	{
-		$this->nPosition = $this->nRecords - 1;
-		$this->_setRecord();
-		
-		return $this;
-	}
+    public function last()
+    {
+        $this->position = $this->numberOfRecords - 1;
+        $this->_setRecord();
 
-	public function getRecordsCount()
-	{
-		return $this->nRecords;
-	}
+        return $this;
+    }
 
-	public function Get($sKey)
-	{
-		$xReturn = NULL;
-		if(isset($this->aRow[$sKey])) {
-			$xReturn = $this->aRow[$sKey];
-		}
+    public function getNumberOfRecords()
+    {
+        return $this->numberOfRecords;
+    }
 
-		unset($sKey);
-		return $xReturn;
-	}
-	
-	/**
-	 * Get all rows
-	 */
-	public function getAllRows()
-	{
-		$aAllRows = array();
+    public function Get($key)
+    {
+        $value = NULL;
+        if ( isset($this->row[$key]) ) {
+            $value = $this->row[$key];
+        }
 
-		foreach($this as $aRow) {
-			$aAllRows[] = $aRow;
-		}
+        unset($key);
+        return $value;
+    }
 
-		unset($aRow);
-		return $aAllRows;
-	}
-	
-	/**
-	 * Get one row
-	 *
-	 * @return array
-	 */
-	public function getRow()
-	{
-		return $this->aRow;
-	}
-	
+    public function getAllRows()
+    {
+        $allRows = array();
+
+        foreach ( $this as $row ) {
+            $allRows[] = $row;
+        }
+
+        unset($row);
+        return $allRows;
+    }
+
+    public function getRow()
+    {
+        return $this->row;
+    }
+
 }
 
 # End of file

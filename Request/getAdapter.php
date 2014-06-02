@@ -26,16 +26,13 @@ use Luki\Request\basicAdapter;
  * 
  * @package Luki
  */
-class getAdapter extends basicAdapter {
+class getAdapter extends basicAdapter
+{
 
-	/**
-	 * Constructor
-	 * @param type $sFileName
-	 */
-	public function __construct()
-	{
+    public function __construct()
+    {
         $this->saveInputs($_GET);
-	}
+    }
 
 }
 
