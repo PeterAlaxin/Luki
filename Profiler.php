@@ -52,7 +52,7 @@ class Profiler
             $memory = memory_get_usage();
 
             $this->_startProfiler();
-            $this->_insideCell('Page time', $this->changeSecToMs($time . ' ms'));
+            $this->_insideCell('Page time', $this->changeSecToMs($time) . ' ms');
             $this->_showMemory($memory);
             $this->_showSession();
             $this->_showTemplate();
