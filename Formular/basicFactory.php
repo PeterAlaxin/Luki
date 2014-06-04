@@ -147,13 +147,16 @@ abstract class basicFactory implements basicInterface
     {
         $this->_required = TRUE;
         $this->_attributes['required'] = 'required';
+        
+        return $this;
     }
 
-    public function setplaceholder($placeholder)
+    public function setPlaceholder($placeholder)
     {
         $this->_attributes['placeholder'] = $placeholder;
 
         unset($placeholder);
+        return $this;
     }
 
     public function addValidator(\Luki\Validator\basicFactory $validator)
