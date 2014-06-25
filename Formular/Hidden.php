@@ -29,6 +29,15 @@ use Luki\Formular\basicFactory;
 class Hidden extends basicFactory
 {
 
+    public function __construct($name, $label, $placeholder = '')
+    {
+        parent::__construct($name, '');
+
+        $this->setType('hidden');
+
+        unset($name, $label, $placeholder);
+    }
+
     public function getHtml()
     {
         $html = parent::getHtml();
