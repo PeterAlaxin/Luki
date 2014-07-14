@@ -34,6 +34,8 @@ class Select extends basicFactory
     public function setData($data)
     {
         $this->_data = (array) $data;
+        
+        return $this;
     }
 
     public function getHtml()
