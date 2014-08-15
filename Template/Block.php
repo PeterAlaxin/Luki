@@ -89,7 +89,7 @@ class Block
         preg_match_all('|{% set (.*) = (.*) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
         foreach ( $matches as $match ) {
-            $text = '<?php $this->aData["' . $match[1] . '"] = ' . $this->_transformToVariable($match[2]) . '; ?>';
+            $text = '<?php $this->aData["' . $match[1] . '"] = ' . $this->_transformToVariable($match[2], TRUE) . '; ?>';
             $this->_content = str_replace($match[0], $text, $this->_content);
         }
 
