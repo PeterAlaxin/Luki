@@ -119,9 +119,9 @@ class Block
             $variable = $this->_transformToVariable($match[2], TRUE);
 
             $for = Template::phpRow('<?php ');
-            $for .= Template::phpRow('if(empty(' . $variable . ')) { ' . $variable . ' = array(); }', 2);
             $for .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2);
             $for .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $variable . ';', 2);
+            $for .= Template::phpRow('if(empty($this->aData["loop"]["variable"])) { $this->aData["loop"]["variable"] = array(); }', 2);
             $for .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);', 2);
             $for .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2);
             $for .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2);
