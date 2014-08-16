@@ -52,6 +52,7 @@ class Starter
         $microTime = Time::explodeMicrotime();
 
         self::openStarterFile($starterFile);
+        self::defineConstants();
         self::initFolders();
         self::addPathToLoader();
         self::setLocale();
@@ -200,6 +201,17 @@ class Starter
         }
 
         unset($sessionType);
+    }
+
+    public static function defineConstants()
+    {
+        $constants = Storage::Configuration()->getSection('constants');
+
+        foreach ( $constants as $key => $value ) {
+            define($key, $value, TRUE);
+        }
+
+        unset($constants, $key, $value);
     }
 
     public static function setTimezone()
