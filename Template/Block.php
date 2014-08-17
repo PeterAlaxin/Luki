@@ -37,7 +37,7 @@ class Block
     protected $_variables = array();
     protected $_operators = array( "(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and" );
     protected $_logic = array( "is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
-      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd" );
+      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd", "is sameas", "is not sameas" );
 
     public function __construct($block)
     {
@@ -180,8 +180,7 @@ class Block
         foreach ( $matches as $match ) {
 
             $subMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
-
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|==|===|!=|\<|\>|\<=|\>=|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
             $condition = '';
 
             foreach ( $subMatches as $subMatch ) {
@@ -193,6 +192,10 @@ class Block
                     $condition .= ' ';
                 } else {
                     $condition .= $this->_transformToVariable($subMatch[0], TRUE);
+                }
+                
+                if(strpos($subMatch[0], ' sameas') > 0) {
+                    break;
                 }
             }
 
@@ -287,6 +290,12 @@ class Block
                 $conditions = explode(' ', $match[1]);
                 $variable = $this->_transformToVariable($conditions[0]);
                 $condition .= '$this->aTests["' . $test . '"]->Is(' . $variable . ')';
+                break;
+            case 'sameas':
+                $conditions = explode(' ', $match[1]);
+                $first = $this->_transformToVariable($conditions[0]);
+                $second = $this->_transformToVariable($conditions[count($conditions)-1]); 
+                $condition .= '$this->aTests["' . $test . '"]->Is(' . $first . ', ' . $second .')';
                 break;
         }
 
