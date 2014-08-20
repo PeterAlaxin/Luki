@@ -42,7 +42,12 @@ class Date
             $date = new \DateTime($value, $timeZone);
         }
 
-        $formatedDate = strftime($format, $date->getTimestamp());
+        if(strpos($format, '%') === FALSE) {
+            $formatedDate = $date->format($format);
+        }
+        else {
+            $formatedDate = strftime($format, $date->getTimestamp());
+        }
 
         unset($value, $format, $timeZoneName, $date, $timeZone);
         return $formatedDate;
