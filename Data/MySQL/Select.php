@@ -238,7 +238,7 @@ class Select
         return $this;
     }
 
-    public function limit($from, $count = NULL)
+    public function limit($from=0, $count = NULL)
     {
         $this->_select['limit']['from'] = (int) $from;
 
@@ -478,15 +478,15 @@ class Select
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Limit">
-        if ( !empty($this->_select['limit']['from']) ) {
+        if(!empty($this->_select['limit']['from']) or !empty($this->_select['limit']['count'])) {
             $sql .= ' LIMIT ' . $this->_select['limit']['from'];
 
             if ( !empty($this->_select['limit']['count']) ) {
                 $sql .= ', ' . $this->_select['limit']['count'];
             }
-
-            $sql .= chr(13);
         }
+
+        $sql .= chr(13);
         #</editor-fold>
 
         return $sql;
