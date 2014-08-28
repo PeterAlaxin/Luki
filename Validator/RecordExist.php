@@ -33,7 +33,7 @@ class RecordExist extends basicFactory
     public $table = NULL;
     public $key = NULL;
 
-    public function __construct($options)
+    public function __construct($options = array())
     {
         parent::__construct($options);
 

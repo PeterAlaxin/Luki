@@ -29,7 +29,7 @@ use Luki\Validator\basicFactory;
 class NumberPositive extends basicFactory
 {
 
-    public function __construct($options)
+    public function __construct($options = array())
     {
         parent::__construct($options);
 

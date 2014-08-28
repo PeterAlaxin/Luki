@@ -28,7 +28,7 @@ use Luki\Validator\basicFactory;
  */
 class IPv4 extends basicFactory
 {
-    public function __construct($options)
+    public function __construct($options = array())
     {
         parent::__construct($options);
 
