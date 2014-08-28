@@ -20,6 +20,7 @@
 namespace Luki\Cache;
 
 use Luki\Cache\basicInterface;
+use Luki\Storage;
 
 /**
  * Memory chache adapter
@@ -48,6 +49,10 @@ class memoryAdapter implements basicInterface
     {
         $isSet = $this->_memcache->set($key, serialize($value), MEMCACHE_COMPRESSED, $expirationInSeconds);
 
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
+        }
+
         unset($key, $value, $expirationInSeconds);
         return $isSet;
     }
@@ -56,6 +61,10 @@ class memoryAdapter implements basicInterface
     {
         $value = unserialize($this->_memcache->get($key, MEMCACHE_COMPRESSED));
 
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'read', 'key' => $key));
+        }
+
         unset($key);
         return $value;
     }
@@ -63,6 +72,10 @@ class memoryAdapter implements basicInterface
     public function Delete($key)
     {
         $isDeleted = $this->_memcache->delete($key);
+
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
+        }
 
         unset($key);
         return $isDeleted;

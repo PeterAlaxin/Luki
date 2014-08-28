@@ -20,6 +20,7 @@
 namespace Luki\Cache;
 
 use Luki\Cache\basicInterface;
+use Luki\Storage;
 
 /**
  * File chache adapter
@@ -52,6 +53,10 @@ class fileAdapter implements basicInterface
             $isSet = TRUE;
         }
 
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
+        }
+
         unset($key, $value, $expirationInSeconds, $content);
         return $isSet;
     }
@@ -69,6 +74,10 @@ class fileAdapter implements basicInterface
             }
         }
 
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'read', 'key' => $key));
+        }
+
         unset($key, $content);
         return $value;
     }
@@ -79,6 +88,10 @@ class fileAdapter implements basicInterface
 
         if ( is_file($this->_path . $key) ) {
             $isDeleted = unlink($this->_path . $key);
+        }
+
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
         }
 
         unset($key);

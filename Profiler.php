@@ -57,6 +57,7 @@ class Profiler
             $this->_showSession();
             $this->_showTemplate();
             $this->_showData();
+            $this->_showCache();
             $this->_endProfiler();
         }
         
@@ -112,8 +113,8 @@ class Profiler
             foreach ( $templates as $template ) {
                 $time = $this->changeSecToMs($template['time']);
                 $times += $time;
-                $hidden .= '<tr><td>' . $template['name'] . ':</td>';
-                $hidden .= '<td>' . $time . '&nbsp;ms</td></tr>';
+                $hidden .= '<tr><td>&nbsp;' . $template['name'] . ':&nbsp;</td>';
+                $hidden .= '<td>&nbsp;' . $time . '&nbsp;ms&nbsp;</td></tr>';
             }
             $hidden .= '</table>';
         }
@@ -135,13 +136,31 @@ class Profiler
             foreach ( $datas as $data ) {
                 $time = $this->changeSecToMs($data['time']);
                 $times += $time;
-                $hidden .= '<tr><td>' . $data['sql'] . '</td>';
-                $hidden .= '<td>' . number_format($time, 2) . '&nbsp;ms</td></tr>';
+                $hidden .= '<tr><td>&nbsp;' . $data['sql'] . '&nbsp;</td>';
+                $hidden .= '<td>&nbsp;' . number_format($time, 2) . '&nbsp;ms&nbsp;</td></tr>';
             }
             $hidden .= '</table>';
         }
 
         $this->_insideCell('Data', count($datas) . 'x (' . $times . ' ms)', $hidden);
+        
+        unset($times, $datas, $data, $hidden, $time);
+    }
+
+    private function _showCache()
+    {
+        $times = 0;
+
+        if ( !empty($this->_profiler['Cache']) ) {
+            $datas = $this->_profiler['Cache'];
+            $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            foreach ( $datas as $data ) {
+                $hidden .= '<tr><td>&nbsp;' . $data['type'] . '&nbsp;</td><td>&nbsp;' . $data['key'] . '&nbsp;</td></tr>';
+            }
+            $hidden .= '</table>';
+        }
+
+        $this->_insideCell('Cache', count($datas) . 'x', $hidden);
         
         unset($times, $datas, $data, $hidden, $time);
     }

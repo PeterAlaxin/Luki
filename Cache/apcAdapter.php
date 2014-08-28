@@ -20,6 +20,7 @@
 namespace Luki\Cache;
 
 use Luki\Cache\basicInterface;
+use Luki\Storage;
 
 /**
  * Memory chache adapter
@@ -37,6 +38,10 @@ class apcAdapter implements basicInterface
     public function Set($key, $value = '', $expirationInSeconds = 0)
     {
         $isSet = apc_store($key, serialize($value), $expirationInSeconds);
+        
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
+        }
 
         unset($key, $value, $expirationInSeconds);
         return $isSet;
@@ -46,6 +51,10 @@ class apcAdapter implements basicInterface
     {
         $value = unserialize(apc_fetch($key));
 
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'read', 'key' => $key));
+        }
+
         unset($key);
         return $value;
     }
@@ -53,6 +62,10 @@ class apcAdapter implements basicInterface
     public function Delete($key)
     {
         $isDeleted = apc_delete($key);
+
+        if ( Storage::isProfiler() ) {
+            Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
+        }
 
         unset($key);
         return $isDeleted;
