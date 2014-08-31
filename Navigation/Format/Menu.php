@@ -33,7 +33,7 @@ class Menu implements basicInterface
     private $_parentLevel = 'ul';
     private $_parentString = '<%ParentLevel% id="%ParentID%" class="%ParentClass%">%Content%</%ParentLevel%>';
     private $_childLevel = 'li';
-    private $_childString = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%</%ChildLevel%>';
+    private $_childString = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%%ChildContent%</%ChildLevel%>';
     private $_format = '<a href="%url%" title="%title%" class="%class% %active%" target="%target%">%label%</a>';
     private $_navigation = NULL;
     private $_start = 0;
@@ -144,21 +144,20 @@ class Menu implements basicInterface
             $formatedChildLevel = preg_replace($from, $to, $this->_childString);
         }
 
+        $childContent = '';
         $navigation = $item->getNavigation();
-
         if ( count($navigation) > 0 ) {
-            $childContent = '';
 
             foreach ( $navigation as $childItem ) {
                 $childContent .= $this->_childLevel($childItem, $crumb . '/' . $childItem->crumb);
             }
 
             if ( 0 == $this->_start or $this->_isStarted ) {
-                $formatedChildLevel .= preg_replace('/%Content%/', $childContent, $this->_parentLevel($item->_id, 'sub'));
-            } else {
-                $formatedChildLevel .= $childContent;
-            }
+                $childContent = preg_replace('/%Content%/', $childContent, $this->_parentLevel($item->_id, 'sub'));
+            }                            
         }
+        
+        $formatedChildLevel = preg_replace('/%ChildContent%/', $childContent, $formatedChildLevel);            
 
         if ( $this->_isStarted and $this->_start > 0 ) {
             if ( $item->_id == $this->_start ) {
