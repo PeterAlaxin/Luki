@@ -189,14 +189,15 @@ class Variable
                                 for ( $i = $min; $i <= $max; $i++ ) {
                                     $newArray[] = $i;
                                 }
+                                $formatedString = 'array(' . implode(',', $newArray) . ')';
                             } else {
                                 $min = min(ord($range[0]), ord($range[1]));
                                 $max = max(ord($range[0]), ord($range[1]));
                                 for ( $i = $min; $i <= $max; $i++ ) {
                                     $newArray[] = chr($i);
                                 }
+                                $formatedString = 'array("' . implode('","', $newArray) . '")';
                             }
-                            $formatedString = 'array("' . implode('","', $newArray) . '")';
                             break;
                     }
 
