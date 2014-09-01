@@ -20,6 +20,8 @@
 namespace Luki;
 
 use Luki\File;
+use Luki\Request;
+use Luki\Storage;
 use Luki\Template\Block;
 use Luki\Template\Filters\Capitalize;
 use Luki\Time;
@@ -293,12 +295,12 @@ class Template
             echo 'Template error in block counts';
             exit;
         }
-        
+
         while ( count($startMatches) > 0 ) {
             foreach ( $startMatches as $blocks ) {
                 $text = '|({% block ' . $blocks[2] . ' %})([\s\S]*)({% endblock(.*) %})|U';
                 preg_match_all($text, $block, $blockMatches, PREG_SET_ORDER);
-                
+
                 foreach ( $blockMatches as $subBlock ) {
                     if ( 0 === preg_match_all('/{% block (.*) %}/', $subBlock[2], $aSubBlockMatches) ) {
                         $this->_blocks[$blocks[2]] = new Block($subBlock);
@@ -358,7 +360,70 @@ class Template
 
     private function _addApplicationData()
     {
-        $this->_data['app'] = array( 'auto' => array( 'moto' => 'revue' ) );
+        $this->_data['app'] = array(
+          'request' => $this->_addRequest(),
+          'storage' => $this->_addData(Storage::getData())
+        );
+    }
+
+    private function _addRequest()
+    {
+        $request = $this->_getRequest();
+
+        $formatedRequest = array(
+          'requestTime' => $request->getRequestTime(),
+          'requestUri' => $request->getRequestUri(),
+          'requestMethod' => $request->getRequestMethod(),
+          'clientIp' => $request->getClientIP(),
+          'scriptName' => $request->getScriptName(),
+          'pathInfo' => $request->getPathInfo(),
+          'redirectStatus' => $request->getRedirectStatus(),
+          'host' => $request->getHost(),
+          'userAgent' => $request->getUserAgent(),
+          'userAgent' => $request->getUserAgent(),
+          'languages' => $request->getLanguages(),
+          'protocol' => $request->getProtocol(),
+          'serverName' => $request->getServerName(),
+          'queryString' => $request->getQueryString(),
+          'baseUrl' => $request->getBaseUrl(),
+          'fullUrl' => $request->getFullUrl(),
+          'shortUrl' => $request->getShortUrl(),
+          'url' => $request->getURL(),
+          'crumb' => $request->getCrumb(),
+          'crumbCount' => $request->getCrumbCount(),
+          'isAjax' => $request->isAjax(),
+          'isSafe' => $request->isSafe(),
+          'get' => $this->_addData($request->get->getData()),
+          'post' => $this->_addData($request->post->getData()),
+          'files' => $this->_addData($request->files->getData()),
+          'cookie' => $this->_addData($request->cookie->getData()),
+          'server' => $this->_addData($request->server->getData()),
+        );
+
+        return $formatedRequest;
+    }
+
+    private function _getRequest()
+    {
+        if ( Storage::isRequest() ) {
+            $request = Storage::Request();
+        } else {
+            $request = new Request;
+        }
+
+        return $request;
+    }
+
+    private function _addData($data)
+    {
+        $return = array();
+
+        foreach ( $data as $key => $value ) {
+            $return[$key] = $value;
+        }
+
+        unset($data, $key, $value);
+        return $return;
     }
 
 }
