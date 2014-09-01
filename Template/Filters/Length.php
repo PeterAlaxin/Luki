@@ -36,6 +36,12 @@ class Length
             case 'array':
                 $length = count($value);
                 break;
+            case 'object':
+                $length = 0;
+                if(is_a($value, 'Iterator')) {
+                    $length = iterator_count($value);
+                }
+                break;
             default:
                 $length = $value;
         }
