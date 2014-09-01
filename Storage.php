@@ -80,6 +80,11 @@ class Storage
         unset($method, $arguments, $variable);
         return $value;
     }
+    
+    public static function getData()
+    {
+        return self::$_storage;
+    }
 
 }
 
