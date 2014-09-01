@@ -97,7 +97,7 @@ class Request
         return $this->_requestMethod;
     }
 
-    public function getClietnIP()
+    public function getClientIP()
     {
         if ( is_null($this->_clientIP) ) {
             $this->_clientIP = $this->server->get('REMOTE_ADDR');
