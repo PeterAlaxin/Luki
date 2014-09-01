@@ -115,7 +115,18 @@ class Block
 
         foreach ( $matches as $match ) {
 
-            $this->_variables[] = new Variable($match[1]);
+            if(strpos($match[1], ', ')) {
+                list($key, $value) = explode(', ', $match[1]);
+            }
+            else {
+                $key = NULL;
+                $value = $match[1];
+            }
+
+            if(!is_null($key)) {
+                $this->_variables[] = new Variable($key);            
+            }
+            $this->_variables[] = new Variable($value);
             $variable = $this->_transformToVariable($match[2], TRUE);
 
             $for = Template::phpRow('<?php ');
@@ -128,7 +139,11 @@ class Block
             $for .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2);
             $for .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2);
             $for .= $this->_elseFor($match);
-            $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $match[1] . '"]) {', 2);
+            if(!is_null($key)) {
+                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $key . '"] => $this->aData["' . $value . '"]) {', 2);
+            } else {
+                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $value . '"]) {', 2);
+            }
             $for .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
             $for .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
             $for .= Template::phpRow('$this->aData["loop"]["revindex"]--;', 3);
