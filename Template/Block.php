@@ -200,10 +200,6 @@ class Block
             $condition = '';
 
             foreach ( $subMatches as $subMatch ) {
-            echo '<pre>';
-            var_dump($subMatch);
-            echo '</pre>';
-            
                 if ( in_array($subMatch[0], $this->_operators) or is_numeric($subMatch[0]) ) {
                     $condition .= $subMatch[0];
                 } elseif ( in_array($subMatch[0], $this->_logic) ) {
