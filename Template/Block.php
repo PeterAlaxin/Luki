@@ -36,8 +36,9 @@ class Block
     protected $_transformedContent = '';
     protected $_variables = array();
     protected $_operators = array( "(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and" );
-    protected $_logic = array( "is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
-      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd", "is sameas", "is not sameas" );
+    protected $_logic = array( "is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined", 
+      "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd", "is sameas", 
+      "is not sameas", "is divisible by", "is not divisible by");
 
     public function __construct($block)
     {
@@ -195,10 +196,14 @@ class Block
         foreach ( $matches as $match ) {
 
             $subMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|==|===|!=|\<|\>|\<=|\>=|".*"|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
             $condition = '';
 
             foreach ( $subMatches as $subMatch ) {
+            echo '<pre>';
+            var_dump($subMatch);
+            echo '</pre>';
+            
                 if ( in_array($subMatch[0], $this->_operators) or is_numeric($subMatch[0]) ) {
                     $condition .= $subMatch[0];
                 } elseif ( in_array($subMatch[0], $this->_logic) ) {
@@ -209,7 +214,8 @@ class Block
                     $condition .= $this->_transformToVariable($subMatch[0], TRUE);
                 }
                 
-                if(strpos($subMatch[0], ' sameas') > 0) {
+                if(strpos($subMatch[0], ' sameas') > 0 or
+                   strpos($subMatch[0], ' divisible by') > 0) {
                     break;
                 }
             }
@@ -311,6 +317,12 @@ class Block
                 $first = $this->_transformToVariable($conditions[0]);
                 $second = $this->_transformToVariable($conditions[count($conditions)-1]); 
                 $condition .= '$this->aTests["' . $test . '"]->Is(' . $first . ', ' . $second .')';
+                break;
+            case 'divisible by':
+                $conditions = explode(' ', $match[1]);
+                $first = $this->_transformToVariable($conditions[0]);
+                $second = str_replace(array("by(", ")"), array("", ""), $conditions[count($conditions)-1]);
+                $condition .= '$this->aTests["divisibleby"]->Is(' . $first . ', ' . $second .')';
                 break;
         }
 
