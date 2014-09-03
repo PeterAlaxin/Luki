@@ -93,7 +93,7 @@ class Block
             $text = '<?php $this->aData["' . $match[1] . '"] = ';
 
             $subMatches = array();
-            preg_match_all('/[a-z0-9_\."\']*|\+|-|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);            
+            preg_match_all('/[a-zA-Z0-9_\."\'\(\),\|]*|\+|-|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);            
      
             foreach($subMatches as $subMatch) {
                 if('' === $subMatch[0]) {
