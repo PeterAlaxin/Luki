@@ -90,7 +90,24 @@ class Block
         preg_match_all('|{% set (.*) = (.*) %}|U', $this->_content, $matches, PREG_SET_ORDER);
 
         foreach ( $matches as $match ) {
-            $text = '<?php $this->aData["' . $match[1] . '"] = ' . $this->_transformToVariable($match[2], TRUE) . '; ?>';
+            $text = '<?php $this->aData["' . $match[1] . '"] = ';
+
+            $subMatches = array();
+            preg_match_all('/[a-z0-9_\."\']*|\+|-|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);            
+     
+            foreach($subMatches as $subMatch) {
+                if('' === $subMatch[0]) {
+                    continue;
+                }
+                if(in_array($subMatch[0], array('+', '-', '*', '/', '(', ')'))) {
+                    $text .= $subMatch[0];
+                }
+                else {
+                    $text .=  $this->_transformToVariable($subMatch[0], TRUE);
+                }
+            }
+            
+            $text .= '; ?>';
             $this->_content = str_replace($match[0], $text, $this->_content);
         }
 
