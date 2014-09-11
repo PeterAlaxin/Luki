@@ -23,6 +23,7 @@ use Luki\Cache;
 use Luki\Config;
 use Luki\Data;
 use Luki\Dispatcher;
+use Luki\Elasticsearch;
 use Luki\Loader;
 use Luki\Profiler;
 use Luki\Request;
@@ -63,6 +64,7 @@ class Starter
         self::initCache();
         self::initDatabase();
         self::initTemplate();
+        self::initElasticsearch();
 
         self::dispatchURL();
 
@@ -148,6 +150,29 @@ class Starter
         }
 
         unset($cache, $adapterName, $adapter);
+    }
+
+    public static function initElasticsearch()
+    {
+        $elasticsearch = Storage::Configuration()->getSection('elasticsearch');
+
+        if ( !empty($elasticsearch) ) {
+            Storage::Set('Elasticsearch', new Elasticsearch);
+
+            if ( !empty($elasticsearch['server']) ) {
+                Storage::Elasticsearch()->setServer($elasticsearch['server']);
+            }
+
+            if ( isset($elasticsearch['port']) ) {
+                Storage::Elasticsearch()->setPort($elasticsearch['port']);
+            }
+
+            if ( isset($elasticsearch['index']) ) {
+                Storage::Elasticsearch()->setIndex($elasticsearch['index']);
+            }
+        }
+
+        unset($elasticsearch);
     }
 
     public static function addPathToLoader()
