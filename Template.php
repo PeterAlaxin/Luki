@@ -362,7 +362,8 @@ class Template
     {
         $this->_data['app'] = array(
           'request' => $this->_addRequest(),
-          'storage' => $this->_addData(Storage::getData())
+          'storage' => $this->_addData(Storage::getData()),
+          'constant' => $this->_addConstants()      
         );
     }
 
@@ -401,6 +402,13 @@ class Template
         );
 
         return $formatedRequest;
+    }
+    
+    private function _addConstants()
+    {
+        $constants = get_defined_constants(TRUE);
+        
+        return $constants['user'];
     }
 
     private function _getRequest()

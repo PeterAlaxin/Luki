@@ -158,7 +158,8 @@ class Variable
         $types = array( 'RangeOperator' => '/^(.*)\.\.(.*)$/',
           'SubArray' => '/^(.*)\.(.*)$/',
           'Range' => '/^range\((.*)\)$/',
-          'Random' => '/^random\((.*)\)$/'
+          'Random' => '/^random\((.*)\)$/',
+          'Constant' => '/^constant\((.*)\)$/'
         );
         $formatedString = '';
 
@@ -175,6 +176,9 @@ class Variable
                             break;
                         case 'Range':
                             $formatedString = '$this->aFunctions["range"]->Get(' . $matches[1] . ')';
+                            break;
+                        case 'Constant':
+                            $formatedString = '$this->aFunctions["constant"]->Get(' . $matches[1] . ')';
                             break;
                         case 'SubArray':
                             $items = explode('.', $matches[0]);
