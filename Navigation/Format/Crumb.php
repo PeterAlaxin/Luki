@@ -68,7 +68,7 @@ class Crumb implements basicInterface
             }
 
             $crumb .= $item->crumb . '/';
-            $return .= preg_replace('/%url%/', $crumb, $format);
+            $return .= $this->_sanitize(preg_replace('/%url%/', $crumb, $format));
         }
 
         unset($options, $itemName, $item, $sKey, $crumb, $items, $format);
@@ -92,6 +92,16 @@ class Crumb implements basicInterface
         return $return;
     }
 
+    private function _sanitize($text)
+    {
+        $sanitizeFrom = array('/ id=""/', '/ class=""/', '/ class=" "/', '/ title=""/');
+        $sanitizeTo = array('', '', '', '');
+        
+        $output = preg_replace($sanitizeFrom, $sanitizeTo, $text);
+
+        unset($text, $sanitizeFrom, $sanitizeTo);
+        return $output;
+    }
 }
 
 # End of file

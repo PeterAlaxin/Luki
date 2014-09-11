@@ -157,7 +157,7 @@ class Menu implements basicInterface
             }                            
         }
         
-        $formatedChildLevel = preg_replace('/%ChildContent%/', $childContent, $formatedChildLevel);            
+        $formatedChildLevel = $this->_sanitize(preg_replace('/%ChildContent%/', $childContent, $formatedChildLevel));            
 
         if ( $this->_isStarted and $this->_start > 0 ) {
             if ( $item->_id == $this->_start ) {
@@ -174,10 +174,21 @@ class Menu implements basicInterface
         $from = array('/%ParentLevel%/', '/%ParentID%/', '/%ParentClass%/');
         $to = array($this->_parentLevel, $id, $class);
         
-        $formatedParentLevel = preg_replace($from, $to, $this->_parentString);
-
+        $formatedParentLevel = $this->_sanitize(preg_replace($from, $to, $this->_parentString));       
+        
         unset($id, $class, $from, $to);
         return $formatedParentLevel;
+    }
+    
+    private function _sanitize($text)
+    {
+        $sanitizeFrom = array('/ id=""/', '/ class=""/', '/ class=" "/', '/ title=""/');
+        $sanitizeTo = array('', '', '', '');
+        
+        $output = preg_replace($sanitizeFrom, $sanitizeTo, $text);
+
+        unset($text, $sanitizeFrom, $sanitizeTo);
+        return $output;
     }
 
 }
