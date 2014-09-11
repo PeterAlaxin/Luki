@@ -42,7 +42,8 @@ class Url extends basicFactory
     {
         $this->isValid = FALSE;
 
-        if ( FALSE !== filter_var($value, FILTER_VALIDATE_URL) ) {
+        if ( FALSE !== filter_var($value, FILTER_VALIDATE_URL) or 
+             FALSE !== filter_var('http://' . $value, FILTER_VALIDATE_URL) ) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%value%/', $value);
