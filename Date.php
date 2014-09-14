@@ -98,6 +98,34 @@ class Date
         return $newDate;
     }
 
+    public static function addMinute($date = NULL, $minute = NULL)
+    {
+        if ( is_null($minute) ) {
+            if ( is_null($date) ) {
+                $date = 'now';
+                $minute = 1;
+            } elseif ( is_int($date) ) {
+                $minute = $date;
+                $date = 'now';
+            } elseif ( is_string($date) ) {
+                $minute = 1;
+            }
+        }
+
+        $newDate = FALSE;
+        $interval = new \DateInterval('P0D');
+        $interval->i = $interval->i + (int) $minute;
+
+        $dateObject = date_create($date);
+        if ( FALSE !== $dateObject ) {
+            $dateObject->add($interval);
+            $newDate = $dateObject->format(self::$format);
+        }
+
+        unset($date, $minute, $interval, $dateObject);
+        return $newDate;
+    }
+
     public static function addMonth($date = NULL, $month = NULL)
     {
         if ( is_null($month) ) {
