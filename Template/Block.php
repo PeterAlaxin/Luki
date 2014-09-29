@@ -213,7 +213,7 @@ class Block
         foreach ( $matches as $match ) {
 
             $subMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-zA-Z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
             $condition = '';
 
             foreach ( $subMatches as $subMatch ) {
