@@ -338,14 +338,16 @@ class Select
     {
         #<editor-fold defaultstate="collapsed" desc="Union">
         if ( !empty($this->_select['union']) ) {
-            $sql = '';
+            $sql = 'SELECT * FROM (';
 
             foreach ( $this->_select['union'] as $key => $select ) {
                 if ( $key > 0 ) {
-                    $sql .= ' UNION ' . chr(13);
+                    $sql .= ' UNION ALL ' . chr(13);
                 }
                 $sql .= ' (' . (string) $select . ')' . chr(13);
             }
+            
+            $sql .= ') AS uniSelect' . chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Single Select">
