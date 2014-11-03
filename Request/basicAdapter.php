@@ -149,6 +149,12 @@ abstract class basicAdapter
         return $default;
     }
 
+    public function hasData()
+    {
+        $hasData = !empty($this->data);
+        
+        return $hasData;
+    }
 }
 
 # End of file
