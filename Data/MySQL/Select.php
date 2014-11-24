@@ -449,7 +449,13 @@ class Select
             $sql .= chr(13);
         }
         if ( !empty($this->_select['orWhere']) ) {
-            $sql .= ' AND (';
+            if(!empty($this->_select['where'])) {
+                $sql .= ' AND ';            
+            }
+            else {
+                $sql .= ' WHERE ';                            
+            }
+            $sql .= '(';
             foreach ( $this->_select['orWhere'] as $key => $condition ) {
                 if ( !empty($key) ) {
                     $sql .= ' OR ';
