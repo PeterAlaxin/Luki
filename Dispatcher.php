@@ -38,6 +38,8 @@ class Dispatcher
 
     public function __construct(Request $request, Config $config)
     {
+        $this->_fixRequest($request);
+        
         $this->_crumb = $request;
         $this->_config = $config;
         $this->_crumbArray = $request->getCrumb();
@@ -45,6 +47,23 @@ class Dispatcher
         unset($config, $request);
     }
 
+    private function _fixRequest(&$request) 
+    {
+        $serverName = $request->server->get('SERVER_NAME');
+        $requestUri =  $request->server->get('REQUEST_URI');
+        $domain = explode('.', $serverName);
+        
+        if(count($domain) > 2) {
+            $prefix = array_shift($domain);
+            $request->server->set('SERVER_NAME', implode('.', $domain));
+            $request->server->set('HTTP_HOST', implode('.', $domain));
+            $request->server->set('REQUEST_URI', '/' . $prefix . $requestUri);
+            $request->reset();
+        }
+        
+        unset($serverName, $requestUri, $domain, $prefix);
+    }
+    
     public function Dispatch()
     {
         $this->_isDispatched = FALSE;
