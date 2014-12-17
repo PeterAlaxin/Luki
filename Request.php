@@ -70,6 +70,33 @@ class Request
         $this->server = new serverAdapter();
     }
 
+    public function reset()
+    {
+        $this->_ajax = NULL;
+        $this->_baseUrl = NULL;
+        $this->_clientIP = NULL;
+        $this->_crumb = NULL;
+        $this->_crumbCount = NULL;
+        $this->_fullUrl = NULL;
+        $this->_httpHost = NULL;
+        $this->_httpUserAgent = NULL;
+        $this->_languages = NULL;
+        $this->_pathInfo = NULL;
+        $this->_protocol = NULL;
+        $this->_queryString = NULL;
+        $this->_redirectStatus = NULL;
+        $this->_requestMethod = NULL;
+        $this->_requestTime = NULL;
+        $this->_requestUri = NULL;
+        $this->_safe = NULL;
+        $this->_scriptName = NULL;
+        $this->_serverName = NULL;
+        $this->_shortUrl = NULL;
+        $this->_url = NULL;
+        
+        $this->getFullUrl();
+    }
+    
     public function getRequestTime()
     {
         if ( is_null($this->_requestTime) ) {
