@@ -27,12 +27,15 @@ namespace Luki\Template\Filters;
 class Round
 {
 
-    public function Get($value, $decimals = 0, $direction = 'floor')
+    public function Get($value, $decimals = 0, $direction = '')
     {
         if ( 'ceil' == $direction ) {
             $number = ceil($value * pow(10, $decimals)) / pow(10, $decimals);
-        } else {
+        }
+        elseif ( 'floor' == $direction ) {
             $number = floor($value * pow(10, $decimals)) / pow(10, $decimals);
+        } else {
+            $number = round($value, $decimals);
         }
 
         unset($value, $decimals, $direction);
