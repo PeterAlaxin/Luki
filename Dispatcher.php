@@ -38,8 +38,10 @@ class Dispatcher
 
     public function __construct(Request $request, Config $config)
     {
-        $this->_fixRequest($request);
-        
+        if ( Storage::Configuration()->getValue('subdomains', 'definition') ) {
+            $this->_fixRequest($request);
+        }
+
         $this->_crumb = $request;
         $this->_config = $config;
         $this->_crumbArray = $request->getCrumb();
@@ -47,36 +49,36 @@ class Dispatcher
         unset($config, $request);
     }
 
-    private function _fixRequest(&$request) 
+    private function _fixRequest(&$request)
     {
         $serverName = $request->server->get('SERVER_NAME');
-        $requestUri =  $request->server->get('REQUEST_URI');
+        $requestUri = $request->server->get('REQUEST_URI');
         $domain = explode('.', $serverName);
-        
-        if(count($domain) > 2) {
+
+        if ( count($domain) > 2 ) {
             $prefix = array_shift($domain);
             $request->server->set('SERVER_NAME', implode('.', $domain));
             $request->server->set('HTTP_HOST', implode('.', $domain));
             $request->server->set('REQUEST_URI', '/' . $prefix . $requestUri);
             $request->reset();
         }
-        
+
         unset($serverName, $requestUri, $domain, $prefix);
     }
-    
+
     public function Dispatch()
     {
         $this->_isDispatched = FALSE;
         $count = $this->_crumb->getCrumbCount();
         $routes = $this->_config->getSections();
 
-        foreach ($routes as $oneRoute) {
+        foreach ( $routes as $oneRoute ) {
             $route = $this->_config->getSection($oneRoute);
 
-            if ($route['count'] <= $count) {
+            if ( $route['count'] <= $count ) {
                 $this->_checkRoute($route);
 
-                if ($this->_isDispatched) {
+                if ( $this->_isDispatched ) {
                     $this->_prepareController($route);
                     $output = $this->_controller->getOutput();
                     return $output;
@@ -87,16 +89,16 @@ class Dispatcher
 
     private function _checkRoute($route)
     {
-        if (is_array($route['url'])) {
+        if ( is_array($route['url']) ) {
             $route['url'] = '';
             $route['count'] = 0;
         }
-        
+
         $url = explode('/', (string) $route['url']);
         $isEqual = TRUE;
 
-        for ($i = 0; $i < $route['count']; $i++) {
-            if ($url[$i] != $this->_crumbArray[$i]) {
+        for ( $i = 0; $i < $route['count']; $i++ ) {
+            if ( $url[$i] != $this->_crumbArray[$i] ) {
                 $isEqual = FALSE;
                 break;
             }
@@ -114,18 +116,18 @@ class Dispatcher
 
         $methods = get_class_methods(get_class($this->_controller));
 
-        if (in_array('preDispatch', $methods)) {
+        if ( in_array('preDispatch', $methods) ) {
             $this->_controller->preDispatch();
         }
 
         $action = $route['action'] . 'Action';
-        if (in_array($action, $methods)) {
+        if ( in_array($action, $methods) ) {
             $this->_controller->$action();
-        } elseif (in_array('indexAction', $methods)) {
+        } elseif ( in_array('indexAction', $methods) ) {
             $this->_controller->indexAction();
         }
 
-        if (in_array('postDispatch', $methods)) {
+        if ( in_array('postDispatch', $methods) ) {
             $this->_controller->postDispatch();
         }
 
