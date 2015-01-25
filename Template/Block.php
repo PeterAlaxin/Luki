@@ -55,6 +55,7 @@ class Block
         $this->_forBlock();
         $this->_ifBlock();
         $this->_includeBlock();
+        $this->_renderBlock();
         $this->_transformVariables();
 
         unset($block);
@@ -274,6 +275,64 @@ class Block
         }
 
         unset($matches, $match, $include, $template, $variable);
+    }
+
+    private function _renderBlock()
+    {
+        $matches = array();
+        preg_match_all('|{% render (.+) with (.+) %}|U', $this->_content, $matches, PREG_SET_ORDER);
+
+        foreach ( $matches as $match ) {
+            $controller = $this->_transformToController($match[1]);
+            $variable = $this->_transformToVariable($match[2]);
+
+            $include = Template::phpRow('<?php ');
+            $include .= Template::phpRow('$oController = new ' . $controller['controller'] . '(' . $variable . ');', 2);
+            $include .= Template::phpRow('$oController->preDispatch();', 2);
+            $include .= Template::phpRow('$oController->' . $controller['action'] . '();', 2);
+            $include .= Template::phpRow('$oController->postDispatch();', 2);
+            $include .= Template::phpRow('echo $oController->getOutput();', 2);
+            $include .= Template::phpRow(' ?>', 1);
+
+            $this->_content = str_replace($match[0], $include, $this->_content);
+        }
+
+        $matches = array();
+        preg_match_all('|{% render (.+) %}|U', $this->_content, $matches, PREG_SET_ORDER);
+        
+        foreach ( $matches as $match ) {            
+            $controller = $this->_transformToController($match[1]);
+
+            $include = Template::phpRow('<?php ');
+            $include .= Template::phpRow('$oController = new ' . $controller['controller'] . '();', 2);
+            $include .= Template::phpRow('$oController->preDispatch();', 2);
+            $include .= Template::phpRow('$oController->' . $controller['action'] . '();', 2);
+            $include .= Template::phpRow('$oController->postDispatch();', 2);
+            $include .= Template::phpRow('echo $oController->getOutput();', 2);
+            $include .= Template::phpRow(' ?>', 1);
+
+            $this->_content = str_replace($match[0], $include, $this->_content);
+        }
+
+        unset($matches, $match, $include, $controller, $variable);
+    }
+
+    private function _transformToController($controller)
+    {
+        $controller = str_replace(array( '"', "'" ), array( '', '' ), $controller);
+        $path = explode(':', $controller);
+        
+        if(empty($path[2])) {
+            $path[2] = 'index';
+        }
+        
+        $newController = array(
+          'controller' => '\\' . $path[0] . '\\' . $path[1],
+          'action' => $path[2] . 'Action'
+          );
+        
+        unset($controller, $path);
+        return $newController;
     }
 
     private function _transformToTemplate($template)
