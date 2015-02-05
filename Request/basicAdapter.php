@@ -35,15 +35,14 @@ abstract class basicAdapter
 
             foreach ( $inputs as $key => $input ) {
 
-                # Reverse automatic addslashes
-                if ( get_magic_quotes_gpc() ) {
-                    $input = stripslashes($input);
+                if(!is_array($input)) {
+                    if ( get_magic_quotes_gpc() ) {
+                        $input = stripslashes($input);
+                    }
+
+                    $input = htmlspecialchars($input, ENT_QUOTES);
                 }
 
-                # HTML Special chars
-                $input = htmlspecialchars($input, ENT_QUOTES);
-
-                # Save input
                 $this->data[$key] = $input;
             }
         }
