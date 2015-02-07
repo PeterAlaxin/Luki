@@ -187,6 +187,14 @@ abstract class basicAdapter implements basicInterface
         return $deleted;
     }
 
+    public function getFoundRows()
+    {
+        $result = $this->Query('SELECT FOUND_ROWS() AS foundRows;');
+        $found = $result->Get('foundRows');
+        
+        unset($result);
+        return $found;
+    }
 }
 
 # End of file

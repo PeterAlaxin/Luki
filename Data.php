@@ -113,6 +113,13 @@ class Data
         return $deleted;
     }
 
+    public function getFoundRows()
+    {
+        $found = $this->_dataAdapter->getFoundRows();
+
+        return $found;
+    }
+
 }
 
 # End of file
