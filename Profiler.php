@@ -32,6 +32,7 @@ class Profiler
     private $_profiler = array();
     private $_memory;
     private $_isAjax = FALSE;
+    private $_debug = array(); 
 
     public function __construct($microTime, $memory)
     {
@@ -58,6 +59,7 @@ class Profiler
             $this->_showTemplate();
             $this->_showData();
             $this->_showCache();
+            $this->_showDebug();
             $this->_endProfiler();
         }
         
@@ -67,6 +69,15 @@ class Profiler
     public function Add($key, $value)
     {
         $this->_profiler[$key][] = $value;
+    }
+
+    public function debug($value, $name=NULL)
+    {
+        $this->_debug[] = array(
+          'fnc' => (is_object($value) or is_array($value) or is_bool($value)) ? 'dump' : 'echo', 
+          'name' => $name, 
+          'value' => $value
+          );
     }
 
     private function _showMemory($memory)
@@ -149,8 +160,6 @@ class Profiler
 
     private function _showCache()
     {
-        $times = 0;
-
         if ( !empty($this->_profiler['Cache']) ) {
             $datas = $this->_profiler['Cache'];
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
@@ -162,7 +171,30 @@ class Profiler
 
         $this->_insideCell('Cache', count($datas) . 'x', $hidden);
         
-        unset($times, $datas, $data, $hidden, $time);
+        unset($datas, $data, $hidden);
+    }
+
+    private function _showDebug()
+    {
+        if ( !empty($this->_debug) ) {
+            $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            foreach ( $this->_debug as $data ) {
+                if($data['fnc'] == 'echo') {
+                    $hidden .= '<tr><td>&nbsp;' . $data['name'] . '&nbsp;</td><td>&nbsp;' . $data['value'] . '&nbsp;</td></tr>';
+                }
+                else {
+                    ob_start();
+                    var_dump($data['value']);
+                    $result = ob_get_clean();
+                    $hidden .= '<tr><td>&nbsp;' . $data['name'] . '&nbsp;</td><td><pre>' . $result . '</pre></td></tr>';
+                }
+            }
+            $hidden .= '</table>';
+        }
+
+        $this->_insideCell('Debug', count($this->_debug) . 'x', $hidden);
+        
+        unset($data, $hidden);
     }
 
     private function _startProfiler()
