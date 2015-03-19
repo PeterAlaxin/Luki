@@ -57,6 +57,29 @@ class File
         return $files;
     }
 
+    public function getSafeDir($id, $level = 4)
+    {
+        $hash = hash('sha256', $id);
+        $dir = '';
+        
+        for($i = 0; $i < $level; $i++) {
+            $dir .= ord(substr($hash, $i, 1)) . DIRECTORY_SEPARATOR;
+        }
+        
+        unset($id, $hash);
+        return $dir;
+    }
+
+    public function createDir($structure, $mode = 0755)
+    {
+        $isCreated = FALSE;
+        if (mkdir($structure, $mode, true)) {
+            $isCreated = TRUE;
+        }
+
+        unset($structure, $mode);
+        return $isCreated;
+    }
 }
 
 # End of file
