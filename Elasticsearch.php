@@ -87,7 +87,7 @@ class Elasticsearch
     {
         $link = $this->_url . $record->getType() . '/' . $record->getId();
         $content = json_encode($record->getContent());        
-        self::sendToServer('PUT', $link, $content);
+#        self::sendToServer('PUT', $link, $content);
 
         unset($record, $link, $content);
         return $this;
@@ -106,7 +106,17 @@ class Elasticsearch
     
     private function _generateUrl()
     {
-        $this->_url = $this->_server . ':'  . $this->_port . '/' . $this->_index . '/';
+        $this->_url = $this->_server;
+        
+        if(!empty($this->_port)) {
+            $this->_url .= ':' . $this->_port;
+        }
+
+        if(!empty($this->_index)) {
+            $this->_url .= '/' . $this->_index;
+        }
+
+        $this->_url .= '/';
     }
     
     public static function sendToServer($type, $url, $query) 
