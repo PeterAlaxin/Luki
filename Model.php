@@ -23,6 +23,7 @@ use Luki\Data;
 use Luki\Data\basicInterface;
 use Luki\Storage;
 use Luki\Url;
+use Luki\Entity;
 
 /**
  * Model class
@@ -33,7 +34,7 @@ abstract class Model
 {
 
     public $data = array();
-
+    
     public function addData($name, basicInterface $dataAdapter)
     {
         $this->data[$name] = new Data($dataAdapter);
@@ -91,6 +92,24 @@ abstract class Model
         return $this;
     }
 
+    public function getEntity($table, basicInterface $dataAdapter)
+    {
+        $entityName = $table . 'Entity';
+        $entityFile = Storage::dirEntity() . '/' . $entityName . '.php';
+        if(!is_file($entityFile)) {
+            $newEntity = new Entity($table);
+            $newEntity->setData($dataAdapter)
+                      ->setFile($entityFile)
+                      ->createEntity();
+        }
+        
+        require_once($entityFile);
+        $entity = new $entityName($dataAdapter);
+        
+        unset($table, $dataAdapter, $entityName, $entityFile, $newEntity);
+        return $entity;
+    }
+    
     private function _getCacheName($name)
     {
         $callers = debug_backtrace();
@@ -104,8 +123,7 @@ abstract class Model
 
         unset($callers, $name);
         return $newName;
-    }
-
+    }    
 }
 
 # End of file
