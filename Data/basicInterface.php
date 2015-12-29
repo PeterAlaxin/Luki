@@ -52,6 +52,8 @@ interface basicInterface
     public function saveUpdated($table);
 
     public function saveDeleted($table);
+    
+    public function getStructure($table);    
 }
 
 # End of file

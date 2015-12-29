@@ -195,6 +195,14 @@ abstract class basicAdapter implements basicInterface
         unset($result);
         return $found;
     }
+    
+    public function getStructure($table)
+    {
+        $result = $this->Query('SHOW FULL COLUMNS FROM ' . $table);
+        
+        unset($table);
+        return $result;
+    }
 }
 
 # End of file

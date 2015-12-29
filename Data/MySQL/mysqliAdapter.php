@@ -48,6 +48,8 @@ class mysqliAdapter extends basicAdapter
         $this->Query('SET CHARACTER_SET_CONNECTION=' . $options['coding'] . ';');
         $this->Query('SET CHARACTER_SET_CLIENT=' . $options['coding'] . ';');
         $this->Query('SET CHARACTER_SET_RESULTS=' . $options['coding'] . ';');
+        $this->Query('SET NAMES ' . $options['coding'] . ';');
+        $this->Query('SET lc_time_names = "' . $options['locale'] . '";');
 
         unset($options);
     }
