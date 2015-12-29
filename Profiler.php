@@ -168,6 +168,10 @@ class Profiler
             }
             $hidden .= '</table>';
         }
+        else {
+            $datas = array();
+            $hidden = '';
+        }
 
         $this->_insideCell('Cache', count($datas) . 'x', $hidden);
         
@@ -190,6 +194,9 @@ class Profiler
                 }
             }
             $hidden .= '</table>';
+        }
+        else {
+            $hidden = '';
         }
 
         $this->_insideCell('Debug', count($this->_debug) . 'x', $hidden);
