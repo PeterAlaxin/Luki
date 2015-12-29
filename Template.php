@@ -173,7 +173,7 @@ class Template
             $this->_classContent .= self::phpRow('public $aFilters = array();', 1, 2);
             $this->_classContent .= self::phpRow('public $aFunctions = array();', 1, 2);
             $this->_classContent .= self::phpRow('public $aData = array();', 1, 2);
-            $this->_classContent .= self::phpRow('public $aLoop = array();', 1, 2);
+            $this->_classContent .= self::phpRow('public $aLoop = array();', 1, 2);            
             $this->_classContent .= self::phpRow('public function __construct($aData)');
             $this->_classContent .= self::phpRow('{');
             $this->_classContent .= self::phpRow('$this->aData = $aData;', 2);
@@ -181,7 +181,7 @@ class Template
             $this->_classContent .= self::phpRow('$this->_defineFilters();', 2);
             $this->_classContent .= self::phpRow('$this->_defineFunctions();', 2);
             $this->_classContent .= self::phpRow('$this->_defineTests();', 2);
-            $this->_classContent .= self::phpRow('}', 1, 2);
+            $this->_classContent .= self::phpRow('}', 1, 2);            
             $this->_classContent .= self::phpRow('public function Render()');
             $this->_classContent .= self::phpRow('{');
             $this->_classContent .= self::phpRow('$this->_mainBlock();', 2);
@@ -363,7 +363,8 @@ class Template
         $this->_data['app'] = array(
           'request' => $this->_addRequest(),
           'storage' => $this->_addData(Storage::getData()),
-          'constant' => $this->_addConstants()      
+          'constant' => $this->_addConstants(),
+          'alerts' => Storage::Alerts()
         );
     }
 
@@ -408,7 +409,15 @@ class Template
     {
         $constants = get_defined_constants(TRUE);
         
-        return $constants['user'];
+        if(!empty($constants['user'])) {
+            $userConstants = $constants['user'];
+        }
+        else {
+            $userConstants = array();
+        }
+        
+        unset($constants);
+        return $userConstants;
     }
 
     private function _getRequest()

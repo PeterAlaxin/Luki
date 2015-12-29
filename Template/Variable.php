@@ -76,6 +76,11 @@ class Variable
         return $this->_finalVariable;
     }
 
+    public function getVariableName()
+    {
+        return $this->_transformedVariable;
+    }
+
     public static function getVariableLenght($variable)
     {
 
@@ -258,7 +263,21 @@ class Variable
                         $parameters = preg_replace('/[\]}]/', ')', $parameters);
                     }
 
-                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . $parameters . ');';
+                    preg_match_all("/\"[^\"]*\"|[^(),\s]+/", $parameters, $exploded);
+                    $parameters = array();
+                    foreach($exploded[0] as $parameter) {
+                        if(  is_numeric($parameter) ) {
+                            $parameters[] = $parameter;
+                        }
+                        elseif(strpos($parameter, '"') === 0 or strpos($parameter, "'") === 0) {
+                            $parameters[] = $parameter;                            
+                        }
+                        else {
+                            $parameters[] = '$this->aData["' . $parameter . '"]';                                                        
+                        }
+                    }
+                    
+                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . implode(',', $parameters) . ');';
                     $function .= Template::phpRow($text, 2);
                 }
             }
