@@ -120,6 +120,13 @@ class Data
         return $found;
     }
 
+    public function getStructure($table)
+    {
+        $structure = $this->_dataAdapter->getStructure($table);
+        
+        unset($table);
+        return $structure;
+    }
 }
 
 # End of file
