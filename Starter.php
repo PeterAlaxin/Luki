@@ -24,6 +24,7 @@ use Luki\Config;
 use Luki\Data;
 use Luki\Dispatcher;
 use Luki\Elasticsearch;
+use Luki\Language;
 use Luki\Loader;
 use Luki\Profiler;
 use Luki\Request;
@@ -51,18 +52,21 @@ class Starter
         self::installLoader();
 
         $microTime = Time::explodeMicrotime();
-
+        
+        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Functions.php';
+                
         self::openStarterFile($starterFile);
         self::defineConstants();
         self::initFolders();
         self::addPathToLoader();
         self::setLocale();
         self::setTimezone();
+        self::initSession();
         self::initRequest();
         self::initProfiler($microTime, $memoryUsage);
-        self::initSession();
         self::initCache();
         self::initDatabase();
+        self::initLanguage();
         self::initTemplate();
         self::initElasticsearch();
         self::detectRobot();
@@ -108,6 +112,27 @@ class Starter
         unset($starterFile, $adapterName, $adapter);
     }
 
+    public static function initLanguage()
+    {
+        $languages = Storage::Configuration()->getSection('language');
+        $translator = NULL;
+        
+        foreach ( $languages as $language => $file ) {
+            if(empty($translator)) {
+                $translator = new Language($language, $file);
+            }
+            else {
+                $translator->addToLanguages($language, $file);
+            }
+        }
+        
+        if(!empty($translator)) {
+            Storage::Set('Language', $translator);
+        }
+
+        unset($languages, $language, $file, $translator);
+    }
+
     public static function initFolders()
     {
         $folders = Storage::Configuration()->getSection('folder');
@@ -129,6 +154,7 @@ class Starter
     {
         if ( Storage::isDevelopment() ) {
             Storage::Set('Profiler', new Profiler($microTime, $memory));
+            Storage::Profiler()->Add('Session', session_id());
         }
     }
 
@@ -158,6 +184,7 @@ class Starter
         $elasticsearch = Storage::Configuration()->getSection('elasticsearch');
 
         if ( !empty($elasticsearch) ) {
+            
             Storage::Set('Elasticsearch', new Elasticsearch);
 
             if ( !empty($elasticsearch['server']) ) {
