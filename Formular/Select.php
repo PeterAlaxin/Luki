@@ -30,6 +30,7 @@ class Select extends basicFactory
 {
 
     private $_data = array();
+    private $_value = array();
 
     public function setData($data)
     {
@@ -71,12 +72,11 @@ class Select extends basicFactory
     private function prepareInput()
     {
         $input = '<select ' . $this->prepareAttributes() . '>';
-        $selected = $this->getValue();
 
         foreach ( $this->_data as $value => $option ) {
             $input .= '<option value="' . $value . '"';
 
-            if ( $value == $selected ) {
+            if ( in_array($value, $this->_value ) ) {
                 $input .= ' selected="selected"';
             }
 
@@ -85,8 +85,43 @@ class Select extends basicFactory
 
         $input .= '</select>';
 
-        unset($selected, $value, $option);
+        unset($value, $option);
         return $input;
+    }
+
+    public function setValue($value)
+    {
+        $this->_value[] = $value;
+
+        unset($value);
+        return $this;
+    }
+
+    public function isValid()
+    {
+        $this->_validate();
+
+        $isValid = FALSE;
+        if ( empty($this->_errors) ) {
+            $isValid = TRUE;
+        }
+
+        return $isValid;
+    }
+
+    private function _validate()
+    {
+        $this->_errors = array();
+
+        foreach ( $this->_validators as $validator ) {
+            foreach($this->_value as $value) {
+                if ( !$validator->isValid($value) ) {
+                    $this->_errors[] = $validator->getError();
+                }
+            }
+        }
+
+        unset($validator);
     }
 
 }
