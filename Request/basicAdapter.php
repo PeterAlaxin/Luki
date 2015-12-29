@@ -48,6 +48,7 @@ abstract class basicAdapter
         }
 
         unset($inputs, $key, $input);
+        return $this;
     }
 
     public function getData()
@@ -67,6 +68,7 @@ abstract class basicAdapter
         $this->data = array_replace($this->data, $values);
 
         unset($values);
+        return $this;
     }
 
     public function replace(array $values = array())
@@ -74,6 +76,7 @@ abstract class basicAdapter
         $this->data = $values;
 
         unset($values);
+        return $this;
     }
 
     public function get($key, $default = NULL)
@@ -89,6 +92,9 @@ abstract class basicAdapter
     public function set($key, $value)
     {
         $this->add(array( $key => $value ));
+
+        unset($key, $value);
+        return $this;
     }
 
     public function has($key)
@@ -106,6 +112,7 @@ abstract class basicAdapter
         }
 
         unset($key);
+        return $this;
     }
 
     public function getAlpha($key, $default = NULL)
@@ -154,6 +161,11 @@ abstract class basicAdapter
         
         return $hasData;
     }
+    
+    public function clear()
+    {
+        $this->data = array();
+        
+        return $this;
+    }
 }
-
-# End of file

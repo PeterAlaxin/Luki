@@ -19,6 +19,8 @@
 
 namespace Luki\Request;
 
+use Luki\Url;
+
 /**
  * Post adapter
  * 
@@ -29,6 +31,16 @@ class postAdapter extends basicAdapter
 
     public function __construct()
     {
+        if(!empty($_POST)) {
+            $_SESSION['__post__'] = $_POST;
+            Url::Reload($_SERVER['REQUEST_URI']);
+        }
+        
+        if(!empty($_SESSION['__post__'])) {
+            $_POST = $_SESSION['__post__'];
+            unset($_SESSION['__post__']);
+        }
+        
         $this->saveInputs($_POST);
     }
 
