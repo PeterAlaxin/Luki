@@ -208,9 +208,9 @@ class Image
         imagettftext($this->_image, $nSize, $nAngle, $nPositionX, $nPositionY, $cTextColor, FONTS_DIR . 'FreeSansBold.ttf', $sText);
     }
 
-    public function saveAs($newName)
+    public function saveAs($newName, $type='')
     {
-        $isSaved = $this->_outputImage($newName);
+        $isSaved = $this->_outputImage($newName, $type);
 
         unset($newName);
         return $isSaved;
@@ -256,11 +256,15 @@ class Image
         }
     }
 
-    private function _outputImage($newImageName = NULL)
+    private function _outputImage($newImageName = NULL, $type= '')
     {
         $isShowed = FALSE;
 
-        switch ( $this->_realProperties['type'] ) {
+        if(empty($type)) {
+            $type = $this->_realProperties['type'];
+        }
+        
+        switch ( $type ) {
             case 1:
                 $isShowed = imagegif($this->_image, $newImageName);
                 break;
