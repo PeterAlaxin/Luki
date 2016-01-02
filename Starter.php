@@ -26,6 +26,7 @@ use Luki\Dispatcher;
 use Luki\Elasticsearch;
 use Luki\Language;
 use Luki\Loader;
+use Luki\Log;
 use Luki\Profiler;
 use Luki\Request;
 use Luki\Session;
@@ -61,6 +62,7 @@ class Starter
         self::addPathToLoader();
         self::setLocale();
         self::setTimezone();
+        self::initLog();
         self::initSession();
         self::initRequest();
         self::initProfiler($microTime, $memoryUsage);
@@ -243,6 +245,22 @@ class Starter
         Template::setPath($path);
 
         unset($path);
+    }
+
+    public static function initLog()
+    {
+        $logDefinition = Storage::Configuration()->getSection('log');
+
+        if ( !empty($logDefinition) ) {
+            $formatName = Log::findFormat($logDefinition['format']);
+            $format = new $formatName();
+            $filename =  $logDefinition['dir'] . '/' . strftime($logDefinition['name'], strtotime('now'));
+            $writerName = Log::findWriter($logDefinition['writer']);            
+            $writer = new $writerName($filename);
+            Storage::Set('Log', new Log($format, $writer));
+        }
+
+        unset($logDefinition, $formatName, $format, $writerName, $writer, $filename);
     }
 
     public static function initSession()

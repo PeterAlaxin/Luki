@@ -62,6 +62,20 @@ class Log
         unset($formatInterface, $writerInterface);
     }
 
+    public static function findFormat($adapter)
+    {
+        $adapter = __NAMESPACE__ . '\Log\\Format\\' . $adapter;
+
+        return $adapter;
+    }
+
+    public static function findWriter($adapter)
+    {
+        $adapter = __NAMESPACE__ . '\Log\\Writer\\' . $adapter;
+
+        return $adapter;
+    }
+
     public function addValidator($key, $validator)
     {
         $this->_validators[] = array(
