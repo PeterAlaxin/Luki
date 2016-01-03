@@ -65,7 +65,7 @@ class Template
         }
 
         $this->_newClass = self::$_twigPath . preg_replace('/_/', '/', $this->_class) . '.php';
-        if ( !file($this->_newClass) or filectime($this->_template) > filectime($this->_newClass) ) {
+        if ( !is_file($this->_newClass) or filectime($this->_template) > filectime($this->_newClass) ) {
             $this->_generateTemplate();
         }
 
