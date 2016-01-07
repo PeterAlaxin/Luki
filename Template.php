@@ -364,7 +364,8 @@ class Template
           'request' => $this->_addRequest(),
           'storage' => $this->_addData(Storage::getData()),
           'constant' => $this->_addConstants(),
-          'alerts' => Storage::Alerts()
+          'alerts' => Storage::Alerts(),
+          'session' => $_SESSION
         );
     }
 
