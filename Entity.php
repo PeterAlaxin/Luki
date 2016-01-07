@@ -187,7 +187,7 @@ class Entity
 
     private function addFunctionFindBy()
     {
-        $this->code .= Template::phpRow('public function findBy($where, $order=NULL) {');
+        $this->code .= Template::phpRow('public function findBy($where, $order=NULL, $limit=0) {');
         $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '");', 2);
         
         $this->code .= Template::phpRow('foreach($where as $key => $value) {', 2);
@@ -200,6 +200,10 @@ class Entity
         $this->code .= Template::phpRow('}', 3);
         $this->code .= Template::phpRow('}', 2);
         
+        $this->code .= Template::phpRow('if(!empty($limit)) {', 2);
+        $this->code .= Template::phpRow('$select->limit($limit);', 3);
+        $this->code .= Template::phpRow('}', 2);
+            
         $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
         $this->code .= Template::phpRow('unset($where, $order, $key, $value, $select);', 2);
         $this->code .= Template::phpRow('return $result;', 2);
@@ -233,14 +237,21 @@ class Entity
 
     private function addFunctionFindOneBy()
     {
-        $this->code .= Template::phpRow('public function findOneBy($where) {');
+        $this->code .= Template::phpRow('public function findOneBy($where, $order=NULL) {');
         $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '")->limit(1);', 2);        
         $this->code .= Template::phpRow('foreach($where as $key => $value) {', 2);
         $this->code .= Template::phpRow('$select->where("$key = \'?\'", $value);', 3);
         $this->code .= Template::phpRow('}', 2);        
+        
+        $this->code .= Template::phpRow('if(!empty($order)) {', 2);
+        $this->code .= Template::phpRow('foreach($order as $key => $value) {', 3);
+        $this->code .= Template::phpRow('$select->order("$key $value");', 4);
+        $this->code .= Template::phpRow('}', 3);
+        $this->code .= Template::phpRow('}', 2);
+        
         $this->code .= Template::phpRow('$row = $this->data->Query($select)->getRow();', 2);
         $this->code .= Template::phpRow('$this->fillRow($row);', 2);
-        $this->code .= Template::phpRow('unset($where, $key, $value, $select);', 2);
+        $this->code .= Template::phpRow('unset($where, $order, $key, $value, $select);', 2);
         $this->code .= Template::phpRow('return $row;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
@@ -456,7 +467,7 @@ class Entity
     private function addFindBy()
     {
         foreach ( $this->structure as $fielName => $field ) {
-            $this->code .= Template::phpRow('public function findBy' . $fielName . '($value, $order=NULL) {');
+            $this->code .= Template::phpRow('public function findBy' . $fielName . '($value, $order=NULL, $limit=0) {');
             $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '")->where("' . $field['Field'] . ' = \'?\'", $value);', 2);
         
             $this->code .= Template::phpRow('if(!empty($order)) {', 2);
@@ -465,8 +476,12 @@ class Entity
             $this->code .= Template::phpRow('}', 3);
             $this->code .= Template::phpRow('}', 2);
 
+            $this->code .= Template::phpRow('if(!empty($limit)) {', 2);
+            $this->code .= Template::phpRow('$select->limit($limit);', 3);
+            $this->code .= Template::phpRow('}', 2);
+            
             $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
-            $this->code .= Template::phpRow('unset($value, $select, $order);', 2);
+            $this->code .= Template::phpRow('unset($value, $select, $order, $limit);', 2);
             $this->code .= Template::phpRow('return $result;', 2);
             $this->code .= Template::phpRow('}', 1);
             $this->code .= Template::phpRow('', 0);
@@ -478,11 +493,18 @@ class Entity
     private function addOneFindBy()
     {
         foreach ( $this->structure as $fielName => $field ) {
-            $this->code .= Template::phpRow('public function findOneBy' . $fielName . '($value) {');
+            $this->code .= Template::phpRow('public function findOneBy' . $fielName . '($value, $order=NULL) {');
             $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '")->where("' . $field['Field'] . ' = \'?\'", $value)->limit(1);', 2);
+        
+            $this->code .= Template::phpRow('if(!empty($order)) {', 2);
+            $this->code .= Template::phpRow('foreach($order as $key => $value) {', 3);
+            $this->code .= Template::phpRow('$select->order("$key $value");', 4);
+            $this->code .= Template::phpRow('}', 3);
+            $this->code .= Template::phpRow('}', 2);
+
             $this->code .= Template::phpRow('$row = $this->data->Query($select)->getRow();', 2);
             $this->code .= Template::phpRow('$this->fillRow($row);', 2);
-            $this->code .= Template::phpRow('unset($value, $select);', 2);
+            $this->code .= Template::phpRow('unset($value, $order, $select);', 2);
             $this->code .= Template::phpRow('return $row;', 2);
             $this->code .= Template::phpRow('}', 1);
             $this->code .= Template::phpRow('', 0);
