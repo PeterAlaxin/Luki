@@ -214,6 +214,23 @@ class Config
         return $isSaved;
     }
 
+    public function isSection($section)
+    {
+        $isSection = in_array($section, $this->_sections);
+        
+        unset($section);
+        return $isSection;
+    }
+    
+    public function isValue($key, $section = '')
+    {
+        $section = $this->_fillEmptySection($section);
+        $isValue = isset($this->_configuration[$section][$key]);
+        
+        unset($key, $section);
+        return $isValue;
+    }
+        
     private function _fillEmptySection($section = '')
     {
         if ( empty($section) and ! empty($this->_defaultSection) ) {
