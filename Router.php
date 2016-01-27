@@ -107,7 +107,7 @@ class Router
                 ->setController($item['controller']);
 
         if ( !empty($item['action']) ) {
-            $newRoute->setMethod($item['action']);
+            $newRoute->setAction($item['action']);
         }
 
         if ( !empty($item['method']) ) {
