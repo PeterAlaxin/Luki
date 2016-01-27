@@ -19,6 +19,8 @@
 
 namespace Luki\Router;
 
+use Luki\Storage;
+
 /**
  * Route class
  *
@@ -123,9 +125,13 @@ class Route
         
         $isCatched = !empty($this->matches);
         
-        unset($url, $method);
-        return $isCatched;
-            
+        if ( $isCatched and Storage::isProfiler() ) {
+            $route = $this->name . ' | ' . $this->modul . ':' . $this->controller . ':' . $this->action;
+            Storage::Profiler()->Add('Route', $route);
+        }
+
+        unset($url, $method, $route);
+        return $isCatched;            
     }
     
     public function getController()
@@ -151,7 +157,7 @@ class Route
             if(!empty($this->matches[$id])) {
                 $arguments[] = $this->matches[$id];
             }
-            else {
+            else { 
                 $arguments[] = $options['default'];                
             }
             $id++;

@@ -55,6 +55,7 @@ class Profiler
             $this->_startProfiler();
             $this->_insideCell('Page time', $this->changeSecToMs($time) . ' ms');
             $this->_showMemory($memory);
+            $this->_showRoute();
             $this->_showSession();
             $this->_showTemplate();
             $this->_showData();
@@ -80,6 +81,13 @@ class Profiler
           );
     }
 
+    private function _showRoute()
+    {
+        if(!empty($this->_profiler['Route'])) {
+            $this->_insideCell('Route', $this->_profiler['Route'][0]);            
+        }
+    }
+    
     private function _showMemory($memory)
     {
         $memory = $memory - $this->_memory;
