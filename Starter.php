@@ -22,7 +22,6 @@ namespace Luki;
 use Luki\Cache;
 use Luki\Config;
 use Luki\Data;
-use Luki\Dispatcher;
 use Luki\Elasticsearch;
 use Luki\Language;
 use Luki\Loader;
@@ -309,14 +308,24 @@ class Starter
 
     public static function dispatchURL()
     {
-        $dispatcherName = Storage::Configuration()->getValue('dispatcher', 'definition');
-        $adapterName = Config::findAdapter($dispatcherName);
-        $adapter = new $adapterName($dispatcherName);
-
-        $dispatcher = new Dispatcher(Storage::Request(), new Config($adapter));
+        if(Storage::Configuration()->isValue('dispatcher', 'definition')){
+            $file = Storage::Configuration()->getValue('dispatcher', 'definition');
+            $class = 'Luki\Dispatcher';
+        }
+        elseif(Storage::Configuration()->isValue('router', 'definition')){
+            $file = Storage::Configuration()->getValue('router', 'definition');        
+            $class = 'Luki\Router';
+        }
+        else {
+            Exit('Missing definition for Routing or Dispatcher');
+        }
+        
+        $adapterName = Config::findAdapter($file);
+        $adapter = new $adapterName($file);        
+        $dispatcher = new $class(Storage::Request(), new Config($adapter));
         echo $dispatcher->Dispatch();
-
-        unset($dispatcher, $adapterName, $adapter, $dispatcherName);
+        
+        unset($dispatcher, $adapterName, $adapter, $file);
     }
 
     public static function sanitizeOutput($output)
