@@ -164,7 +164,9 @@ class Variable
           'SubArray' => '/^(.*)\.(.*)$/',
           'Range' => '/^range\((.*)\)$/',
           'Random' => '/^random\((.*)\)$/',
-          'Constant' => '/^constant\((.*)\)$/'
+          'Constant' => '/^constant\((.*)\)$/',
+          'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
+          'PathWithoutArguments' => '/^path\((.*)\)$/'
         );
         $formatedString = '';
 
@@ -207,6 +209,15 @@ class Variable
                                 }
                                 $formatedString = 'array("' . implode('","', $newArray) . '")';
                             }
+                            break;
+                        case 'PathWithArguments':
+                            $parameters = preg_replace('/[\[{]/', 'array(', $matches[3]);
+                            $parameters = preg_replace('/: /', ' => ', $parameters);
+                            $parameters = preg_replace('/[\]}]/', ')', $parameters);
+                            $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ',' . $parameters . ')';
+                            break;
+                        case 'PathWithoutArguments':
+                            $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ')';
                             break;
                     }
 
