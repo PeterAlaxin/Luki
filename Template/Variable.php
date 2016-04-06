@@ -296,7 +296,7 @@ class Variable
                         if(  is_numeric($parameter) ) {
                             $parameters[] = $parameter;
                         }
-                        elseif(strpos($parameter, '.') > 0) {
+                        elseif(strpos($parameter, 'app.') === 0) {
                             $items = explode('.', $parameter);
                             $parameters[] = '$this->aData["' . implode('"]["', $items) . '"]';
                         }
