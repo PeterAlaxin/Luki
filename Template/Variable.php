@@ -161,12 +161,12 @@ class Variable
     private function _stringToVariable($string)
     {
         $types = array( 'RangeOperator' => '/^(.*)\.\.(.*)$/',
-          'SubArray' => '/^(.*)\.(.*)$/',
           'Range' => '/^range\((.*)\)$/',
           'Random' => '/^random\((.*)\)$/',
           'Constant' => '/^constant\((.*)\)$/',
           'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
-          'PathWithoutArguments' => '/^path\((.*)\)$/'
+          'PathWithoutArguments' => '/^path\((.*)\)$/',
+          'SubArray' => '/^(.*)\.(.*)$/'
         );
         $formatedString = '';
 
@@ -174,7 +174,7 @@ class Variable
 
             foreach ( $types as $type => $regexp ) {
                 $matches = array();
-                preg_match($regexp, $this->_variable, $matches);
+                preg_match($regexp, $string, $matches);
 
                 if ( !empty($matches) ) {
                     switch ( $type ) {
@@ -213,7 +213,8 @@ class Variable
                         case 'PathWithArguments':
                             $parameters = preg_replace('/[\[{]/', 'array(', $matches[3]);
                             $parameters = preg_replace('/: /', ' => ', $parameters);
-                            $parameters = preg_replace('/[\]}]/', ')', $parameters);
+                            $parameters = preg_replace('/[\]}]/', ')', $parameters);                            
+                            $parameters = $this->fixDataInArray($parameters);
                             $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ',' . $parameters . ')';
                             break;
                         case 'PathWithoutArguments':
@@ -234,6 +235,21 @@ class Variable
 
         unset($matches, $range, $string, $type, $regexp, $items);
         return $formatedString;
+    }
+
+    private function fixDataInArray($arrayText)
+    {
+        $arrayText = substr($arrayText, 6, strlen($arrayText) - 7);        
+        $first = explode(',', $arrayText);
+        foreach ( $first as $key => $item ) {
+            $second = explode('=>', $item);
+            $second[1] = $this->_stringToVariable(trim($second[1]));
+            $first[$key] = implode('=> ', $second);
+        }
+        $fixedText = 'array(' . implode(', ', $first) . ')';
+
+        unset($arrayText, $first, $key, $item, $second);
+        return $fixedText;
     }
 
     private function _prepareVariable()
@@ -279,6 +295,10 @@ class Variable
                     foreach($exploded[0] as $parameter) {
                         if(  is_numeric($parameter) ) {
                             $parameters[] = $parameter;
+                        }
+                        elseif(strpos($parameter, '.') > 0) {
+                            $items = explode('.', $parameter);
+                            $parameters[] = '$this->aData["' . implode('"]["', $items) . '"]';
                         }
                         elseif(strpos($parameter, '"') === 0 or strpos($parameter, "'") === 0) {
                             $parameters[] = $parameter;                            
