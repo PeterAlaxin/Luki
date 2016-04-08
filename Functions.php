@@ -23,4 +23,12 @@ function camelCase($str, array $noStrip = [])
 
         return $str;
 }
-# End of file
+
+function _t($text, $section='')        
+{
+    $lng = Storage::Get('lng');
+    $translation = Storage::Language()->Get($text, $lng, $section);
+    
+    unset($text, $section, $lng);
+    return $translation;
+}
