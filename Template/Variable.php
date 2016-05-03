@@ -166,12 +166,12 @@ class Variable
           'Constant' => '/^constant\((.*)\)$/',
           'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
           'PathWithoutArguments' => '/^path\((.*)\)$/',
+          'Concat' => '/^(.*) \~ (.*)$/',
           'SubArray' => '/^(.*)\.(.*)$/'
         );
         $formatedString = '';
 
         if ( !preg_match('/^[\'"]/', $string) and ! is_numeric($string) ) {
-
             foreach ( $types as $type => $regexp ) {
                 $matches = array();
                 preg_match($regexp, $string, $matches);
@@ -220,6 +220,16 @@ class Variable
                         case 'PathWithoutArguments':
                             $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ')';
                             break;
+                        case 'Concat':
+                            $formatedString = '';
+                            $strings = explode(' ~ ', $string);
+                            foreach($strings as $item) {
+                                if(!empty($formatedString)) {
+                                    $formatedString .= '.';
+                                }
+                                $formatedString .= $this->_stringToVariable($item);
+                            }
+                           break; 
                     }
 
                     break;
