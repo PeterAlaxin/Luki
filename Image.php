@@ -67,12 +67,19 @@ class Image
 
     public function show()
     {
-        header("Content-type: " . $this->_supportedTypes[$this->_imageType], TRUE);
+        header("Content-type: " . $this->getType(), TRUE);
         $isShowed = $this->_outputImage();
 
         return $isShowed;
     }
 
+    public function getType()
+    {
+        $type = $this->_supportedTypes[$this->_imageType];
+        
+        return $type;
+    }
+    
     public function resizeByWidth($width)
     {
         if ( strpos($width, '%') > 0 ) {
