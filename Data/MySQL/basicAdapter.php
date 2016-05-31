@@ -66,7 +66,7 @@ abstract class basicAdapter implements basicInterface
         return $result;
     }
 
-    public function Update($table, $values, $where)
+    public function Update($table, $values, $where = NULL)
     {
         $result = FALSE;
 
