@@ -45,7 +45,7 @@ class Storage
             $isSet = TRUE;
         }
 
-        unset($name, $value);
+        unset($name, $value, $permanent);
         return $isSet;
     }
 
