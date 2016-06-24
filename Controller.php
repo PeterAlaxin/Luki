@@ -19,7 +19,9 @@
 
 namespace Luki;
 
+use Luki\Cache;
 use Luki\Loader;
+use Luki\Storage;
 use Luki\Template;
 
 /**
@@ -40,6 +42,8 @@ class Controller
     protected $_template = '';
     protected $_endProgramAfterRender = TRUE;
     protected $_route = array();
+    protected $_useCache = TRUE;
+    protected $_expiration = 0;
 
     function __construct()
     {
@@ -47,6 +51,7 @@ class Controller
 
         $this->setDefaultTemplate();
         $this->setDefaultModel();
+        $this->setExpiration(Cache::EXPIRE_IN_DAY);
     }
 
     public function __call($name, $arguments = array())
@@ -74,7 +79,7 @@ class Controller
     public function __get($name)
     {
         $value = NULL;
-        
+
         if ( isset($this->_data[$name]) ) {
             $value = $this->_data[$name];
         }
@@ -142,10 +147,23 @@ class Controller
 
     public function Render()
     {
-        $oTemplate = new Template($this->_template, $this->_data);
-        $this->_output = $oTemplate->Render();
+        $this->_output = NULL;
 
-        unset($oTemplate);
+        if ( Storage::isSaved('Cache') and $this->_useCache ) {
+            $hash = $this->_template . '_' . md5(json_encode($this->_data));
+            $this->_output = Storage::Cache()->Get($hash);
+        }
+
+        if ( empty($this->_output) ) {
+            $oTemplate = new Template($this->_template, $this->_data);
+            $this->_output = $oTemplate->Render();
+
+            if ( Storage::isSaved('Cache') and $this->_useCache ) {
+                Storage::Cache()->Set($hash, $this->_output, $this->_expiration);
+            }
+        }
+
+        unset($oTemplate, $hash);
         return $this;
     }
 
@@ -202,6 +220,21 @@ class Controller
         return $this;
     }
 
-}
+    public function enableCache()
+    {
+        $this->_useCache = TRUE;
+    }
 
-# End of file
+    public function disableCache()
+    {
+        $this->_useCache = FALSE;
+    }
+
+    public function setExpiration($expiration)
+    {
+        $this->_expiration = (int) $expiration;
+
+        unset($expiration);
+    }
+
+}
