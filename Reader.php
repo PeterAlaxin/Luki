@@ -19,8 +19,6 @@
 
 namespace Luki;
 
-#use Luki\Reader\basicInterface;
-
 /**
  * Reader class
  *
