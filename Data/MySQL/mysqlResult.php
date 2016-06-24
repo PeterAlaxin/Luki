@@ -8,7 +8,7 @@
  *
  * @version 3.0.0
  *
- * @author Peter Alaxin, <alaxin@almex.sk>
+ * @author Peter Alaxin, <peter@lavien.sk>
  * @copyright (c) 2009, Almex spol. s r.o.
  * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
