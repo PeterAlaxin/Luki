@@ -10,7 +10,7 @@
  *
  * @author Peter Alaxin, <alaxin@almex.sk>
  * @copyright (c) 2009, Almex spol. s r.o.
- * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
  * @subpackage Class
