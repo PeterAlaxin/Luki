@@ -37,6 +37,21 @@ class Geo
     private $coordinates = array();
     private $address = array();
     private $url = 'https://maps.google.com/maps/api/geocode/json?sensor=false&';
+    private $key;
+
+    public function __construct($key = '')
+    {
+        $this->setKey($key);
+
+        unset($key);
+    }
+
+    public function setKey($key)
+    {
+        $this->key = (string) $key;
+
+        unset($key);
+    }
 
     public function setStreet($street)
     {
@@ -67,7 +82,7 @@ class Geo
 
     public function setLongitude($longitude)
     {
-        $this->longitude =  str_replace(',', '.', $longitude);
+        $this->longitude = str_replace(',', '.', $longitude);
         $this->reset(FALSE);
 
         unset($longitude);
@@ -76,7 +91,7 @@ class Geo
 
     public function setLatitude($latitude)
     {
-        $this->latitude =  str_replace(',', '.', $latitude);
+        $this->latitude = str_replace(',', '.', $latitude);
         $this->reset(FALSE);
 
         unset($latitude);
@@ -86,10 +101,9 @@ class Geo
     public function getCoordinates()
     {
         if ( empty($this->coordinates) ) {
-            if(!empty($this->latitude) and !empty($this->longitude)) {
+            if ( !empty($this->latitude) and ! empty($this->longitude) ) {
                 $this->fillCoordinates();
-            }
-            else {
+            } else {
                 $this->findCoordinates();
             }
         }
@@ -101,27 +115,31 @@ class Geo
     {
         $this->address = array();
         $this->coordinates = array();
-        
-        if($all) {
+
+        if ( $all ) {
             $this->longitude = NULL;
             $this->latitude = NULL;
         }
-        
+
         unset($all);
     }
-    
+
     private function findCoordinates()
     {
         $url = $this->url . 'address=' . $this->makeAddress();
+
+        if ( !empty($this->key) ) {
+            $url .= '&key=' . $this->key;
+        }
+
         $json = file_get_contents($url);
         $jsondata = json_decode($json);
-    
-        if ($jsondata->status == 'OK') {
+
+        if ( $jsondata->status == 'OK' ) {
             $this->latitude = str_replace(',', '.', $jsondata->results[0]->geometry->location->lat);
             $this->longitude = str_replace(',', '.', $jsondata->results[0]->geometry->location->lng);
             $this->fillCoordinates();
-        }
-        else {
+        } else {
             $this->reset();
         }
 
@@ -133,9 +151,9 @@ class Geo
         $this->coordinates = array(
           'longitude' => $this->longitude,
           'latitude' => $this->latitude,
-        );        
+        );
     }
-    
+
     public function getAddress()
     {
         if ( empty($this->address) ) {
@@ -148,10 +166,15 @@ class Geo
     private function findAddress()
     {
         $url = $this->url . 'latlng=' . $this->latitude . "," . $this->longitude;
+
+        if ( !empty($this->key) ) {
+            $url .= '&key=' . $this->key;
+        }
+
         $json = file_get_contents($url);
         $jsondata = json_decode($json, TRUE);
 
-        if ($jsondata["status"] == "OK") {
+        if ( $jsondata["status"] == "OK" ) {
             $this->address = array(
               'country' => $this->_getCountry($jsondata),
               'province' => $this->_getProvince($jsondata),
@@ -161,11 +184,10 @@ class Geo
               'country_code' => $this->_getCountryCode($jsondata),
               'formatted_address' => $this->_getAddress($jsondata),
             );
-        }
-        else {
+        } else {
             $this->reset(FALSE);
         }
-        
+
         unset($url, $json, $jsondata);
     }
 
@@ -216,10 +238,10 @@ class Geo
 
     private function computeDistance($longitude, $latitude)
     {
-        if(empty($this->coordinates)) {
+        if ( empty($this->coordinates) ) {
             $this->getCoordinates();
         }
-        
+
         $theta = $this->longitude - $longitude;
         $computing = sin(deg2rad($this->latitude)) * sin(deg2rad($latitude)) +
                 cos(deg2rad($this->latitude)) * cos(deg2rad($latitude)) * cos(deg2rad($theta));
