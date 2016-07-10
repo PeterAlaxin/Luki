@@ -154,7 +154,7 @@ class Route
         $arguments = array();
         $id = 1;
         foreach($this->parameters as $parameter => $options) {
-            if(!empty($this->matches[$id])) {
+            if($this->matches[$id] !== '') {
                 $arguments[] = $this->matches[$id];
             }
             else { 
@@ -171,7 +171,7 @@ class Route
         $route = $this->pattern;
         
         foreach($this->parameters as $parameter => $options) {
-            if(!empty($parameters[$parameter])) {
+            if($parameters[$parameter] !== '') {
                 $route = str_replace('{' . $parameter . '}', $parameters[$parameter], $route);
             }
             else {
