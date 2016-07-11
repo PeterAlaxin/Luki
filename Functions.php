@@ -11,7 +11,7 @@ function fd($value, $name = NULL)
     unset($value, $name);
 }
 
-function camelCase($str, array $noStrip = [])
+function camelCase($str, array $noStrip=array())
 {
         // non-alpha and non-numeric characters become spaces
         $str = preg_replace('/[^a-z0-9' . implode("", $noStrip) . ']+/i', ' ', $str);
