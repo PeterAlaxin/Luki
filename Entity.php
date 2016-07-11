@@ -171,10 +171,15 @@ class Entity
     {
         foreach ( $this->structure as $field ) {
             $this->code .= Template::phpRow('public function find($value) {');
-            $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '")->where("' . $field['Field'] . ' = ?", $value)->limit(1);', 2);
-            $this->code .= Template::phpRow('$row = $this->data->Query($select)->getRow();', 2);
-            $this->code .= Template::phpRow('$this->fillRow($row);', 2);
-            $this->code .= Template::phpRow('unset($value, $select);', 2);
+            $this->code .= Template::phpRow('$select = $this->data->Select()->from("' . $this->table . '")->where("a' . $field['Field'] . ' = ?", $value)->limit(1);', 2);
+            $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
+            $this->code .= Template::phpRow('if(!$result) {', 2);
+            $this->code .= Template::phpRow('$row = NULL;', 3);
+            $this->code .= Template::phpRow('} else {', 2);
+            $this->code .= Template::phpRow('$row = $result->getRow();', 3);
+            $this->code .= Template::phpRow('$this->fillRow($row);', 3);
+            $this->code .= Template::phpRow('}', 2);
+            $this->code .= Template::phpRow('unset($value, $select, $result);', 2);
             $this->code .= Template::phpRow('return $row;', 2);
             $this->code .= Template::phpRow('}', 1);
             $this->code .= Template::phpRow('', 0);
@@ -249,9 +254,15 @@ class Entity
         $this->code .= Template::phpRow('}', 3);
         $this->code .= Template::phpRow('}', 2);
         
-        $this->code .= Template::phpRow('$row = $this->data->Query($select)->getRow();', 2);
-        $this->code .= Template::phpRow('$this->fillRow($row);', 2);
-        $this->code .= Template::phpRow('unset($where, $order, $key, $value, $select);', 2);
+        $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
+        $this->code .= Template::phpRow('if(!$result) {', 2);
+        $this->code .= Template::phpRow('$row = NULL;', 3);
+        $this->code .= Template::phpRow('} else {', 2);
+        $this->code .= Template::phpRow('$row = $result->getRow();', 3);
+        $this->code .= Template::phpRow('$this->fillRow($row);', 3);
+        $this->code .= Template::phpRow('}', 2);
+        
+        $this->code .= Template::phpRow('unset($where, $order, $key, $value, $select, $result);', 2);
         $this->code .= Template::phpRow('return $row;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
@@ -502,9 +513,15 @@ class Entity
             $this->code .= Template::phpRow('}', 3);
             $this->code .= Template::phpRow('}', 2);
 
-            $this->code .= Template::phpRow('$row = $this->data->Query($select)->getRow();', 2);
-            $this->code .= Template::phpRow('$this->fillRow($row);', 2);
-            $this->code .= Template::phpRow('unset($value, $order, $select);', 2);
+            $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
+            $this->code .= Template::phpRow('if(!$result) {', 2);
+            $this->code .= Template::phpRow('$row = NULL;', 3);
+            $this->code .= Template::phpRow('} else {', 2);
+            $this->code .= Template::phpRow('$row = $result->getRow();', 3);
+            $this->code .= Template::phpRow('$this->fillRow($row);', 3);
+            $this->code .= Template::phpRow('}', 2);
+
+            $this->code .= Template::phpRow('unset($value, $order, $select, $result);', 2);
             $this->code .= Template::phpRow('return $row;', 2);
             $this->code .= Template::phpRow('}', 1);
             $this->code .= Template::phpRow('', 0);
