@@ -122,6 +122,7 @@ class Geo
         }
 
         unset($all);
+        return $this;
     }
 
     private function findCoordinates()
