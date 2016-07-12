@@ -300,10 +300,16 @@ class Variable
                         $parameters = preg_replace('/[\]}]/', ')', $parameters);
                     }
 
-                    preg_match_all("/\"[^\"]*\"|[^(),\s]+/", $parameters, $exploded);
+                    preg_match_all("/\"[^\"]*\"|(array\()|\)|[a-z0-9\.]*|(=>)|(,)/", $parameters, $exploded);
+                    
                     $parameters = array();
                     foreach($exploded[0] as $parameter) {
-                        if(  is_numeric($parameter) ) {
+                        
+                        if($parameter === '') {
+                            continue;
+                        }
+                        
+                        if(  is_numeric($parameter) or in_array($parameter, array('array(', '=>', ',', ')')) ) {
                             $parameters[] = $parameter;
                         }
                         elseif(strpos($parameter, 'app.') === 0) {
@@ -318,7 +324,7 @@ class Variable
                         }
                     }
                     
-                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . implode(',', $parameters) . ');';
+                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . implode('', $parameters) . ');';
                     $function .= Template::phpRow($text, 2);
                 }
             }
