@@ -111,7 +111,7 @@ class Geo
         return $this->coordinates;
     }
 
-    private function reset($all = TRUE)
+    public function reset($all = TRUE)
     {
         $this->address = array();
         $this->coordinates = array();
