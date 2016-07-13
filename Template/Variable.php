@@ -300,7 +300,7 @@ class Variable
                         $parameters = preg_replace('/[\]}]/', ')', $parameters);
                     }
 
-                    preg_match_all("/\"[^\"]*\"|(array\()|\)|[a-z0-9\.]*|(=>)|(,)/", $parameters, $exploded);
+                    preg_match_all("/\"[^\"]*\"|(array\()|\)|[a-z0-9_-\.]*|(=>)|(,)/", $parameters, $exploded);
                     
                     $parameters = array();
                     foreach($exploded[0] as $parameter) {
