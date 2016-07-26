@@ -163,6 +163,7 @@ class Route
             $id++;
         }
         
+        unset($id, $parameter, $options);
         return $arguments;
     }
     
@@ -171,7 +172,7 @@ class Route
         $route = $this->pattern;
         
         foreach($this->parameters as $parameter => $options) {
-            if($parameters[$parameter] !== '') {
+            if(!empty($parameters[$parameter])) {                
                 $route = str_replace('{' . $parameter . '}', $parameters[$parameter], $route);
             }
             else {
@@ -188,7 +189,7 @@ class Route
             $route = str_replace($match[0], '', $route);            
         }
         
-        unset($parameters, $parameter, $options, $value);
+        unset($parameters, $parameter, $options, $value, $matches, $match);
         return $route;
     }
 }
