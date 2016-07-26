@@ -51,7 +51,7 @@ class mysqliResult extends Result implements \Iterator
         if ( $this->position >= 0 and
                 $this->position < $this->numberOfRecords and
                 mysqli_data_seek($this->result, $this->position) ) {
-            $this->row = mysqli_fetch_array($this->result, MYSQL_ASSOC);
+            $this->row = mysqli_fetch_array($this->result, MYSQLI_ASSOC);
         }
     }
 
