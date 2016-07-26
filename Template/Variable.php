@@ -166,6 +166,7 @@ class Variable
           'Constant' => '/^constant\((.*)\)$/',
           'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
           'PathWithoutArguments' => '/^path\((.*)\)$/',
+          'Date' => '/^date\((.*)(, )(.*)\)|date\((.*)\)$/',
           'Concat' => '/^(.*) \~ (.*)$/',
           'SubArray' => '/^(.*)\.(.*)$/'
         );
@@ -230,6 +231,12 @@ class Variable
                                 $formatedString .= $this->_stringToVariable($item);
                             }
                            break; 
+                        case 'Date':
+                            $date = str_replace(array('"', '"'), array('', ''), empty($matches[4]) ? $matches[1] : $matches[4]);
+                            $zone = str_replace(array('"', '"'), array('', ''), empty($matches[3]) ? date_default_timezone_get() : $matches[3]);
+                            $datetime = new \DateTime($date, new \DateTimeZone($zone));
+                            $formatedString = $datetime->format('U');
+                            break;
                     }
 
                     break;
@@ -300,12 +307,8 @@ class Variable
                         $parameters = preg_replace('/[\]}]/', ')', $parameters);
                     }
 
-                    preg_match_all("/\"[^\"]*\"|(array\()|\)|[a-z0-9\.]*|(=>)|(,)/", $parameters, $exploded);
+                    preg_match_all("/\"[^\"]*\"|\'[^\']*\'|(array\()|\)|[a-z0-9\.]*|(=>)|(,)/", $parameters, $exploded);
 
-                    fd($parameters);                    
-                    fd($exploded);
-                    
-                    
                     $parameters = array();
                     foreach($exploded[0] as $parameter) {
                         
