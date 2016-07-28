@@ -51,7 +51,7 @@ class Profiler
         if ( !$this->_isAjax ) {
             $time = Time::getStopwatch('Luki_Profiler_PageTimer');
             $memory = memory_get_usage();
-
+            
             $this->_startProfiler();
             $this->_insideCell('Page time', $this->changeSecToMs($time) . ' ms');
             $this->_showMemory($memory);
@@ -91,9 +91,11 @@ class Profiler
     private function _showMemory($memory)
     {
         $memory = $memory - $this->_memory;
+        $peak = memory_get_peak_usage();
         $unit = array( 'b', 'kb', 'mb', 'gb', 'tb', 'pb' );
         $totalMemory = @round($memory / pow(1024, ($i = floor(log($memory, 1024)))), 2) . ' ' . $unit[$i];
-        $this->_insideCell('Memory', $totalMemory);
+        $peakMemory = @round($peak / pow(1024, ($i = floor(log($peak, 1024)))), 2) . ' ' . $unit[$i];
+        $this->_insideCell('Memory', $totalMemory . ' (' . $peakMemory . ')');
 
         unset($memory, $unit, $totalMemory);
     }
