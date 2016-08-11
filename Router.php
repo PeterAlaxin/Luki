@@ -37,10 +37,12 @@ class Router
 
     public function __destruct()
     {
-        foreach ($this->routes as $route) {
-            $route = null;
+        if(count($this->routes) > 0) {
+            foreach ($this->routes as $route) {
+                $route = null;
+            }
         }
-
+        
         foreach ($this as &$value) {
             $value = null;
         }
