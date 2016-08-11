@@ -1,84 +1,75 @@
 <?php
-
 /**
  * Elasticsearch record
  *
  * Luki framework
- * Date 6.9.2014
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Elasticsearch
  * @filesource
  */
 
 namespace Luki\Elasticsearch;
 
-/**
- * Elasticsearch Record
- * 
- * @package Luki
- */
 class Record
 {
 
-    private $_id;
-    private $_type;
-    private $_content = array();
-    
+    private $id;
+    private $type;
+    private $content = array();
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
+
     public function setId($id)
     {
-        $this->_id = (int)$id;
-        
-        unset($id);
+        $this->id = (int) $id;
+
         return $this;
     }
-    
+
     public function getId()
     {
-        return $this->_id;
+        return $this->id;
     }
 
     public function setType($type)
     {
-        $this->_type = (string)$type;
-        
-        unset($type);
+        $this->type = (string) $type;
+
         return $this;
     }
 
     public function getType()
     {
-        return $this->_type;
+        return $this->type;
     }
 
     public function setContent($content)
     {
-        foreach((array)$content as $key => $value){
+        foreach ((array) $content as $key => $value) {
             $this->addContent($key, $value);
         }
-        
-        unset($content, $key, $value);
+
         return $this;
     }
-    
+
     public function addContent($key, $value)
     {
-        $this->_content[(string)$key] = str_replace("'", '"', (string)$value);
-        
-        unset($key, $value);
+        $this->content[(string) $key] = str_replace("'", '"', (string) $value);
+
         return $this;
     }
-    
+
     public function getContent()
     {
-        return $this->_content;
+        return $this->content;
     }
 }
-
-# End of file

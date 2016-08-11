@@ -1,180 +1,166 @@
 <?php
-
 /**
  * Formular class
  *
  * Luki framework
- * Date 19.9.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Formular
  * @filesource
  */
 
 namespace Luki;
 
-/**
- * Formular class
- *
- * Formular management
- *
- * @package Luki
- */
 class Formular
 {
 
-    private $_name = '';
-    private $_id = '';
-    private $_method = 'post';
-    private $_inputs = array();
-    private $_enctype = 'application/x-www-form-urlencoded';
-    private $_hasFocus = TRUE;
-    private $_action = '';
-    private $_errors = array();
-    private $_autocomplete = 'on';
-    private $_novalidate = FALSE;
-    private $_target = '_self';
-    private $_class = '';
+    private $name = '';
+    private $id = '';
+    private $method = 'post';
+    private $inputs = array();
+    private $enctype = 'application/x-www-form-urlencoded';
+    private $hasFocus = true;
+    private $action = '';
+    private $errors = array();
+    private $autocomplete = 'on';
+    private $noValidate = false;
+    private $target = '_self';
+    private $class = '';
 
     public function __construct($name)
     {
-        $this->_name = $name;
-        $this->_id = $name . '_id';
+        $this->name = $name;
+        $this->id = $name . '_id';
+    }
 
-        unset($name);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public function getName()
     {
-        return $this->_name;
+        return $this->name;
     }
 
     public function getId()
     {
-        return $this->_id;
+        return $this->id;
     }
 
     public function setMethod($method)
     {
-        if ( in_array($method, array( 'post', 'get' )) ) {
-            $this->_method = $method;
+        if (in_array($method, array('post', 'get'))) {
+            $this->method = $method;
         }
 
-        unset($method);
         return $this;
     }
 
     public function getMethod()
     {
-        return $this->_method;
+        return $this->method;
     }
 
     public function setEnctype($enctype)
     {
-        if ( in_array($enctype, array( 'application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain' )) ) {
-            $this->_enctype = $enctype;
+        if (in_array($enctype, array('application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'))) {
+            $this->enctype = $enctype;
         }
 
-        unset($enctype);
         return $this;
     }
 
     public function getEnctype()
     {
-        return $this->_enctype;
+        return $this->enctype;
     }
 
     public function setFocus($focus)
     {
-        $this->_hasFocus = (bool) $focus;
+        $this->hasFocus = (bool) $focus;
 
-        unset($focus);
         return $this;
     }
 
     public function getFocus()
     {
-        return $this->_hasFocus;
+        return $this->hasFocus;
     }
 
     public function setAction($action)
     {
-        $this->_action = (string) $action;
+        $this->action = (string) $action;
 
-        unset($action);
         return $this;
     }
 
     public function getAction()
     {
-        return $this->_action;
+        return $this->action;
     }
 
     public function setAutocomplete($autocomplete)
     {
-        if ( in_array($autocomplete, array( 'on', 'off' )) ) {
-            $this->_autocomplete = $autocomplete;
+        if (in_array($autocomplete, array('on', 'off'))) {
+            $this->autocomplete = $autocomplete;
         }
 
-        unset($autocomplete);
         return $this;
     }
 
     public function getAutocomplete()
     {
-        return $this->_autocomplete;
+        return $this->autocomplete;
     }
 
     public function setNovalidate()
     {
-        $this->_novalidate = TRUE;
+        $this->noValidate = true;
+
         return $this;
     }
 
     public function getNovalidate()
     {
-        return $this->_novalidate;
+        return $this->noValidate;
     }
 
     public function setTarget($target)
     {
-        if ( in_array($target, array( '_blank', '_self', '_parent', '_top' )) ) {
-            $this->_target = $target;
+        if (in_array($target, array('_blank', '_self', '_parent', '_top'))) {
+            $this->target = $target;
         }
 
-        unset($target);
         return $this;
     }
 
     public function getTarget()
     {
-        return $this->_target;
+        return $this->target;
     }
 
     public function setClass($class)
     {
-        $this->_class = $class;
+        $this->class = $class;
 
-        unset($class);
         return $this;
     }
 
     public function getClass()
     {
-        return $this->_class;
+        return $this->class;
     }
 
     public function addInput($input)
     {
-        $this->_inputs[$input->getName()] = $input;
+        $this->inputs[$input->getName()] = $input;
 
-        unset($input);
         return $this;
     }
 
@@ -182,51 +168,46 @@ class Formular
     {
         $inputs = array();
 
-        foreach ( $this->_inputs as $name => $input ) {
+        foreach ($this->inputs as $name => $input) {
             $inputs[$name] = $input->getHtml();
         }
 
-        unset($name, $input);
         return $inputs;
     }
 
     public function fillValues($values)
     {
-        foreach ( $values as $name => $value ) {
-            if ( array_key_exists($name, $this->_inputs) ) {
-                $this->_inputs[$name]->setValue($value);
+        foreach ($values as $name => $value) {
+            if (array_key_exists($name, $this->inputs)) {
+                $this->inputs[$name]->setValue($value);
             }
         }
 
-        unset($values, $name, $value);
         return $this;
     }
 
     public function isValid()
     {
-        $valid = TRUE;
+        $valid = true;
 
-        foreach ( $this->_inputs as $name => $input ) {
-            if ( !$input->isValid() ) {
-                $this->_errors[$name] = $input->getErrors();
-                $valid = FALSE;
+        foreach ($this->inputs as $name => $input) {
+            if (!$input->isValid()) {
+                $this->errors[$name] = $input->getErrors();
+                $valid = false;
             }
         }
 
-        unset($name, $input);
         return $valid;
     }
 
     public function getErrors()
     {
-        return $this->_errors;
+        return $this->errors;
     }
 
     public function getFormular()
     {
-        $formular = array( 'form' => $this->getFormularHeader(),
-          'inputs' => $this->getInputs(),
-          'errors' => $this->getErrors() );
+        $formular = array('form' => $this->getFormularHeader(), 'inputs' => $this->getInputs(), 'errors' => $this->getErrors());
 
         return $formular;
     }
@@ -243,7 +224,7 @@ class Formular
         $header .= 'target="' . $this->getTarget() . '" ';
         $header .= 'class="' . $this->getClass() . '" ';
 
-        if ( $this->getNovalidate() ) {
+        if ($this->getNovalidate()) {
             $header .= 'novalidate ';
         }
 
@@ -254,20 +235,16 @@ class Formular
 
     public function getResult()
     {
-        if ( empty($this->_errors) ) {
-            $return = array( 'status' => 0 );
+        if (empty($this->errors)) {
+            $return = array('status' => 0);
         } else {
-            $return = array( 'status' => 1 );
-            foreach ( $this->getErrors() as $field => $errors ) {
+            $return = array('status' => 1);
+            foreach ($this->getErrors() as $field => $errors) {
                 $return['fields'][] = $field;
                 $return['errors'][$field] = $errors;
             }
         }
 
-        unset($field, $errors);
         return $return;
     }
-
 }
-
-# End of file

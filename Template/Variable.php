@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Template Variable class
  *
  * Luki framework
- * Date 6.4.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Template
  * @filesource
  */
 
@@ -21,73 +16,73 @@ namespace Luki\Template;
 
 use Luki\Template;
 
-/**
- * Template Variable class
- *
- * @package Luki
- */
 class Variable
 {
 
-    protected $_content = '';
-    protected $_variable = '';
-    protected $_functionName = '';
-    protected $_function = '';
-    protected $_transformedVariable = '';
-    protected $_code = '';
-    protected $_filters = array();
-    protected $_finalVariable = '';
+    protected $content = '';
+    protected $variable = '';
+    protected $functionName = '';
+    protected $function = '';
+    protected $transformedVariable = '';
+    protected $code = '';
+    protected $filters = array();
+    protected $finalVariable = '';
 
     public function __construct($content)
     {
-        $this->_content = $content;
+        $this->content = $content;
 
-        $this->_prepareFilters();
-        $this->_transformVariable();
-        $this->_prepareVariable();
+        $this->prepareFilters();
+        $this->transformVariable();
+        $this->prepareVariable();
+    }
 
-        unset($content);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public function getCode()
     {
-        return $this->_code;
+        return $this->code;
     }
 
     public function getContent()
     {
-        return $this->_content;
+        return $this->content;
     }
 
     public function getFunctionName()
     {
-        return $this->_functionName;
+        return $this->functionName;
     }
 
     public function getFunction()
     {
-        $this->_prepareFunction();
+        $this->prepareFunction();
 
-        return $this->_function;
+        return $this->function;
     }
 
     public function getVariable()
     {
-        return $this->_finalVariable;
+        return $this->finalVariable;
     }
 
     public function getVariableName()
     {
-        return $this->_transformedVariable;
+        return $this->transformedVariable;
     }
 
     public static function getVariableLenght($variable)
     {
 
-        switch ( gettype($variable) ) {
+        switch (gettype($variable)) {
             case 'array':
             case 'boolean':
-            case 'NULL':
+            case 'null':
                 $lenght = count($variable);
                 break;
             case 'string':
@@ -98,87 +93,84 @@ class Variable
                 $lenght = $variable;
                 break;
             case 'object':
-                if ( is_a($variable, 'Luki\Data\MySQL\Result') ) {
+                if (is_a($variable, 'Luki\Data\MySQL\Result')) {
                     $lenght = $variable->getNumberOfRecords();
                 }
                 break;
             default :
-                $lenght = NULL;
+                $lenght = null;
         }
 
-        unset($variable);
         return $lenght;
     }
 
-    private function _prepareFilters()
+    private function prepareFilters()
     {
-        if ( strpos($this->_content, '|') ) {
-            $this->_filters = explode('|', $this->_content);
-            $this->_variable = array_shift($this->_filters);
-            $this->_functionName = 'fnc_' . sha1($this->_content);
+        if (strpos($this->content, '|')) {
+            $this->filters = explode('|', $this->content);
+            $this->variable = array_shift($this->filters);
+            $this->functionName = 'fnc_' . sha1($this->content);
         } else {
-            $this->_variable = $this->_content;
+            $this->variable = $this->content;
         }
     }
 
-    private function _transformVariable()
+    private function transformVariable()
     {
         $matches = array();
-        $hasKeys = FALSE;
-        preg_match('/^[\[{](.*)[\]}]$/', $this->_variable, $matches);
+        $hasKeys = false;
+        preg_match('/^[\[{](.*)[\]}]$/', $this->variable, $matches);
 
-        if ( count($matches) > 0 ) {
+        if (count($matches) > 0) {
             $newItems = array();
             $items = explode(', ', $matches[1]);
 
-            foreach ( $items as $item ) {
-                if ( strpos($item, ': ') ) {
-                    $hasKeys = TRUE;
+            foreach ($items as $item) {
+                if (strpos($item, ': ')) {
+                    $hasKeys = true;
                     $subItems = explode(': ', $item);
 
-                    $newItems[] = $this->_stringToVariable($subItems[0]) .
-                            ' => ' .
-                            $this->_stringToVariable($subItems[1]);
+                    $newItems[] = $this->stringToVariable($subItems[0]) .
+                        ' => ' .
+                        $this->stringToVariable($subItems[1]);
                 } else {
-                    $newItems[] = $this->_stringToVariable($item);
+                    $newItems[] = $this->stringToVariable($item);
                 }
             }
 
-            $variable = preg_replace('/[\[{]/', 'array(', $this->_variable);
+            $variable = preg_replace('/[\[{]/', 'array(', $this->variable);
             $variables = preg_replace('/' . $matches[1] . '/', implode(', ', $newItems), $variable);
-            if ( $hasKeys ) {
-                $this->_transformedVariable = preg_replace('/[}]/', ')', $variables);
+            if ($hasKeys) {
+                $this->transformedVariable = preg_replace('/[}]/', ')', $variables);
             } else {
-                $this->_transformedVariable = preg_replace('/[\]}]/', ')', $variables);
+                $this->transformedVariable = preg_replace('/[\]}]/', ')', $variables);
             }
         } else {
-            $this->_transformedVariable = $this->_stringToVariable($this->_variable);
+            $this->transformedVariable = $this->stringToVariable($this->variable);
         }
-
-        unset($matches, $newItems, $items, $item, $subItems, $variable, $variables, $hasKeys);
     }
 
-    private function _stringToVariable($string)
+    private function stringToVariable($string)
     {
-        $types = array( 'RangeOperator' => '/^(.*)\.\.(.*)$/',
-          'Range' => '/^range\((.*)\)$/',
-          'Random' => '/^random\((.*)\)$/',
-          'Constant' => '/^constant\((.*)\)$/',
-          'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
-          'PathWithoutArguments' => '/^path\((.*)\)$/',
-          'Date' => '/^date\((.*)(, )(.*)\)|date\((.*)\)$/',
-          'Concat' => '/^(.*) \~ (.*)$/',
-          'SubArray' => '/^(.*)\.(.*)$/'
+        $types = array('RangeOperator' => '/^(.*)\.\.(.*)$/',
+            'Range' => '/^range\((.*)\)$/',
+            'Random' => '/^random\((.*)\)$/',
+            'Constant' => '/^constant\((.*)\)$/',
+            'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
+            'PathWithoutArguments' => '/^path\((.*)\)$/',
+            'Date' => '/^date\((.*)(, )(.*)\)|date\((.*)\)$/',
+            'Concat' => '/^(.*) \~ (.*)$/',
+            'SubArray' => '/^(.*)\.(.*)$/'
         );
         $formatedString = '';
 
-        if ( !preg_match('/^[\'"]/', $string) and ! is_numeric($string) ) {
-            foreach ( $types as $type => $regexp ) {
+        if (!preg_match('/^[\'"]/', $string) and ! is_numeric($string)) {
+            foreach ($types as $type => $regexp) {
                 $matches = array();
                 preg_match($regexp, $string, $matches);
 
-                if ( !empty($matches) ) {
-                    switch ( $type ) {
+                if (!empty($matches)) {
+                    switch ($type) {
                         case 'Random':
                             $formatedString = '$this->aFunctions["random"]->Get(' . $matches[1] . ')';
                             break;
@@ -195,17 +187,17 @@ class Variable
                         case 'RangeOperator':
                             $range = explode('..', $string);
                             $newArray = array();
-                            if ( is_numeric($range[0]) ) {
+                            if (is_numeric($range[0])) {
                                 $min = min($range[0], $range[1]);
                                 $max = max($range[0], $range[1]);
-                                for ( $i = $min; $i <= $max; $i++ ) {
+                                for ($i = $min; $i <= $max; $i++) {
                                     $newArray[] = $i;
                                 }
                                 $formatedString = 'array(' . implode(',', $newArray) . ')';
                             } else {
                                 $min = min(ord($range[0]), ord($range[1]));
                                 $max = max(ord($range[0]), ord($range[1]));
-                                for ( $i = $min; $i <= $max; $i++ ) {
+                                for ($i = $min; $i <= $max; $i++) {
                                     $newArray[] = chr($i);
                                 }
                                 $formatedString = 'array("' . implode('","', $newArray) . '")';
@@ -214,7 +206,7 @@ class Variable
                         case 'PathWithArguments':
                             $parameters = preg_replace('/[\[{]/', 'array(', $matches[3]);
                             $parameters = preg_replace('/: /', ' => ', $parameters);
-                            $parameters = preg_replace('/[\]}]/', ')', $parameters);                            
+                            $parameters = preg_replace('/[\]}]/', ')', $parameters);
                             $parameters = $this->fixDataInArray($parameters);
                             $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ',' . $parameters . ')';
                             break;
@@ -224,13 +216,13 @@ class Variable
                         case 'Concat':
                             $formatedString = '';
                             $strings = explode(' ~ ', $string);
-                            foreach($strings as $item) {
-                                if(!empty($formatedString)) {
+                            foreach ($strings as $item) {
+                                if (!empty($formatedString)) {
                                     $formatedString .= '.';
                                 }
-                                $formatedString .= $this->_stringToVariable($item);
+                                $formatedString .= $this->stringToVariable($item);
                             }
-                           break; 
+                            break;
                         case 'Date':
                             $date = str_replace(array('"', '"'), array('', ''), empty($matches[4]) ? $matches[1] : $matches[4]);
                             $zone = str_replace(array('"', '"'), array('', ''), empty($matches[3]) ? date_default_timezone_get() : $matches[3]);
@@ -243,57 +235,55 @@ class Variable
                 }
             }
 
-            if ( empty($formatedString) ) {
+            if (empty($formatedString)) {
                 $formatedString = '$this->aData["' . $string . '"]';
             }
         } else {
             $formatedString = $string;
         }
 
-        unset($matches, $range, $string, $type, $regexp, $items);
         return $formatedString;
     }
 
     private function fixDataInArray($arrayText)
     {
-        $arrayText = substr($arrayText, 6, strlen($arrayText) - 7);        
+        $arrayText = substr($arrayText, 6, strlen($arrayText) - 7);
         $first = explode(',', $arrayText);
-        foreach ( $first as $key => $item ) {
+        foreach ($first as $key => $item) {
             $second = explode('=>', $item);
-            $second[1] = $this->_stringToVariable(trim($second[1]));
+            $second[1] = $this->stringToVariable(trim($second[1]));
             $first[$key] = implode('=> ', $second);
         }
         $fixedText = 'array(' . implode(', ', $first) . ')';
 
-        unset($arrayText, $first, $key, $item, $second);
         return $fixedText;
     }
 
-    private function _prepareVariable()
+    private function prepareVariable()
     {
-        if ( !empty($this->_filters) ) {
-            $this->_finalVariable = '$this->_' . $this->_functionName . '(' . $this->_transformedVariable . ')';
+        if (!empty($this->filters)) {
+            $this->finalVariable = '$this->_' . $this->functionName . '(' . $this->transformedVariable . ')';
         } else {
-            $this->_finalVariable = $this->_transformedVariable;
+            $this->finalVariable = $this->transformedVariable;
         }
 
-        $this->_code = '<?php echo ' . $this->_finalVariable . '; ?>';
+        $this->code = '<?php echo ' . $this->finalVariable . '; ?>';
     }
 
-    private function _prepareFunction()
+    private function prepareFunction()
     {
         $matches = array();
 
-        $function = Template::phpRow('public function _' . $this->_functionName . '($xValue)');
+        $function = Template::phpRow('public function _' . $this->functionName . '($xValue)');
         $function .= Template::phpRow('{');
-        foreach ( $this->_filters as $filter ) {
+        foreach ($this->filters as $filter) {
 
             preg_match_all('|(.*)\((.*)\)|U', $filter, $matches, PREG_SET_ORDER);
 
-            if ( empty($matches) ) {
+            if (empty($matches)) {
                 $function .= Template::phpRow('$xValue = $this->aFilters["' . $filter . '"]->Get($xValue);', 2);
             } else {
-                if ( empty($matches[0][2]) ) {
+                if (empty($matches[0][2])) {
                     $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue);';
                     $function .= Template::phpRow($text, 2);
                 } else {
@@ -301,7 +291,7 @@ class Variable
                     $subMatches = array();
                     preg_match('/^[\[{](.*)[\]}]$/', $parameters, $subMatches);
 
-                    if ( count($subMatches) > 0 ) {
+                    if (count($subMatches) > 0) {
                         $parameters = preg_replace('/[\[{]/', 'array(', $parameters);
                         $parameters = preg_replace('/: /', ' => ', $parameters);
                         $parameters = preg_replace('/[\]}]/', ')', $parameters);
@@ -310,27 +300,24 @@ class Variable
                     preg_match_all("/\"[^\"]*\"|\'[^\']*\'|(array\()|\)|[a-z0-9\.]*|(=>)|(,)/", $parameters, $exploded);
 
                     $parameters = array();
-                    foreach($exploded[0] as $parameter) {
-                        
-                        if($parameter === '') {
+                    foreach ($exploded[0] as $parameter) {
+
+                        if ($parameter === '') {
                             continue;
                         }
-                        
-                        if(  is_numeric($parameter) or in_array($parameter, array('array(', '=>', ',', ')')) ) {
+
+                        if (is_numeric($parameter) or in_array($parameter, array('array(', '=>', ',', ')'))) {
                             $parameters[] = $parameter;
-                        }
-                        elseif(strpos($parameter, 'app.') === 0) {
+                        } elseif (strpos($parameter, 'app.') === 0) {
                             $items = explode('.', $parameter);
                             $parameters[] = '$this->aData["' . implode('"]["', $items) . '"]';
-                        }
-                        elseif(strpos($parameter, '"') === 0 or strpos($parameter, "'") === 0) {
-                            $parameters[] = $parameter;                            
-                        }
-                        else {
-                            $parameters[] = '$this->aData["' . $parameter . '"]';                                                        
+                        } elseif (strpos($parameter, '"') === 0 or strpos($parameter, "'") === 0) {
+                            $parameters[] = $parameter;
+                        } else {
+                            $parameters[] = '$this->aData["' . $parameter . '"]';
                         }
                     }
-                    
+
                     $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . implode('', $parameters) . ');';
                     $function .= Template::phpRow($text, 2);
                 }
@@ -339,11 +326,6 @@ class Variable
         $function .= Template::phpRow('return $xValue;', 2);
         $function .= Template::phpRow('}', 1, 2);
 
-        $this->_function = $function;
-
-        unset($function, $filter, $matches, $subMatches, $parameters, $text);
+        $this->function = $function;
     }
-
 }
-
-# End of file

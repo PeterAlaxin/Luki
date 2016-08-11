@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Router class
  *
  * Luki framework
- * Date 7.7.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Router
  * @filesource
  */
 
@@ -23,11 +18,6 @@ use Luki\Config;
 use Luki\Request;
 use Luki\Router\Route;
 
-/**
- * Router class
- *
- * @package Luki
- */
 class Router
 {
 
@@ -43,8 +33,17 @@ class Router
 
         $this->setRoutes();
         Storage::Set('Router', $this);
+    }
 
-        unset($request, $config);
+    public function __destruct()
+    {
+        foreach ($this->routes as $route) {
+            $route = null;
+        }
+
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public function Dispatch()
@@ -52,29 +51,27 @@ class Router
         $output = '';
         $url = '/' . $this->request->getUrl();
 
-        foreach ( $this->routes as $route ) {
-            if ( $route->isCatch($url, $this->request->getRequestMethod()) ) {
+        foreach ($this->routes as $route) {
+            if ($route->isCatch($url, $this->request->getRequestMethod())) {
                 $this->prepareController($route);
                 $output = $this->controller->getOutput();
                 break;
             }
         }
 
-        unset($url, $route);
         return $output;
     }
 
     public function getRoute($name, $parameters)
-    {        
-        if ( array_key_exists($name, $this->routes) ) {
+    {
+        if (array_key_exists($name, $this->routes)) {
             $route = $this->routes[$name]->getRoute($parameters);
         } else {
             $route = '';
         }
 
         $route = rtrim($this->request->getShortUrl(), '/') . $route;
-        
-        unset($name, $parameters);
+
         return $route;
     }
 
@@ -82,10 +79,10 @@ class Router
     {
         $routes = $this->config->getSections();
 
-        foreach ( $routes as $route ) {
+        foreach ($routes as $route) {
             $item = $this->config->getSection($route);
 
-            if ( $this->isValid($item) ) {
+            if ($this->isValid($item)) {
                 $this->routes[$route] = $this->createRoute($route, $item);
             }
         }
@@ -95,7 +92,6 @@ class Router
     {
         $isValid = (!empty($item['pattern']) and ! empty($item['modul']) and ! empty($item['controller']));
 
-        unset($item);
         return $isValid;
     }
 
@@ -103,28 +99,27 @@ class Router
     {
         $newRoute = new Route($route);
         $newRoute->setPattern($item['pattern'])
-                ->setModul($item['modul'])
-                ->setController($item['controller']);
+            ->setModul($item['modul'])
+            ->setController($item['controller']);
 
-        if ( !empty($item['action']) ) {
+        if (!empty($item['action'])) {
             $newRoute->setAction($item['action']);
         }
 
-        if ( !empty($item['method']) ) {
+        if (!empty($item['method'])) {
             $newRoute->setMethod($item['method']);
         }
 
-        if ( !empty($item['parameters']) ) {
+        if (!empty($item['parameters'])) {
             $newRoute->setParameters($item['parameters']);
         }
 
-        if ( !empty($item['defaults']) ) {
+        if (!empty($item['defaults'])) {
             $newRoute->setDefaults($item['defaults']);
         }
 
         $newRoute->create();
 
-        unset($route, $item);
         return $newRoute;
     }
 
@@ -135,22 +130,21 @@ class Router
 
         $methods = get_class_methods(get_class($this->controller));
 
-        if ( in_array('preDispatch', $methods) ) {
+        if (in_array('preDispatch', $methods)) {
             $this->controller->preDispatch();
         }
 
         $action = $route->getAction() . 'Action';
         $arguments = $route->getArguments();
 
-        if ( in_array($action, $methods) ) {
-            call_user_func_array(array( $this->controller, $action ), $arguments);
-        } elseif ( in_array('indexAction', $methods) ) {
-            call_user_func_array(array( $this->controller, 'indexAction' ), $arguments);
+        if (in_array($action, $methods)) {
+            call_user_func_array(array($this->controller, $action), $arguments);
+        } elseif (in_array('indexAction', $methods)) {
+            call_user_func_array(array($this->controller, 'indexAction'), $arguments);
         }
 
-        if ( in_array('postDispatch', $methods) ) {
+        if (in_array('postDispatch', $methods)) {
             $this->controller->postDispatch();
         }
     }
-
 }

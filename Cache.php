@@ -1,33 +1,21 @@
 <?php
-
 /**
  * Cache class
  *
  * Luki framework
- * Date 24.9.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Cache
  * @filesource
  */
 
 namespace Luki;
 
-use Luki\Cache\basicInterface;
+use Luki\Cache\BasicInterface;
 
-/**
- * Cache class
- *
- * Caching data
- *
- * @package Luki
- */
 class Cache
 {
 
@@ -36,15 +24,21 @@ class Cache
     const EXPIRE_IN_HOUR = 3600;
     const EXPIRE_IN_DAY = 86400;
 
-    private $_cacheAdapter = NULL;
-    private $_expirationInSeconds = 0;
-    private $_useCache = TRUE;
+    private $cacheAdapter = null;
+    private $expiration = 0;
+    private $useCache = true;
 
-    public function __construct(basicInterface $cacheAdapter)
+    public function __construct(BasicInterface $adapter)
     {
-        $this->_cacheAdapter = $cacheAdapter;
+        $this->cacheAdapter = $adapter;
+        $this->expiration = $this->cacheAdapter->getExpiration();
+    }
 
-        unset($cacheAdapter);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public static function findAdapter($cacheType)
@@ -54,80 +48,85 @@ class Cache
         return $cacheAdapter;
     }
 
-    public function setExpiration($newExpirationInSeconds = 0)
+    public function setExpiration($expiration = 0)
     {
-        $isSet = FALSE;
-
-        if ( is_int($newExpirationInSeconds) ) {
-            $this->_expirationInSeconds = $newExpirationInSeconds;
-            $isSet = TRUE;
+        if (is_int($expiration)) {
+            $this->expiration = $expiration;
+            $isSet = true;
+        } else {
+            $isSet = false;
         }
 
-        unset($newExpirationInSeconds);
         return $isSet;
     }
 
     public function getExpiration()
     {
-        return $this->_expirationInSeconds;
+        return $this->expiration;
     }
 
-    public function Set($key, $value = '', $expirationInSeconds = NULL)
+    public function Set($key, $value = '', $expiration = null)
     {
-        if ( !$this->_useCache ) {
-            return NULL;
+        if (!$this->useCache) {
+            return null;
         }
 
-        if ( is_null($expirationInSeconds) ) {
-            $expirationInSeconds = $this->_expirationInSeconds;
+        if (!is_int($expiration)) {
+            $expiration = $this->expiration;
         }
 
-        if ( is_array($key) ) {
-            foreach ( $key as $subKey => $subValue ) {
-                $isSet = $this->_cacheAdapter->Set($subKey, $subValue, $expirationInSeconds);
+        if (is_array($key)) {
+            foreach ($key as $subKey => $subValue) {
+                $isSet = $this->cacheAdapter->Set($subKey, $subValue, $expiration);
 
-                if ( !$isSet ) {
+                if (!$isSet) {
                     break;
                 }
             }
         } else {
-            $isSet = $this->_cacheAdapter->Set($key, $value, $expirationInSeconds);
+            $isSet = $this->cacheAdapter->Set($key, $value, $expiration);
         }
 
-        unset($key, $value, $subKey, $subValue, $expirationInSeconds);
         return $isSet;
     }
 
     public function Get($key)
     {
-        if ( !$this->_useCache ) {
-            $value = NULL;
+        if (!$this->useCache) {
+            $value = null;
         } else {
-            $value = $this->_cacheAdapter->Get($key);
+            $value = $this->cacheAdapter->Get($key);
         }
 
-        unset($key);
         return $value;
     }
 
     public function Delete($key)
     {
-        $isDeleted = $this->_cacheAdapter->Delete($key);
+        $isDeleted = $this->cacheAdapter->Delete($key);
 
-        unset($key);
         return $isDeleted;
     }
 
-    public function useCache($useCache = TRUE)
+    public function Clear()
     {
-        $this->_useCache = (bool) $useCache;
+        $this->cacheAdapter->Clear();
+    }
+
+    public function Has($key)
+    {
+        $has = $this->cacheAdapter->Has($key);
+
+        return $has;
+    }
+
+    public function useCache($useCache = true)
+    {
+        $this->useCache = (bool) $useCache;
     }
 
     public function isUsedCache()
     {
-        return $this->_useCache;
+        return $this->useCache;
     }
-
 }
-
-# End of file

@@ -1,15 +1,10 @@
 <?php
-
 /**
  * Time validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,14 +14,9 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * Time validator
- * 
- * @package Luki
- */
-class Time extends basicFactory
+class Time extends BasicFactory
 {
 
     public function __construct($options = array())
@@ -36,10 +26,5 @@ class Time extends basicFactory
         $validator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" is not valid time!');
-
-        unset($options, $validator);
     }
-
 }
-
-# End of file

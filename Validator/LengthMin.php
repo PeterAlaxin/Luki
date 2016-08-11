@@ -1,15 +1,10 @@
 <?php
-
 /**
  * LengthMin validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,14 +14,9 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * LengthMin validator
- * 
- * @package Luki
- */
-class LengthMin extends basicFactory
+class LengthMin extends BasicFactory
 {
 
     public $min = 0;
@@ -34,39 +24,30 @@ class LengthMin extends basicFactory
     public function __construct($options = array())
     {
         parent::__construct($options);
-
         $this->setMessage('The length is less then "%min%"!');
-
-        unset($options);
     }
 
     public function isValid($value)
     {
-        $this->isValid = FALSE;
+        $this->isValid = false;
         $length = $this->getValueLength($value);
 
-        if ( $length >= $this->min ) {
+        if ($length >= $this->min) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%min%/', $this->min);
         }
 
-        unset($value);
         return $this->isValid;
     }
 
     public function setMin($min)
     {
         $this->min = (float) $min;
-
-        unset($min);
     }
 
     public function getMin()
     {
         return $this->min;
     }
-
 }
-
-# End of file

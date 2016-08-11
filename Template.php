@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Template class
  *
  * Luki framework
- * Date 6.1.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Template
  * @filesource
  */
 
@@ -26,263 +21,254 @@ use Luki\Template\Block;
 use Luki\Template\Filters\Capitalize;
 use Luki\Time;
 
-/**
- * Template class
- *
- * @package Luki
- */
 class Template
 {
 
-    protected static $_twigPath = '';
-    protected $_template = '';
-    protected $_class = '';
-    protected $_classContent = '';
-    protected $_data = array();
-    protected $_variables = array();
-    protected $_blocks = array();
-    protected $_twig = '';
-    protected $_newClass = '';
-    protected $_filters = array();
-    protected $_functions = array();
-    protected $_tests = array();
-    protected $_extendedClass = '';
+    protected static $twigPath = '';
+    protected $template = '';
+    protected $class = '';
+    protected $classContent = '';
+    protected $data = array();
+    protected $variables = array();
+    protected $blocks = array();
+    protected $twig = '';
+    protected $newClass = '';
+    protected $filters = array();
+    protected $functions = array();
+    protected $tests = array();
+    protected $extendedClass = '';
 
-    function __construct($template, $data = NULL)
+    function __construct($template, $data = null)
     {
-        $this->_template = $template;
-        $this->_data = (array) $data;
-        $this->_addApplicationData();
+        $this->template = $template;
+        $this->data = (array) $data;
+        $this->addApplicationData();
 
         $templateWithoutTwig = preg_replace('/.twig/', '', $template);
         $templateWithoutTemplate = preg_replace('/\/template/', '', $templateWithoutTwig);
         $class = ucwords(preg_replace('/\//', ' ', $templateWithoutTemplate));
 
-        $this->_class = implode('', array_slice(explode(' ', $class), -2));
+        $this->class = implode('', array_slice(explode(' ', $class), -2));
 
-        if ( Storage::isProfiler() ) {
-            Time::stopwatchStart('Luki_Template_' . $this->_class);
+        if (Storage::isProfiler()) {
+            Time::stopwatchStart('Luki_Template_' . $this->class);
         }
 
-        $this->_newClass = self::$_twigPath . preg_replace('/_/', '/', $this->_class) . '.php';
-        if ( !is_file($this->_newClass) or filectime($this->_template) > filectime($this->_newClass) ) {
-            $this->_generateTemplate();
+        $this->newClass = self::$twigPath . preg_replace('/_/', '/', $this->class) . '.php';
+        if (!is_file($this->newClass) or filectime($this->template) > filectime($this->newClass)) {
+            $this->generateTemplate();
         }
+    }
 
-        unset($template, $templateWithoutTwig, $templateWithoutTemplate, $data, $class);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public static function setPath($newPath)
     {
-        self::$_twigPath = $newPath;
-
-        unset($newPath);
+        self::$twigPath = $newPath;
     }
 
     public function Render()
     {
-        $templateClass = new $this->_class($this->_data);
+        $templateClass = new $this->class($this->data);
 
         ob_start();
         $templateClass->Render();
         $output = ob_get_contents();
         ob_end_clean();
 
-        if ( Storage::isProfiler() ) {
-            $stopTime = Time::getStopwatch('Luki_Template_' . $this->_class);
-            Storage::Profiler()->Add('Template', array( 'name' => $this->_class, 'time' => $stopTime ));
+        if (Storage::isProfiler()) {
+            $stopTime = Time::getStopwatch('Luki_Template_' . $this->class);
+            Storage::Profiler()->Add('Template', array('name' => $this->class, 'time' => $stopTime));
         }
 
-        unset($templateClass, $stopTime);
         return $output;
     }
 
-    private function _generateTemplate()
+    private function generateTemplate()
     {
-        $this->_twig = file_get_contents($this->_template);
+        $this->twig = file_get_contents($this->template);
 
-        $this->_clearComments();
-        $this->_extendClass();
-        $this->_begin();
+        $this->clearComments();
+        $this->extendClass();
+        $this->begin();
 
-        if ( empty($this->_extendedClass) ) {
-            $this->_defineFilters();
-            $this->_defineFunctions();
-            $this->_defineTests();
+        if (empty($this->extendedClass)) {
+            $this->defineFilters();
+            $this->defineFunctions();
+            $this->defineTests();
         }
 
-        $this->_defineBlocks();
-        $this->_addFunctions();
-        $this->_useBlocks();
-        $this->_end();
+        $this->defineBlocks();
+        $this->addFunctions();
+        $this->useBlocks();
+        $this->end();
 
-        file_put_contents($this->_newClass, $this->_classContent);
+        file_put_contents($this->newClass, $this->classContent);
     }
 
-    private function _clearComments()
+    private function clearComments()
     {
         $matches = array();
-        preg_match_all('|{# (.*) #}|U', $this->_twig, $matches, PREG_SET_ORDER);
+        preg_match_all('|{# (.*) #}|U', $this->twig, $matches, PREG_SET_ORDER);
 
-        foreach ( $matches as $match ) {
-            $this->_twig = str_replace($match[0], '', $this->_twig);
+        foreach ($matches as $match) {
+            $this->twig = str_replace($match[0], '', $this->twig);
         }
-
-        unset($matches, $match);
     }
 
-    private function _extendClass()
+    private function extendClass()
     {
         $matches = array();
-        preg_match_all('|{% extends "(.*)" %}|U', $this->_twig, $matches, PREG_SET_ORDER);
+        preg_match_all('|{% extends "(.*)" %}|U', $this->twig, $matches, PREG_SET_ORDER);
 
-        if ( !empty($matches) and ! empty($matches[0][1]) ) {
+        if (!empty($matches) and ! empty($matches[0][1])) {
 
             $extends = explode('/', $matches[0][1]);
             $extendedClass = Loader::isFile($extends[0] . '/template/' . $extends[1] . '.twig');
             $template = new Template($extendedClass, array());
 
-            foreach ( $extends as $key => $extended ) {
+            foreach ($extends as $key => $extended) {
                 $extends[$key] = Capitalize::Get($extended);
             }
 
-            $this->_extendedClass = implode('', $extends);
+            $this->extendedClass = implode('', $extends);
         }
 
-        foreach ( $matches as $match ) {
-            $this->_twig = str_replace($match[0], '', $this->_twig);
+        foreach ($matches as $match) {
+            $this->twig = str_replace($match[0], '', $this->twig);
         }
-
-        unset($matches, $match, $extends, $extendedClass, $template, $key, $extended);
     }
 
-    private function _begin()
+    private function begin()
     {
-        $this->_classContent = self::phpRow('<?php', 0);
+        $this->classContent = self::phpRow('<?php', 0);
 
-        if ( !empty($this->_extendedClass) ) {
-            $this->_classContent .= self::phpRow('class ' . $this->_class . ' extends ' . $this->_extendedClass, 0);
-            $this->_classContent .= self::phpRow('{', 0, 2);
-            $this->_classContent .= self::phpRow('public function __construct($aData)');
-            $this->_classContent .= self::phpRow('{');
-            $this->_classContent .= self::phpRow('parent::__construct($aData);', 2);
-            $this->_classContent .= self::phpRow('}', 1, 2);
+        if (!empty($this->extendedClass)) {
+            $this->classContent .= self::phpRow('class ' . $this->class . ' extends ' . $this->extendedClass, 0);
+            $this->classContent .= self::phpRow('{', 0, 2);
+            $this->classContent .= self::phpRow('public function __construct($aData)');
+            $this->classContent .= self::phpRow('{');
+            $this->classContent .= self::phpRow('parent::__construct($aData);', 2);
+            $this->classContent .= self::phpRow('}', 1, 2);
         } else {
-            $this->_classContent .= self::phpRow('class ' . $this->_class, 0);
-            $this->_classContent .= self::phpRow('{', 0, 2);
-            $this->_classContent .= self::phpRow('public $aFilters = array();', 1, 2);
-            $this->_classContent .= self::phpRow('public $aFunctions = array();', 1, 2);
-            $this->_classContent .= self::phpRow('public $aData = array();', 1, 2);
-            $this->_classContent .= self::phpRow('public $aLoop = array();', 1, 2);            
-            $this->_classContent .= self::phpRow('public function __construct($aData)');
-            $this->_classContent .= self::phpRow('{');
-            $this->_classContent .= self::phpRow('$this->aData = $aData;', 2);
-            $this->_classContent .= self::phpRow('$this->aData["loop"] = array();', 2);
-            $this->_classContent .= self::phpRow('$this->_defineFilters();', 2);
-            $this->_classContent .= self::phpRow('$this->_defineFunctions();', 2);
-            $this->_classContent .= self::phpRow('$this->_defineTests();', 2);
-            $this->_classContent .= self::phpRow('}', 1, 2);            
-            $this->_classContent .= self::phpRow('public function Render()');
-            $this->_classContent .= self::phpRow('{');
-            $this->_classContent .= self::phpRow('$this->_mainBlock();', 2);
-            $this->_classContent .= self::phpRow('}', 1, 2);
+            $this->classContent .= self::phpRow('class ' . $this->class, 0);
+            $this->classContent .= self::phpRow('{', 0, 2);
+            $this->classContent .= self::phpRow('public $aFilters = array();', 1, 2);
+            $this->classContent .= self::phpRow('public $aFunctions = array();', 1, 2);
+            $this->classContent .= self::phpRow('public $aData = array();', 1, 2);
+            $this->classContent .= self::phpRow('public $aLoop = array();', 1, 2);
+            $this->classContent .= self::phpRow('public function __construct($aData)');
+            $this->classContent .= self::phpRow('{');
+            $this->classContent .= self::phpRow('$this->aData = $aData;', 2);
+            $this->classContent .= self::phpRow('$this->aData["loop"] = array();', 2);
+            $this->classContent .= self::phpRow('$this->_defineFilters();', 2);
+            $this->classContent .= self::phpRow('$this->_defineFunctions();', 2);
+            $this->classContent .= self::phpRow('$this->_defineTests();', 2);
+            $this->classContent .= self::phpRow('}', 1, 2);
+            $this->classContent .= self::phpRow('public function Render()');
+            $this->classContent .= self::phpRow('{');
+            $this->classContent .= self::phpRow('$this->_mainBlock();', 2);
+            $this->classContent .= self::phpRow('}', 1, 2);
         }
     }
 
-    private function _end()
+    private function end()
     {
-        $this->_classContent .= self::phpRow('}', 0, 0);
+        $this->classContent .= self::phpRow('public function __destruct()');
+        $this->classContent .= self::phpRow('{');
+        $this->classContent .= self::phpRow('foreach ( $this as &$value ) {', 2);
+        $this->classContent .= self::phpRow('$value = null;', 3);
+        $this->classContent .= self::phpRow('}', 2);
+        $this->classContent .= self::phpRow('}');
+
+        $this->classContent .= self::phpRow('}', 0, 0);
     }
 
-    private function _defineFilters()
+    private function defineFilters()
     {
-        $this->_classContent .= self::phpRow('public function _defineFilters()');
-        $this->_classContent .= self::phpRow('{');
+        $this->classContent .= self::phpRow('public function _defineFilters()');
+        $this->classContent .= self::phpRow('{');
 
         $files = File::getFilesInDirectory(__DIR__ . '/Template/Filters');
 
-        foreach ( $files as $file ) {
+        foreach ($files as $file) {
             $file = preg_replace('/.php/', '', $file);
             $filter = strtolower($file);
             $text = '$this->aFilters["' . $filter . '"] = new Luki\\Template\\Filters\\' . $file . ';';
-            $this->_classContent .= self::phpRow($text, 2);
-            $this->_filters[] = $filter;
+            $this->classContent .= self::phpRow($text, 2);
+            $this->filters[] = $filter;
         }
-        $this->_classContent .= self::phpRow('}', 1, 2);
-
-        unset($files, $file, $filter, $text);
+        $this->classContent .= self::phpRow('}', 1, 2);
     }
 
-    private function _defineFunctions()
+    private function defineFunctions()
     {
-        $this->_classContent .= self::phpRow('public function _defineFunctions()');
-        $this->_classContent .= self::phpRow('{');
+        $this->classContent .= self::phpRow('public function _defineFunctions()');
+        $this->classContent .= self::phpRow('{');
 
         $files = File::getFilesInDirectory(__DIR__ . '/Template/Functions');
 
-        foreach ( $files as $file ) {
+        foreach ($files as $file) {
             $file = preg_replace('/.php/', '', $file);
             $function = strtolower($file);
             $text = '$this->aFunctions["' . $function . '"] = new Luki\\Template\\Functions\\' . $file . ';';
-            $this->_classContent .= self::phpRow($text, 2);
+            $this->classContent .= self::phpRow($text, 2);
         }
-        $this->_classContent .= self::phpRow('}', 1, 2);
-
-        unset($files, $file, $function, $text);
+        $this->classContent .= self::phpRow('}', 1, 2);
     }
 
-    private function _defineTests()
+    private function defineTests()
     {
-        $this->_classContent .= self::phpRow('public function _defineTests()');
-        $this->_classContent .= self::phpRow('{');
+        $this->classContent .= self::phpRow('public function _defineTests()');
+        $this->classContent .= self::phpRow('{');
 
         $files = File::getFilesInDirectory(__DIR__ . '/Template/Tests');
 
-        foreach ( $files as $file ) {
+        foreach ($files as $file) {
             $file = preg_replace('/.php/', '', $file);
             $function = strtolower($file);
             $text = '$this->aTests["' . $function . '"] = new Luki\\Template\\Tests\\' . $file . ';';
-            $this->_classContent .= self::phpRow($text, 2);
+            $this->classContent .= self::phpRow($text, 2);
         }
-        $this->_classContent .= self::phpRow('}', 1, 2);
-
-        unset($files, $file, $function, $text);
+        $this->classContent .= self::phpRow('}', 1, 2);
     }
 
-    private function _defineBlocks()
+    private function defineBlocks()
     {
-        $mainBlock = $this->_parseBlocks($this->_twig);
+        $mainBlock = $this->parseBlocks($this->twig);
 
-        if ( empty($this->_extendedClass) ) {
-            $this->_blocks['main'] = new Block($mainBlock);
+        if (empty($this->extendedClass)) {
+            $this->blocks['main'] = new Block($mainBlock);
         }
 
-        foreach ( $this->_blocks as $name => $block ) {
-            $blockContent = $this->_getContent($name, $block);
-            $this->_classContent .= self::phpRow('public function _' . $name . 'Block()');
-            $this->_classContent .= self::phpRow('{');
-            $this->_classContent .= self::phpRow(' ?>' . $blockContent . '<?php ', 2);
-            $this->_classContent .= self::phpRow('}', 1, 2);
-            $this->_variables = array_merge($this->_variables, $block->getVariables());
+        foreach ($this->blocks as $name => $block) {
+            $blockContent = $this->getContent($name, $block);
+            $this->classContent .= self::phpRow('public function _' . $name . 'Block()');
+            $this->classContent .= self::phpRow('{');
+            $this->classContent .= self::phpRow(' ?>' . $blockContent . '<?php ', 2);
+            $this->classContent .= self::phpRow('}', 1, 2);
+            $this->variables = array_merge($this->variables, $block->getVariables());
         }
-
-        unset($name, $block, $mainBlock, $blockContent);
     }
 
-    private function _getContent($name, $block)
+    private function getContent($name, $block)
     {
-        if ( empty($this->_extendedClass) ) {
+        if (empty($this->extendedClass)) {
             $content = preg_replace('/{% parent %}/', '', $block->getContent());
         } else {
             $text = '<?php parent::_' . $name . 'Block(); ?>';
             $content = preg_replace('/{% parent %}/', self::phpRow($text), $block->getContent());
         }
 
-        unset($name, $block, $text);
         return $content;
     }
 
-    private function _parseBlocks($block)
+    private function parseBlocks($block)
     {
         $startMatches = array();
         $endMatches = array();
@@ -291,19 +277,19 @@ class Template
         preg_match_all('|({% block (.*) %})|U', $block, $startMatches, PREG_SET_ORDER);
         preg_match_all('|({% endblock(.*) %})|U', $block, $endMatches, PREG_SET_ORDER);
 
-        if ( count($startMatches) != count($endMatches) ) {
+        if (count($startMatches) != count($endMatches)) {
             echo 'Template error in block counts';
             exit;
         }
 
-        while ( count($startMatches) > 0 ) {
-            foreach ( $startMatches as $blocks ) {
+        while (count($startMatches) > 0) {
+            foreach ($startMatches as $blocks) {
                 $text = '|({% block ' . $blocks[2] . ' %})([\s\S]*)({% endblock(.*) %})|U';
                 preg_match_all($text, $block, $blockMatches, PREG_SET_ORDER);
 
-                foreach ( $blockMatches as $subBlock ) {
-                    if ( 0 === preg_match_all('/{% block (.*) %}/', $subBlock[2], $aSubBlockMatches) ) {
-                        $this->_blocks[$blocks[2]] = new Block($subBlock);
+                foreach ($blockMatches as $subBlock) {
+                    if (0 === preg_match_all('/{% block (.*) %}/', $subBlock[2], $aSubBlockMatches)) {
+                        $this->blocks[$blocks[2]] = new Block($subBlock);
                         $block = str_replace($subBlock[0], '<?php $this->_' . $blocks[2] . 'Block(); ?>', $block);
                     }
                 }
@@ -312,118 +298,110 @@ class Template
             preg_match_all('|({% block (.*) %})|U', $block, $startMatches, PREG_SET_ORDER);
         }
 
-        unset($startMatches, $endMatches, $blockMatches, $blocks, $subBlock, $text);
         return $block;
     }
 
-    private function _addFunctions()
+    private function addFunctions()
     {
-        foreach ( $this->_variables as $variable ) {
+        foreach ($this->variables as $variable) {
 
             $functionName = $variable->getFunctionName();
 
-            if ( !empty($functionName) and ! in_array($functionName, $this->_functions) ) {
-                $this->_classContent .= $variable->getFunction();
-                $this->_functions[] = $functionName;
+            if (!empty($functionName) and ! in_array($functionName, $this->functions)) {
+                $this->classContent .= $variable->getFunction();
+                $this->functions[] = $functionName;
             }
         }
-
-        unset($variable, $functionName);
     }
 
-    private function _useBlocks()
+    private function useBlocks()
     {
         $matches = array();
-        preg_match_all('/{{ (block)(\(["\'])(.*)(["\']\)) }}/U', $this->_classContent, $matches, PREG_SET_ORDER);
+        preg_match_all('/{{ (block)(\(["\'])(.*)(["\']\)) }}/U', $this->classContent, $matches, PREG_SET_ORDER);
 
-        foreach ( $matches as $variable ) {
+        foreach ($matches as $variable) {
             $block = '<?php $this->_' . $variable[3] . 'Block(); ?>';
-            $this->_classContent = str_replace($variable[0], $block, $this->_classContent);
+            $this->classContent = str_replace($variable[0], $block, $this->classContent);
         }
-
-        unset($matches, $variable, $block);
     }
 
     public static function phpRow($string, $tab = 1, $eol = 1)
     {
-        for ( $n = 1; $n <= $tab; $n++ ) {
+        for ($n = 1; $n <= $tab; $n++) {
             $string = "\t" . $string;
         }
 
-        for ( $n = 1; $n <= $eol; $n++ ) {
+        for ($n = 1; $n <= $eol; $n++) {
             $string .= "\n";
         }
 
-        unset($tab, $eol);
         return $string;
     }
 
-    private function _addApplicationData()
+    private function addApplicationData()
     {
-        $this->_data['app'] = array(
-          'request' => $this->_addRequest(),
-          'storage' => $this->_addData(Storage::getData()),
-          'constant' => $this->_addConstants(),
-          'alerts' => Storage::Alerts(),
-          'session' => $_SESSION
+        $this->data['app'] = array(
+            'request' => $this->addRequest(),
+            'storage' => $this->addData(Storage::getData()),
+            'constant' => $this->addConstants(),
+            'alerts' => Storage::Alerts(),
+            'session' => $_SESSION
         );
     }
 
-    private function _addRequest()
+    private function addRequest()
     {
-        $request = $this->_getRequest();
+        $request = $this->getRequest();
 
         $formatedRequest = array(
-          'requestTime' => $request->getRequestTime(),
-          'requestUri' => $request->getRequestUri(),
-          'requestMethod' => $request->getRequestMethod(),
-          'clientIp' => $request->getClientIP(),
-          'scriptName' => $request->getScriptName(),
-          'pathInfo' => $request->getPathInfo(),
-          'redirectStatus' => $request->getRedirectStatus(),
-          'host' => $request->getHost(),
-          'userAgent' => $request->getUserAgent(),
-          'userAgent' => $request->getUserAgent(),
-          'languages' => $request->getLanguages(),
-          'protocol' => $request->getProtocol(),
-          'serverName' => $request->getServerName(),
-          'queryString' => $request->getQueryString(),
-          'baseUrl' => $request->getBaseUrl(),
-          'fullUrl' => $request->getFullUrl(),
-          'shortUrl' => $request->getShortUrl(),
-          'url' => $request->getURL(),
-          'crumb' => $request->getCrumb(),
-          'crumbCount' => $request->getCrumbCount(),
-          'isAjax' => $request->isAjax(),
-          'isSafe' => $request->isSafe(),
-          'get' => $this->_addData($request->get->getData()),
-          'post' => $this->_addData($request->post->getData()),
-          'files' => $this->_addData($request->files->getData()),
-          'cookie' => $this->_addData($request->cookie->getData()),
-          'server' => $this->_addData($request->server->getData()),
+            'requestTime' => $request->getRequestTime(),
+            'requestUri' => $request->getRequestUri(),
+            'requestMethod' => $request->getRequestMethod(),
+            'clientIp' => $request->getClientIP(),
+            'scriptName' => $request->getScriptName(),
+            'pathInfo' => $request->getPathInfo(),
+            'redirectStatus' => $request->getRedirectStatus(),
+            'host' => $request->getHost(),
+            'userAgent' => $request->getUserAgent(),
+            'userAgent' => $request->getUserAgent(),
+            'languages' => $request->getLanguages(),
+            'protocol' => $request->getProtocol(),
+            'serverName' => $request->getServerName(),
+            'queryString' => $request->getQueryString(),
+            'baseUrl' => $request->getBaseUrl(),
+            'fullUrl' => $request->getFullUrl(),
+            'shortUrl' => $request->getShortUrl(),
+            'url' => $request->getURL(),
+            'crumb' => $request->getCrumb(),
+            'crumbCount' => $request->getCrumbCount(),
+            'isAjax' => $request->isAjax(),
+            'isSafe' => $request->isSafe(),
+            'get' => $this->addData($request->get->getData()),
+            'post' => $this->addData($request->post->getData()),
+            'files' => $this->addData($request->files->getData()),
+            'cookie' => $this->addData($request->cookie->getData()),
+            'server' => $this->addData($request->server->getData()),
         );
 
         return $formatedRequest;
     }
-    
-    private function _addConstants()
+
+    private function addConstants()
     {
-        $constants = get_defined_constants(TRUE);
-        
-        if(!empty($constants['user'])) {
+        $constants = get_defined_constants(true);
+
+        if (!empty($constants['user'])) {
             $userConstants = $constants['user'];
-        }
-        else {
+        } else {
             $userConstants = array();
         }
-        
-        unset($constants);
+
         return $userConstants;
     }
 
-    private function _getRequest()
+    private function getRequest()
     {
-        if ( Storage::isRequest() ) {
+        if (Storage::isRequest()) {
             $request = Storage::Request();
         } else {
             $request = new Request;
@@ -432,18 +410,14 @@ class Template
         return $request;
     }
 
-    private function _addData($data)
+    private function addData($data)
     {
         $return = array();
 
-        foreach ( $data as $key => $value ) {
+        foreach ($data as $key => $value) {
             $return[$key] = $value;
         }
 
-        unset($data, $key, $value);
         return $return;
     }
-
 }
-
-# End of file

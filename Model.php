@@ -1,129 +1,117 @@
 <?php
-
 /**
  * Model class
  *
  * Luki framework
- * Date 6.1.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Model
  * @filesource
  */
 
 namespace Luki;
 
 use Luki\Data;
-use Luki\Data\basicInterface;
+use Luki\Data\BasicInterface;
+use Luki\Entity;
 use Luki\Storage;
 use Luki\Url;
-use Luki\Entity;
 
-/**
- * Model class
- *
- * @package Luki
- */
 abstract class Model
 {
 
     public $data = array();
-    
-    public function addData($name, basicInterface $dataAdapter)
-    {
-        $this->data[$name] = new Data($dataAdapter);
 
-        unset($name, $dataAdapter);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
+
+    public function addData($name, BasicInterface $adapter)
+    {
+        $this->data[$name] = new Data($adapter);
+
         return $this;
     }
 
     public function getData($name)
     {
-        $dataAdapter = NULL;
+        $adapter = null;
 
-        if ( isset($this->data[$name]) ) {
-            $dataAdapter = $this->data[$name];
+        if (isset($this->data[$name])) {
+            $adapter = $this->data[$name];
         }
 
-        unset($name);
-        return $dataAdapter;
+        return $adapter;
     }
 
     public function getAdapter($options)
     {
-        $dataAdapter = FALSE;
-
-        if ( !empty($options['adapter']) ) {
+        if (!empty($options['adapter'])) {
             $adapterName = $options['adapter'] . 'Adapter';
-            $dataAdapter = new $adapterName($options);
+            $adapter = new $adapterName($options);
+        } else {
+            $adapter = false;
         }
 
-        unset($options, $adapterName);
-        return $dataAdapter;
+        return $adapter;
     }
 
     public function getFromCache($name = '')
     {
-        $cache = FALSE;
-
-        if ( Storage::isCache() and Storage::Cache()->isUsedCache() ) {
-            $name = $this->_getCacheName($name);
+        if (Storage::isCache() and Storage::Cache()->isUsedCache()) {
+            $name = $this->getCacheName($name);
             $cache = Storage::Cache()->Get($name);
+        } else {
+            $cache = false;
         }
 
-        unset($name);
         return $cache;
     }
 
     public function setToCache($content, $name = '', $expiration = 3600)
     {
-        if ( Storage::isCache() ) {
-            $name = $this->_getCacheName($name);
+        if (Storage::isCache()) {
+            $name = $this->getCacheName($name);
             Storage::Cache()->Set($name, $content, $expiration);
         }
 
-        unset($content, $name, $expiration);
         return $this;
     }
 
-    public function getEntity($table, basicInterface $dataAdapter)
+    public function getEntity($table, BasicInterface $adapter)
     {
         $entityName = $table . 'Entity';
         $entityFile = Storage::dirEntity() . '/' . $entityName . '.php';
-        if(!is_file($entityFile)) {
+        if (!is_file($entityFile)) {
             $newEntity = new Entity($table);
-            $newEntity->setData($dataAdapter)
-                      ->setFile($entityFile)
-                      ->createEntity();
+            $newEntity->setData($adapter)
+                ->setFile($entityFile)
+                ->createEntity();
         }
-        
+
         require_once($entityFile);
-        $entity = new $entityName($dataAdapter);
-        
-        unset($table, $dataAdapter, $entityName, $entityFile, $newEntity);
+        $entity = new $entityName($adapter);
+
         return $entity;
     }
-    
-    private function _getCacheName($name)
+
+    private function getCacheName($name)
     {
         $callers = debug_backtrace();
         $newName = $callers[2]['class'] . '_' . $callers[2]['function'];
 
-        if ( !empty($name) ) {
+        if (!empty($name)) {
             $newName .= '_' . $name;
-        } elseif ( !empty($callers[2]['args']) ) {
-            $newName .= '_' . Url::makeLink(implode('_', $callers[2]['args']), FALSE);
+        } elseif (!empty($callers[2]['args'])) {
+            $newName .= '_' . Url::makeLink(implode('_', $callers[2]['args']), false);
         }
 
-        unset($callers, $name);
         return $newName;
-    }    
+    }
 }
-
-# End of file

@@ -1,52 +1,43 @@
 <?php
-
 /**
  * Reader class
  *
  * Luki framework
- * Date 23.6.2016
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Reader
  * @filesource
  */
 
 namespace Luki;
 
-/**
- * Reader class
- *
- * Read sources
- * 
- * @package Luki
- */
 class Reader
 {
 
-    private $file = NULL;
-    private $adapter = NULL;
+    private $file = null;
+    private $adapter = null;
 
     public function __construct($file)
     {
         $this->file = $file;
         $this->findAdapter();
+    }
 
-        unset($file);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     private function findAdapter()
     {
         $extension = strtolower(pathinfo($this->file, PATHINFO_EXTENSION));
-        $name = __NAMESPACE__ . '\Reader\\' . $extension . 'Adapter';
+        $name = __NAMESPACE__ . '\Reader\\' . ucfirst($extension) . 'Adapter';
         $this->adapter = new $name($this->file);
-
-        unset($extension, $name);
     }
 
     public function getFilesize()
@@ -60,7 +51,6 @@ class Reader
     {
         $this->adapter->setBlocksize($newSize);
 
-        unset($newSize);
         return $this;
     }
 
@@ -105,8 +95,6 @@ class Reader
         $read = $this->getReadBytes();
         $percent = round(($read / $all) * 10000) / 100;
 
-        unset($all, $read);
         return $percent;
     }
-
 }

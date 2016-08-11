@@ -1,15 +1,10 @@
 <?php
-
 /**
  * Regex validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,55 +14,41 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * Regex validator
- * 
- * @package Luki
- */
-class Regex extends basicFactory
+class Regex extends BasicFactory
 {
 
-    public $regex = NULL;
+    public $regex = null;
 
     public function __construct($options = array())
     {
         parent::__construct($options);
-
         $this->setMessage('The value "%value%" does not match regular expression "%regex%"!');
-
-        unset($options);
     }
 
     public function isValid($value)
     {
-        $this->isValid = FALSE;
+        $this->isValid = false;
 
-        if ( 1 === preg_match($this->regex, $value) ) {
+        if (1 === preg_match($this->regex, $value)) {
             $this->setNoError();
         } else {
-            $from = array( '/%value%/', '/%regex%/' );
-            $to = array( $value, $this->regex );
+            $from = array('/%value%/', '/%regex%/');
+            $to = array($value, $this->regex);
             $this->fillMessage($from, $to);
         }
 
-        unset($value, $from, $to);
         return $this->isValid;
     }
 
     public function setRegex($regex)
     {
         $this->regex = (float) $regex;
-
-        unset($regex);
     }
 
     public function getRegex()
     {
         return $this->regex;
     }
-
 }
-
-# End of file

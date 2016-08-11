@@ -1,15 +1,10 @@
 <?php
-
 /**
  * Select input
  *
  * Luki framework
- * Date 30.5.2014
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,30 +14,24 @@
 
 namespace Luki\Formular;
 
-use Luki\Formular\basicFactory;
+use Luki\Formular\BasicFactory;
 
-/**
- * Select input
- * 
- * @package Luki
- */
-class Select extends basicFactory
+class Select extends BasicFactory
 {
 
-    private $_data = array();
-    private $_value = array();
+    private $data = array();
+    private $values = array();
 
     public function setData($data)
     {
-        $this->_data = (array) $data;
-        
+        $this->data = (array) $data;
+
         return $this;
     }
 
     public function getHtml()
     {
-        $html = array( 'label' => $this->prepareLabel(),
-          'input' => $this->prepareInput() );
+        $html = array('label' => $this->prepareLabel(), 'input' => $this->prepareInput());
 
         return $html;
     }
@@ -50,13 +39,12 @@ class Select extends basicFactory
     private function prepareAttributes()
     {
         $attributes = '';
-        foreach ( $this->getAttributes() as $attribute => $value ) {
-            if ( 'value' !== $attribute ) {
+        foreach ($this->getAttributes() as $attribute => $value) {
+            if ('value' !== $attribute) {
                 $attributes .= $attribute . '="' . $value . '" ';
             }
         }
 
-        unset($attribute, $value);
         return $attributes;
     }
 
@@ -73,10 +61,10 @@ class Select extends basicFactory
     {
         $input = '<select ' . $this->prepareAttributes() . '>';
 
-        foreach ( $this->_data as $value => $option ) {
+        foreach ($this->data as $value => $option) {
             $input .= '<option value="' . $value . '"';
 
-            if ( in_array($value, $this->_value ) ) {
+            if (in_array($value, $this->values)) {
                 $input .= ' selected="selected"';
             }
 
@@ -85,45 +73,34 @@ class Select extends basicFactory
 
         $input .= '</select>';
 
-        unset($value, $option);
         return $input;
     }
 
     public function setValue($value)
     {
-        $this->_value[] = $value;
+        $this->values[] = $value;
 
-        unset($value);
         return $this;
     }
 
     public function isValid()
     {
         $this->_validate();
-
-        $isValid = FALSE;
-        if ( empty($this->_errors) ) {
-            $isValid = TRUE;
-        }
+        $isValid = empty($this->errors);
 
         return $isValid;
     }
 
     private function _validate()
     {
-        $this->_errors = array();
+        $this->errors = array();
 
-        foreach ( $this->_validators as $validator ) {
-            foreach($this->_value as $value) {
-                if ( !$validator->isValid($value) ) {
-                    $this->_errors[] = $validator->getError();
+        foreach ($this->validators as $validator) {
+            foreach ($this->values as $value) {
+                if (!$validator->isValid($value)) {
+                    $this->errors[] = $validator->getError();
                 }
             }
         }
-
-        unset($validator);
     }
-
 }
-
-# End of file

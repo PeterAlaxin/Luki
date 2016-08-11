@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Navigation class
  *
  * Luki framework
- * Date 17.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
- * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Navigation
  * @filesource
  */
 
@@ -21,60 +16,57 @@ namespace Luki;
 
 use Luki\Navigation\Item;
 
-/**
- * Navigation class
- *
- * @package Luki
- */
 class Navigation
 {
 
-    private $_navigations = array();
+    private $navigations = array();
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
 
     public function addItem(Item $item)
     {
         $parent = $item->parent;
 
-        if ( 0 == $parent ) {
-            $this->_navigations[] = $item;
+        if (0 == $parent) {
+            $this->navigations[] = $item;
         } else {
             $parentItem = $this->getItem($parent);
 
-            if ( !empty($parentItem) ) {
+            if (!empty($parentItem)) {
                 $parentItem->addItem($item);
             }
         }
 
-        unset($item, $parent, $parentItem);
         return $this;
     }
 
     public function getItem($itemId)
     {
-        $foundItem = NULL;
+        $foundItem = null;
 
-        foreach ( $this->_navigations as $item ) {
-            if ( $itemId == $item->id ) {
+        foreach ($this->navigations as $item) {
+            if ($itemId == $item->id) {
                 $foundItem = $item;
                 break;
             } else {
                 $foundItem = $item->getItem($itemId);
 
-                if ( !empty($foundItem) ) {
+                if (!empty($foundItem)) {
                     break;
                 }
             }
         }
 
-        unset($itemId, $item);
         return $foundItem;
     }
 
     public function getNavigation()
     {
-        return $this->_navigations;
+        return $this->navigations;
     }
-
 }
-
-# End of file

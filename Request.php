@@ -1,35 +1,25 @@
 <?php
-
 /**
  * Request class
  *
  * Luki framework
- * Date 16.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Request
  * @filesource
  */
 
 namespace Luki;
 
-use Luki\Request\cookieAdapter;
-use Luki\Request\filesAdapter;
-use Luki\Request\getAdapter;
-use Luki\Request\postAdapter;
-use Luki\Request\serverAdapter;
+use Luki\Request\CookieAdapter;
+use Luki\Request\FilesAdapter;
+use Luki\Request\GetAdapter;
+use Luki\Request\PostAdapter;
+use Luki\Request\ServerAdapter;
 
-/**
- * Request class
- *
- * @package Luki
- */
 class Request
 {
 
@@ -38,305 +28,304 @@ class Request
     public $get;
     public $post;
     public $server;
-    
-    private $_ajax = NULL;
-    private $_baseUrl = NULL;
-    private $_clientIP = NULL;
-    private $_crumb = NULL;
-    private $_crumbCount = NULL;
-    private $_fullUrl = NULL;
-    private $_httpHost = NULL;
-    private $_httpUserAgent = NULL;
-    private $_languages = NULL;
-    private $_pathInfo = NULL;
-    private $_protocol = NULL;
-    private $_queryString = NULL;
-    private $_redirectStatus = NULL;
-    private $_requestMethod = NULL;
-    private $_requestTime = NULL;
-    private $_requestUri = NULL;
-    private $_safe = NULL;
-    private $_scriptName = NULL;
-    private $_serverName = NULL;
-    private $_shortUrl = NULL;
-    private $_url = NULL;
+    private $ajax = null;
+    private $baseUrl = null;
+    private $clientIP = null;
+    private $crumb = null;
+    private $crumbCount = null;
+    private $fullUrl = null;
+    private $httpHost = null;
+    private $httpUserAgent = null;
+    private $languages = null;
+    private $pathInfo = null;
+    private $protocol = null;
+    private $queryString = null;
+    private $redirectStatus = null;
+    private $requestMethod = null;
+    private $requestTime = null;
+    private $requestUri = null;
+    private $safe = null;
+    private $scriptName = null;
+    private $serverName = null;
+    private $shortUrl = null;
+    private $url = null;
 
     public function __construct()
     {
-        $this->cookie = new cookieAdapter();
-        $this->files = new filesAdapter();
-        $this->get = new getAdapter();
-        $this->post = new postAdapter();
-        $this->server = new serverAdapter();
+        $this->cookie = new CookieAdapter();
+        $this->files = new FilesAdapter();
+        $this->get = new GetAdapter();
+        $this->post = new PostAdapter();
+        $this->server = new ServerAdapter();
+    }
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public function reset()
     {
-        $this->_ajax = NULL;
-        $this->_baseUrl = NULL;
-        $this->_clientIP = NULL;
-        $this->_crumb = NULL;
-        $this->_crumbCount = NULL;
-        $this->_fullUrl = NULL;
-        $this->_httpHost = NULL;
-        $this->_httpUserAgent = NULL;
-        $this->_languages = NULL;
-        $this->_pathInfo = NULL;
-        $this->_protocol = NULL;
-        $this->_queryString = NULL;
-        $this->_redirectStatus = NULL;
-        $this->_requestMethod = NULL;
-        $this->_requestTime = NULL;
-        $this->_requestUri = NULL;
-        $this->_safe = NULL;
-        $this->_scriptName = NULL;
-        $this->_serverName = NULL;
-        $this->_shortUrl = NULL;
-        $this->_url = NULL;
-        
+        $this->ajax = null;
+        $this->baseUrl = null;
+        $this->clientIP = null;
+        $this->crumb = null;
+        $this->crumbCount = null;
+        $this->fullUrl = null;
+        $this->httpHost = null;
+        $this->httpUserAgent = null;
+        $this->languages = null;
+        $this->pathInfo = null;
+        $this->protocol = null;
+        $this->queryString = null;
+        $this->redirectStatus = null;
+        $this->requestMethod = null;
+        $this->requestTime = null;
+        $this->requestUri = null;
+        $this->safe = null;
+        $this->scriptName = null;
+        $this->serverName = null;
+        $this->shortUrl = null;
+        $this->url = null;
+
         $this->getFullUrl();
     }
-    
+
     public function getRequestTime()
     {
-        if ( is_null($this->_requestTime) ) {
-            $this->_requestTime = $this->server->get('REQUEST_TIME');
+        if (is_null($this->requestTime)) {
+            $this->requestTime = $this->server->get('REQUEST_TIME');
         }
 
-        return $this->_requestTime;
+        return $this->requestTime;
     }
 
     public function getRequestUri()
     {
-        if ( is_null($this->_requestUri) ) {
-            $this->_requestUri = $this->server->get('REQUEST_URI');
+        if (is_null($this->requestUri)) {
+            $this->requestUri = $this->server->get('REQUEST_URI');
         }
 
-        return $this->_requestUri;
+        return $this->requestUri;
     }
 
     public function getRequestMethod()
     {
-        if ( is_null($this->_requestMethod) ) {
-            $this->_requestMethod = $this->server->get('REQUEST_METHOD');
+        if (is_null($this->requestMethod)) {
+            $this->requestMethod = $this->server->get('REQUEST_METHOD');
         }
 
-        return $this->_requestMethod;
+        return $this->requestMethod;
     }
 
     public function getClientIP()
     {
-        if ( is_null($this->_clientIP) ) {
-            $this->_clientIP = $this->server->get('REMOTE_ADDR');
+        if (is_null($this->clientIP)) {
+            $this->clientIP = $this->server->get('REMOTE_ADDR');
         }
 
-        return $this->_clientIP;
+        return $this->clientIP;
     }
 
     public function getScriptName()
     {
-        if ( is_null($this->_scriptName) ) {
-            $this->_scriptName = $this->server->get('SCRIPT_NAME');
+        if (is_null($this->scriptName)) {
+            $this->scriptName = $this->server->get('SCRIPT_NAME');
         }
 
-        return $this->_scriptName;
+        return $this->scriptName;
     }
 
     public function getPathInfo()
     {
-        if ( is_null($this->_pathInfo) ) {
-            $this->_pathInfo = $this->server->get('PATH_INFO');
+        if (is_null($this->pathInfo)) {
+            $this->pathInfo = $this->server->get('PATH_INFO');
         }
 
-        return $this->_pathInfo;
+        return $this->pathInfo;
     }
 
     public function getRedirectStatus()
     {
-        if ( is_null($this->_redirectStatus) ) {
-            $this->_redirectStatus = $this->server->get('REDIRECT_STATUS');
+        if (is_null($this->redirectStatus)) {
+            $this->redirectStatus = $this->server->get('REDIRECT_STATUS');
         }
 
-        return $this->_redirectStatus;
+        return $this->redirectStatus;
     }
 
     public function getHost()
     {
-        if ( is_null($this->_httpHost) ) {
-            $this->_httpHost = $this->server->get('HTTP_HOST');
+        if (is_null($this->httpHost)) {
+            $this->httpHost = $this->server->get('HTTP_HOST');
         }
 
-        return $this->_httpHost;
+        return $this->httpHost;
     }
 
     public function getUserAgent()
     {
-        if ( is_null($this->_httpUserAgent) ) {
-            $this->_httpUserAgent = $this->server->get('HTTP_USER_AGENT');
+        if (is_null($this->httpUserAgent)) {
+            $this->httpUserAgent = $this->server->get('HTTP_USER_AGENT');
         }
 
-        return $this->_httpUserAgent;
+        return $this->httpUserAgent;
     }
 
     public function getLanguages()
     {
-        if ( is_null($this->_languages) ) {
+        if (is_null($this->languages)) {
             $languages = explode(',', $this->server->get('HTTP_ACCEPT_LANGUAGE'));
 
-            foreach ( $languages as $language ) {
+            foreach ($languages as $language) {
                 $languageExploded = explode(';', $language);
-                $this->_languages[] = $languageExploded[0];
+                $this->languages[] = $languageExploded[0];
             }
         }
 
-        unset($language, $languageExploded, $languages);
-        return $this->_languages;
+        return $this->languages;
     }
 
     public function getProtocol()
     {
-        if ( is_null($this->_protocol) ) {
-            $this->_protocol = 'http';
+        if (is_null($this->protocol)) {
+            $this->protocol = 'http';
 
-            if ( $this->isSafe() ) {
-                $this->_protocol .= 's';
+            if ($this->isSafe()) {
+                $this->protocol .= 's';
             }
 
-            $this->_protocol .= '://';
+            $this->protocol .= '://';
         }
 
-        return $this->_protocol;
+        return $this->protocol;
     }
 
     public function getServerName()
     {
-        if ( is_null($this->_serverName) ) {
-            $this->_serverName = $this->server->get('SERVER_NAME');
+        if (is_null($this->serverName)) {
+            $this->serverName = $this->server->get('SERVER_NAME');
         }
 
-        return $this->_serverName;
+        return $this->serverName;
     }
 
     public function getQueryString()
     {
-        if ( is_null($this->_queryString) ) {
-            $this->_queryString = $this->server->get('QUERY_STRING');
+        if (is_null($this->queryString)) {
+            $this->queryString = $this->server->get('QUERY_STRING');
         }
 
-        return $this->_queryString;
+        return $this->queryString;
     }
 
     public function getBaseUrl()
     {
-        if ( is_null($this->_baseUrl) ) {
+        if (is_null($this->baseUrl)) {
             $file = '/' . basename($this->getScriptName()) . '/';
-            $this->_baseUrl = ltrim(preg_replace($file, '', $this->_scriptName), '/');
+            $this->baseUrl = ltrim(preg_replace($file, '', $this->scriptName), '/');
         }
 
-        unset($file);
-        return $this->_baseUrl;
+        return $this->baseUrl;
     }
 
     public function getFullUrl()
     {
-        if ( is_null($this->_fullUrl) ) {
-            $this->_fullUrl = $this->getShortUrl() .
-                    $this->getURL();
+        if (is_null($this->fullUrl)) {
+            $this->fullUrl = $this->getShortUrl() .
+                $this->getURL();
         }
 
-        return $this->_fullUrl;
+        return $this->fullUrl;
     }
 
     public function getShortUrl()
     {
-        if ( is_null($this->_shortUrl) ) {
-            $this->_shortUrl = $this->getProtocol() .
-                    $this->getHost() . '/' .
-                    $this->getBaseUrl();
+        if (is_null($this->shortUrl)) {
+            $this->shortUrl = $this->getProtocol() .
+                $this->getHost() . '/' .
+                $this->getBaseUrl();
         }
 
-        return $this->_shortUrl;
+        return $this->shortUrl;
     }
 
     public function getURL()
     {
-        if ( is_null($this->_url) ) {
-            $from = array( '?' . $this->getQueryString() );
+        if (is_null($this->url)) {
+            $from = array('?' . $this->getQueryString());
             $this->getBaseUrl();
-            if ( !empty($this->_baseUrl) ) {
-                $from[] = '/' . $this->_baseUrl;
+            if (!empty($this->baseUrl)) {
+                $from[] = '/' . $this->baseUrl;
             }
-            $this->_url = urldecode($this->getRequestUri());
+            $this->url = urldecode($this->getRequestUri());
 
-            foreach ( $from as $item ) {
-                $this->_url = str_replace($item, '', $this->_url);
+            foreach ($from as $item) {
+                $this->url = str_replace($item, '', $this->url);
             }
 
-            if ( '/' == substr($this->_url, 0, 1) ) {
-                $this->_url = substr($this->_url, 1);
+            if ('/' == substr($this->url, 0, 1)) {
+                $this->url = substr($this->url, 1);
             }
         }
 
-        unset($from, $item);
-        return $this->_url;
+        return $this->url;
     }
 
-    public function getCrumb($index = NULL)
+    public function getCrumb($index = null)
     {
-        if ( is_null($this->_crumb) ) {
-            $this->_crumb = explode('/', $this->getURL());
+        if (is_null($this->crumb)) {
+            $this->crumb = explode('/', $this->getURL());
         }
 
-        $crumb = NULL;
+        $crumb = null;
 
-        if ( is_null($index) ) {
-            $crumb = $this->_crumb;
+        if (is_null($index)) {
+            $crumb = $this->crumb;
         } else {
             $index = (int) $index;
-            if ( !empty($this->_crumb[$index]) ) {
-                $crumb = $this->_crumb[$index];
+            if (!empty($this->crumb[$index])) {
+                $crumb = $this->crumb[$index];
             }
         }
 
-        unset($index);
         return $crumb;
     }
 
     public function getCrumbCount()
     {
-        if ( is_null($this->_crumbCount) ) {
-            $this->_crumbCount = count($this->getCrumb());
+        if (is_null($this->crumbCount)) {
+            $this->crumbCount = count($this->getCrumb());
         }
 
-        return $this->_crumbCount;
+        return $this->crumbCount;
     }
 
     public function isAjax()
     {
-        if ( is_null($this->_ajax) ) {
-            if ( strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest' ) {
-                $this->_ajax = TRUE;
+        if (is_null($this->ajax)) {
+            if (strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
+                $this->ajax = true;
             } else {
-                $this->_ajax = FALSE;
+                $this->ajax = false;
             }
         }
 
-        return $this->_ajax;
+        return $this->ajax;
     }
 
     public function isSafe()
     {
-        if ( is_null($this->_safe) ) {
-            if ( $this->server->get('HTTPS') === NULL ) {
-                $this->_safe = FALSE;
+        if (is_null($this->safe)) {
+            if ($this->server->get('HTTPS') === null) {
+                $this->safe = false;
             } else {
-                $this->_safe = TRUE;
+                $this->safe = true;
             }
         }
 
-        return $this->_safe;
+        return $this->safe;
     }
-
 }
-
-# End of file

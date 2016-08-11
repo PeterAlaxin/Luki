@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Controller class
  *
  * Luki framework
- * Date 6.1.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Controller
  * @filesource
  */
 
@@ -24,81 +19,76 @@ use Luki\Loader;
 use Luki\Storage;
 use Luki\Template;
 
-/**
- * Controller class
- *
- * MVC Controller
- *
- * @package Luki
- */
 class Controller
 {
 
-    protected $_renderAllowed = TRUE;
-    protected $_models = array();
-    protected $_output = '';
-    protected $_data = array();
-    protected $_methods = array();
-    protected $_template = '';
-    protected $_endProgramAfterRender = TRUE;
-    protected $_route = array();
-    protected $_useCache = TRUE;
-    protected $_expiration = 0;
+    protected $renderAllowed = true;
+    protected $models = array();
+    protected $output = '';
+    protected $data = array();
+    protected $methods = array();
+    protected $template = '';
+    protected $endProgramAfterRender = true;
+    protected $route = array();
+    protected $useCache = true;
+    protected $expiration = 0;
 
     function __construct()
     {
-        $this->_route = explode('\\', get_class($this));
+        $this->route = explode('\\', get_class($this));
 
         $this->setDefaultTemplate();
         $this->setDefaultModel();
         $this->setExpiration(Cache::EXPIRE_IN_DAY);
     }
 
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
+
     public function __call($name, $arguments = array())
     {
-        $result = NULL;
+        $result = null;
 
-        foreach ( $this->_methods as $model => $methods ) {
-            if ( in_array($name, $methods) ) {
-                $result = call_user_func_array(array( $this->_models[$model], $name ), $arguments);
+        foreach ($this->methods as $model => $methods) {
+            if (in_array($name, $methods)) {
+                $result = call_user_func_array(array($this->models[$model], $name), $arguments);
                 break;
             }
         }
 
-        unset($name, $arguments, $model, $methods);
         return $result;
     }
 
     public function __set($name, $value)
     {
-        $this->_data[$name] = $value;
-
-        unset($name, $value);
+        $this->data[$name] = $value;
     }
 
     public function __get($name)
     {
-        $value = NULL;
-
-        if ( isset($this->_data[$name]) ) {
-            $value = $this->_data[$name];
+        if (isset($this->data[$name])) {
+            $value = $this->data[$name];
+        } else {
+            $value = null;
         }
 
-        unset($name);
         return $value;
     }
 
     public function __isset($name)
     {
-        $isSet = isset($this->_data[$name]);
+        $isSet = isset($this->data[$name]);
 
-        unset($name);
         return $isSet;
     }
 
     public function __unset($name)
     {
-        unset($this->_data[$name], $name);
+        unset($this->data[$name], $name);
     }
 
     public function preDispatch()
@@ -108,7 +98,7 @@ class Controller
 
     public function postDispatch()
     {
-        if ( $this->_renderAllowed ) {
+        if ($this->renderAllowed) {
             $this->Render();
         }
 
@@ -117,67 +107,64 @@ class Controller
 
     public function getTemplateName()
     {
-        return $this->_template;
+        return $this->template;
     }
 
-    public function changeTemplateName($newTemplateName)
+    public function changeTemplateName($template)
     {
-        $this->_template = $newTemplateName;
+        $this->template = $template;
 
-        unset($newTemplateName);
         return $this;
     }
 
     public function removeModel($model)
     {
-        if ( isset($this->_models[$model]) ) {
-            unset($this->_models[$model], $this->_methods[$model]);
+        if (isset($this->models[$model])) {
+            unset($this->models[$model], $this->methods[$model]);
         }
 
-        unset($model);
         return $this;
     }
 
     public function noRender()
     {
-        $this->_renderAllowed = FALSE;
+        $this->renderAllowed = false;
 
         return $this;
     }
 
     public function Render()
     {
-        $this->_output = NULL;
+        $this->output = null;
 
-        if ( Storage::isSaved('Cache') and $this->_useCache ) {
-            $hash = $this->_template . '_' . md5(json_encode($this->_data));
-            $this->_output = Storage::Cache()->Get($hash);
+        if (Storage::isSaved('Cache') and $this->useCache) {
+            $hash = $this->template . '_' . md5(json_encode($this->data));
+            $this->output = Storage::Cache()->Get($hash);
         }
 
-        if ( empty($this->_output) ) {
-            $oTemplate = new Template($this->_template, $this->_data);
-            $this->_output = $oTemplate->Render();
+        if (empty($this->output)) {
+            $oTemplate = new Template($this->template, $this->data);
+            $this->output = $oTemplate->Render();
 
-            if ( Storage::isSaved('Cache') and $this->_useCache ) {
-                Storage::Cache()->Set($hash, $this->_output, $this->_expiration);
+            if (Storage::isSaved('Cache') and $this->useCache) {
+                Storage::Cache()->Set($hash, $this->output, $this->expiration);
             }
         }
 
-        unset($oTemplate, $hash);
         return $this;
     }
 
     public function getOutput()
     {
-        return $this->_output;
+        return $this->output;
     }
 
     public function Show()
     {
         echo $this->Render()
-                ->getOutput();
+            ->getOutput();
 
-        if ( $this->_endProgramAfterRender ) {
+        if ($this->endProgramAfterRender) {
             exit;
         }
 
@@ -186,23 +173,22 @@ class Controller
 
     public function noEndProgramAfterRender()
     {
-        $this->_endProgramAfterRender = FALSE;
+        $this->endProgramAfterRender = false;
 
         return $this;
     }
 
     private function setDefaultTemplate()
     {
-        if ( !empty($this->_route[0]) and ! empty($this->_route[1]) ) {
-            $this->_template = Loader::isFile($this->_route[0] . '/template/' . $this->_route[1] . '.twig');
+        if (!empty($this->route[0]) and ! empty($this->route[1])) {
+            $this->template = Loader::isFile($this->route[0] . '/template/' . $this->route[1] . '.twig');
         }
     }
 
     private function setDefaultModel()
     {
-        if ( !empty($this->_route[0]) and ! empty($this->_route[1])
-        ) {
-            $this->addModel($this->_route[0] . '_model_' . $this->_route[1]);
+        if (!empty($this->route[0]) and ! empty($this->route[1])) {
+            $this->addModel($this->route[0] . '_model_' . $this->route[1]);
         }
     }
 
@@ -210,31 +196,27 @@ class Controller
     {
         $modelClassFileWithPath = Loader::isClass($model);
 
-        if ( !empty($modelClassFileWithPath) ) {
+        if (!empty($modelClassFileWithPath)) {
             $modelWithPath = '\\' . preg_replace('/_/', '\\', $model);
-            $this->_models[$model] = new $modelWithPath;
-            $this->_methods[$model] = get_class_methods($this->_models[$model]);
+            $this->models[$model] = new $modelWithPath;
+            $this->methods[$model] = get_class_methods($this->models[$model]);
         }
 
-        unset($model, $modelClassFileWithPath, $modelWithPath);
         return $this;
     }
 
     public function enableCache()
     {
-        $this->_useCache = TRUE;
+        $this->useCache = true;
     }
 
     public function disableCache()
     {
-        $this->_useCache = FALSE;
+        $this->useCache = false;
     }
 
     public function setExpiration($expiration)
     {
-        $this->_expiration = (int) $expiration;
-
-        unset($expiration);
+        $this->expiration = (int) $expiration;
     }
-
 }

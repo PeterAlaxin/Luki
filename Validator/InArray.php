@@ -1,15 +1,10 @@
 <?php
-
 /**
  * InArray validator
  *
  * Luki framework
- * Date 16.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,14 +14,9 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * InArray validator
- * 
- * @package Luki
- */
-class InArray extends basicFactory
+class InArray extends BasicFactory
 {
 
     public $values = array();
@@ -34,47 +24,29 @@ class InArray extends basicFactory
     public function __construct($options = array())
     {
         parent::__construct($options);
-        
         $this->setMessage('The value "%value%" is not in the test array!');
-        
-        unset($options);
     }
 
-
-
-    /**
-     * Validation
-     * 
-     * @param mixed $value 
-     * @return bool
-     */
     public function isValid($value)
     {
-        $this->isValid = FALSE;
+        $this->isValid = false;
 
-        if ( in_array($value, $this->values) ) {
+        if (in_array($value, $this->values)) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%value%/', $value);
         }
 
-        unset($value);
         return $this->isValid;
     }
-    
+
     public function setValues($values)
     {
         $this->values = (array) $values;
-
-        unset($values);
     }
 
     public function getValues()
     {
         return $this->values;
     }
-
-
 }
-
-# End of file

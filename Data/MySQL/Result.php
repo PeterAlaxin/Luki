@@ -1,36 +1,34 @@
 <?php
-
 /**
  * MySQL Result Iterator class
  *
  * Luki framework
- * Date 9.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Data
  * @filesource
  */
 
 namespace Luki\Data\MySQL;
 
-/**
- * MySQL Result Iterator class
- *
- * @package Luki
- */
 class Result implements \Iterator
 {
 
     public $position = 0;
-    public $result = NULL;
-    public $row = NULL;
+    public $result = null;
+    public $row = null;
     public $numberOfRecords = 0;
+
+    public function __destruct()
+    {
+        $this->position = null;
+        $this->result = null;
+        $this->row = null;
+        $this->numberOfRecords = null;
+    }
 
     public function rewind()
     {
@@ -86,12 +84,12 @@ class Result implements \Iterator
 
     public function Get($key)
     {
-        $value = NULL;
-        if ( isset($this->row[$key]) ) {
+        if (isset($this->row[$key])) {
             $value = $this->row[$key];
+        } else {
+            $value = null;
         }
 
-        unset($key);
         return $value;
     }
 
@@ -99,11 +97,10 @@ class Result implements \Iterator
     {
         $allRows = array();
 
-        foreach ( $this as $row ) {
+        foreach ($this as $row) {
             $allRows[] = $row;
         }
 
-        unset($row);
         return $allRows;
     }
 
@@ -111,7 +108,4 @@ class Result implements \Iterator
     {
         return $this->row;
     }
-
 }
-
-# End of file

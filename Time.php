@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Time class
  *
  * Luki framework
- * Date 30.11.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
- * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Time
  * @filesource
  */
 
@@ -21,31 +16,30 @@ namespace Luki;
 
 use Luki\Date;
 
-/**
- * Time class
- *
- * Time manipulation
- *
- * @package Luki
- */
 class Time
 {
 
     public static $format = 'H:i:s';
     public static $timeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
-    private static $_sections = array();
+    private static $sections = array();
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
 
     public static function setFormat($format = 'H:i:s')
     {
-        $isSet = FALSE;
-
         $date = date_create('now');
-        if ( FALSE !== $date->format($format) ) {
+        if (false !== $date->format($format)) {
             self::$format = $format;
-            $isSet = TRUE;
+            $isSet = true;
+        } else {
+            $isSet = false;
         }
 
-        unset($format);
         return $isSet;
     }
 
@@ -64,7 +58,6 @@ class Time
         list($usec, $sec) = explode(" ", microtime());
         $microTime = ((float) $usec + (float) $sec);
 
-        unset($usec, $sec);
         return $microTime;
     }
 
@@ -72,7 +65,6 @@ class Time
     {
         $date = Date::DateTimeToFormat($dateTime, $format);
 
-        unset($dateTime, $format);
         return $date;
     }
 
@@ -80,7 +72,6 @@ class Time
     {
         $microTime = Date::DateTimeToMicrotime($dateTime);
 
-        unset($dateTime);
         return $microTime;
     }
 
@@ -96,92 +87,83 @@ class Time
         $offset = $dateTimeZoneHere->getOffset($dateTimeUTC);
         $interval = new \DateInterval('PT' . abs($offset) . 'S');
 
-        if ( $offset < 0 ) {
+        if ($offset < 0) {
             $interval->invert = 1;
         }
 
         $dateTimeUTC->add($interval);
         $dateTimeHere = $dateTimeUTC->format('Y-m-d H:i:s');
 
-        unset($dateTime, $timeZone, $dateTimeZoneHere, $dateTimeZoneUTC, $dateTimeUTC, $offset, $interval);
         return $dateTimeHere;
     }
 
-    public static function stopwatchStart($section = 'default', $microTime = NULL)
+    public static function stopwatchStart($section = 'default', $microTime = null)
     {
-        $start = FALSE;
-
-        if ( !empty($section) ) {
-            if ( empty($microTime) ) {
+        if (!empty($section)) {
+            if (empty($microTime)) {
                 $microTime = self::explodeMicrotime();
             }
 
-            self::$_sections[$section] = array(
-              'start' => $microTime,
-              'stop' => 0,
-              'result' => 0 );
-            $start = self::$_sections[$section]['start'];
+            self::$sections[$section] = array(
+                'start' => $microTime,
+                'stop' => 0,
+                'result' => 0);
+            $start = self::$sections[$section]['start'];
+        } else {
+            $start = false;
         }
 
-        unset($section);
         return $start;
     }
 
     public static function getStopwatchStart($section = 'default')
     {
-        $start = FALSE;
-
-        if ( !empty(self::$_sections[$section]) ) {
-            $start = self::$_sections[$section]['start'];
+        if (!empty(self::$sections[$section])) {
+            $start = self::$sections[$section]['start'];
+        } else {
+            $start = false;
         }
 
-        unset($section);
         return $start;
     }
 
     public static function stopwatchStop($section = 'default')
     {
-        $stop = FALSE;
-
-        if ( !empty(self::$_sections[$section]) ) {
+        if (!empty(self::$sections[$section])) {
             $stop = self::explodeMicrotime();
-            self::$_sections[$section]['stop'] = $stop;
-            self::$_sections[$section]['result'] = $stop - self::$_sections[$section]['start'];
+            self::$sections[$section]['stop'] = $stop;
+            self::$sections[$section]['result'] = $stop - self::$sections[$section]['start'];
+        } else {
+            $stop = false;
         }
 
-        unset($section);
         return $stop;
     }
 
     public static function getStopwatchStop($section = 'default')
     {
-        $stop = FALSE;
-
-        if ( !empty(self::$_sections[$section]) ) {
-            $stop = self::$_sections[$section]['stop'];
+        if (!empty(self::$sections[$section])) {
+            $stop = self::$sections[$section]['stop'];
+        } else {
+            $stop = false;
         }
 
-        unset($section);
         return $stop;
     }
 
     public static function getStopwatch($section = 'default')
     {
-        $result = FALSE;
+        if (!empty(self::$sections[$section])) {
 
-        if ( !empty(self::$_sections[$section]) ) {
-
-            if ( empty(self::$_sections[$section]['result']) ) {
+            if (empty(self::$sections[$section]['result'])) {
                 self::stopwatchStop($section);
             }
 
-            $result = self::$_sections[$section]['result'];
+            $result = self::$sections[$section]['result'];
+        } else {
+            $result = false;
         }
 
-        unset($section);
         return $result;
     }
-
 }
-
-# End of file

@@ -1,15 +1,10 @@
 <?php
-
 /**
  * LengthMax validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,54 +14,40 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * LengthMax validator
- * 
- * @package Luki
- */
-class LengthMax extends basicFactory
+class LengthMax extends BasicFactory
 {
 
     public $max = 0;
-    
+
     public function __construct($options = array())
     {
         parent::__construct($options);
-
         $this->setMessage('The length is greater then "%max%"!');
-
-        unset($options);
     }
 
     public function isValid($value)
     {
-        $this->isValid = FALSE;
+        $this->isValid = false;
         $nLength = $this->getValueLength($value);
 
-        if ( $nLength <= $this->max ) {
+        if ($nLength <= $this->max) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%max%/', $this->max);
         }
 
-        unset($value);
         return $this->isValid;
     }
 
     public function setMax($max)
     {
         $this->max = (float) $max;
-
-        unset($max);
     }
 
     public function getMax()
     {
         return $this->max;
     }
-
 }
-
-# End of file

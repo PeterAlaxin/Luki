@@ -1,59 +1,42 @@
 <?php
-
 /**
  * Simple Log Format adapter
  *
  * Luki framework
- * Date 16.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Log
  * @filesource
  */
 
 namespace Luki\Log\Format;
 
-use Luki\Log\Format\basicInterface;
+use Luki\Log\Format\BasicFactory;
+use Luki\Log\Format\BasicInterface;
 
-/**
- * Simple Log Format
- * 
- * @package Luki
- */
-class Simple implements basicInterface
+class Simple extends BasicFactory implements BasicInterface
 {
-
-    private $_format = '';
 
     public function __construct($format = '')
     {
-        if ( empty($format) ) {
+        if (empty($format)) {
             $format = '%timestamp%: %priority% (%priorityValue%): %message%';
         }
 
-        $this->_format = $format;
-
-        unset($format);
+        parent::__construct($format);
     }
 
     public function Transform($parameters)
     {
-        $content = $this->_format;
+        $content = $this->format;
 
-        foreach ( $parameters as $key => $value ) {
+        foreach ($parameters as $key => $value) {
             $content = preg_replace('/%' . $key . '%/', $value, $content);
         }
 
-        unset($parameters, $key, $value);
         return $content;
     }
-
 }
-
-# End of file

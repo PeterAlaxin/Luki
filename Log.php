@@ -1,33 +1,23 @@
 <?php
-
 /**
  * Log class
  *
  * Luki framework
- * Date 16.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Log
  * @filesource
  */
 
 namespace Luki;
 
 use Luki\Date;
-use Luki\Log\Format\basicInterface as FormatInterface;
-use Luki\Log\Writer\basicInterface as WriterInterface;
+use Luki\Log\Format\BasicInterface as Format;
+use Luki\Log\Writer\BasicInterface as Writer;
 
-/**
- * Log class
- *
- * @package Luki
- */
 class Log
 {
 
@@ -41,25 +31,30 @@ class Log
     const DEBUG = 7;
 
     private $_priority = array(
-      'emergency',
-      'alert',
-      'critical',
-      'error',
-      'warning',
-      'notice',
-      'info',
-      'debug' );
-    private $_format = NULL;
-    private $_writer = NULL;
-    private $_validators = array();
-    private $_timestampFormat = 'c';
+        'emergency',
+        'alert',
+        'critical',
+        'error',
+        'warning',
+        'notice',
+        'info',
+        'debug');
+    private $format = null;
+    private $writer = null;
+    private $validators = array();
+    private $timestampFormat = 'c';
 
-    public function __construct(FormatInterface $formatInterface, WriterInterface $writerInterface)
+    public function __construct(Format $format, Writer $writer)
     {
-        $this->_format = $formatInterface;
-        $this->_writer = $writerInterface;
+        $this->format = $format;
+        $this->writer = $writer;
+    }
 
-        unset($formatInterface, $writerInterface);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public static function findFormat($adapter)
@@ -78,141 +73,121 @@ class Log
 
     public function addValidator($key, $validator)
     {
-        $this->_validators[] = array(
-          'key' => $key,
-          'validator' => $validator );
+        $this->validators[] = array('key' => $key, 'validator' => $validator);
 
-        unset($key, $validator);
         return $this;
     }
 
-    public function setFormat(FormatInterface $formatInterface)
+    public function setFormat(Format $format)
     {
-        $this->_format = $formatInterface;
+        $this->format = $format;
 
-        unset($formatInterface);
         return $this;
     }
 
-    public function setWriter(WriterInterface $writerInterface)
+    public function setWriter(Writer $writer)
     {
-        $this->_writer = $writerInterface;
+        $this->writer = $writer;
 
-        unset($writerInterface);
         return $this;
     }
 
-    public function setTimestampFormat($format)
+    public function setTimestampFormat($timestampFormat)
     {
-        $this->_timestampFormat = $format;
+        $this->timestampFormat = $timestampFormat;
 
-        unset($format);
         return $this;
     }
 
     public function Log($message, $priority)
     {
-        $this->_Log($message, $priority);
+        $this->addToLog($message, $priority);
 
-        unset($message, $priority);
         return $this;
     }
 
     public function Emergency($message)
     {
-        $this->_Log($message, self::EMERGENCY);
+        $this->addToLog($message, self::EMERGENCY);
 
-        unset($message);
         return $this;
     }
 
     public function Alert($message)
     {
-        $this->_Log($message, self::ALERT);
+        $this->addToLog($message, self::ALERT);
 
-        unset($message);
         return $this;
     }
 
     public function Critical($message)
     {
-        $this->_Log($message, self::CRITICAL);
+        $this->addToLog($message, self::CRITICAL);
 
-        unset($message);
         return $this;
     }
 
     public function Error($message)
     {
-        $this->_Log($message, self::ERROR);
+        $this->addToLog($message, self::ERROR);
 
-        unset($message);
         return $this;
     }
 
     public function Warning($message)
     {
-        $this->_Log($message, self::WARNING);
+        $this->addToLog($message, self::WARNING);
 
-        unset($message);
         return $this;
     }
 
     public function Notice($message)
     {
-        $this->_Log($message, self::NOTICE);
+        $this->addToLog($message, self::NOTICE);
 
-        unset($message);
         return $this;
     }
 
     public function Info($message)
     {
-        $this->_Log($message, self::INFO);
+        $this->addToLog($message, self::INFO);
 
-        unset($message);
         return $this;
     }
 
     public function Debug($message)
     {
-        $this->_Log($message, self::DEBUG);
+        $this->addToLog($message, self::DEBUG);
 
-        unset($message);
         return $this;
     }
 
-    private function _Log($message, $priority)
+    private function addToLog($message, $priority)
     {
         $now = date('Y-m-d H:i:s');
-        $timestampFormat = Date::DateTimeToFormat($now, $this->_timestampFormat);
-        $isValid = TRUE;
+        $timestampFormat = Date::DateTimeToFormat($now, $this->timestampFormat);
+        $isValid = true;
 
         $parameters = array(
-          'timestamp' => $timestampFormat,
-          'message' => $message,
-          'priority' => $this->_priority[$priority],
-          'priorityValue' => $priority
+            'timestamp' => $timestampFormat,
+            'message' => $message,
+            'priority' => $this->_priority[$priority],
+            'priorityValue' => $priority
         );
 
-        foreach ( $this->_validators as $validatorName ) {
+        foreach ($this->validators as $validatorName) {
             $value = $parameters[$validatorName['key']];
             $validator = $validatorName['validator'];
             $isValid = $validator->isValid($value);
 
-            if ( !$isValid ) {
+            if (!$isValid) {
                 break;
             }
         }
 
-        if ( $isValid ) {
-            $text = $this->_format->Transform($parameters);
-            $this->_writer->Write($text);
+        if ($isValid) {
+            $text = $this->format->Transform($parameters);
+            $this->writer->Write($text);
         }
-
-        unset($message, $priority, $now, $parameters, $message, $timestampFormat, $isValid, $value, $validator);
     }
-
 }
-
-# End of file

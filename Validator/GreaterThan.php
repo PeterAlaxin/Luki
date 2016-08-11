@@ -1,15 +1,10 @@
 <?php
-
 /**
  * GreaterThan validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,14 +14,9 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * GreaterThan validator
- * 
- * @package Luki
- */
-class GreaterThan extends basicFactory
+class GreaterThan extends BasicFactory
 {
 
     public $min = 0;
@@ -34,40 +24,31 @@ class GreaterThan extends basicFactory
     public function __construct($options = array())
     {
         parent::__construct($options);
-
         $this->setMessage('The value "%value%" not greater then "%min%"!');
-        
-        unset($options);
     }
 
     public function isValid($value)
     {
-        $this->isValid = FALSE;
+        $this->isValid = false;
 
-        if ( $value > $this->min ) {
+        if ($value > $this->min) {
             $this->setNoError();
         } else {
-            $from = array( '/%value%/', '/%min%/' );
-            $to = array( $value, $this->min );
+            $from = array('/%value%/', '/%min%/');
+            $to = array($value, $this->min);
             $this->fillMessage($from, $to);
         }
 
-        unset($value, $from, $to);
         return $this->isValid;
     }
 
     public function setMin($min)
     {
         $this->min = (float) $min;
-
-        unset($min);
     }
 
     public function getMin()
     {
         return $this->min;
     }
-
 }
-
-# End of file

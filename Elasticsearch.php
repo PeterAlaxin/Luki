@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Elasticsearch class
  *
  * Luki framework
- * Date 6.9.2014
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Elasticsearch
  * @filesource
  */
 
@@ -22,104 +17,100 @@ namespace Luki;
 use Luki\Elasticsearch\Record;
 use Luki\Elasticsearch\Search;
 
-/**
- * Elasticsearch class
- *
- * Use Elasticsearch for search data
- *
- * @package Luki
- */
 class Elasticsearch
 {
-    private $_server = 'http://localhost';
+
+    private $server = 'http://localhost';
     public static $port = '9200';
-    private $_url = 'http://localhost:9200/';
-    private $_index;
-    
+    private $url = 'http://localhost:9200/';
+    private $index;
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
+
     public function setServer($server)
     {
-        $this->_server = $server;
-        $this->_generateUrl();
-        
-        unset($server);
+        $this->server = $server;
+        $this->generateUrl();
+
         return $this;
     }
-    
+
     public function getServer()
     {
-        return $this->_server;
+        return $this->server;
     }
-    
+
     public function setPort($port)
     {
-        $this->_port = $port;
-        $this->_generateUrl();
-        
-        unset($port);
+        $this->port = $port;
+        $this->generateUrl();
+
         return $this;
     }
-    
+
     public function getPort()
     {
-        return $this->_port;
+        return $this->port;
     }
-    
+
     public function getUrl()
     {
-        return $this->_url;
+        return $this->url;
     }
-    
+
     public function setIndex($index)
     {
-        $this->_index = $index;
-        $this->_generateUrl();
-        
-        unset($index);
+        $this->index = $index;
+        $this->generateUrl();
+
         return $this;
     }
-    
+
     public function getIndex()
     {
-        return $this->_index;
+        return $this->index;
     }
-    
+
     public function insert(Record $record)
     {
-        $link = $this->_url . $record->getType() . '/' . $record->getId();
-        $content = json_encode($record->getContent());        
-#        self::sendToServer('PUT', $link, $content);
+        $link = $this->url . $record->getType() . '/' . $record->getId();
+        $content = json_encode($record->getContent());
+        self::sendToServer('PUT', $link, $content);
 
-        unset($record, $link, $content);
         return $this;
     }
-    
+
     public function search($text, $type)
     {
-        $search = new Search($this->_url);
+        $search = new Search($this->url);
         $hits = $search->setText($text)
-                       ->setType($type)
-                       ->search();
-        
-        unset($text, $type, $search);
+            ->setType($type)
+            ->search();
+
         return $hits;
     }
-    
-    private function _generateUrl()
+
+    private function generateUrl()
     {
-        $this->_url = $this->_server;
-        
-        if(!empty($this->_port)) {
-            $this->_url .= ':' . $this->_port;
+        $this->url = $this->server;
+
+        if (!empty($this->port)) {
+            $this->url .= ':' . $this->port;
         }
 
-        if(!empty($this->_index)) {
-            $this->_url .= '/' . $this->_index;
+        if (!empty($this->index)) {
+            $this->url .= '/' . $this->index;
         }
 
-        $this->_url .= '/';
+        $this->url .= '/';
     }
-    
-    public static function sendToServer($type, $url, $query) 
+
+    public static function sendToServer($type, $url, $query)
     {
         $ci = curl_init();
         curl_setopt($ci, CURLOPT_URL, $url);
@@ -131,9 +122,6 @@ class Elasticsearch
         curl_setopt($ci, CURLOPT_POSTFIELDS, $query);
         $response = json_decode(curl_exec($ci));
 
-        unset($type, $url, $query, $ci);
         return $response;
     }
 }
-
-# End of file

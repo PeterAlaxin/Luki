@@ -1,19 +1,14 @@
 <?php
-
 /**
  * Starter class
  *
  * Luki framework
- * Date 22.07.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Starter
  * @filesource
  */
 
@@ -33,11 +28,6 @@ use Luki\Storage;
 use Luki\Template;
 use Luki\Time;
 
-/**
- * Starter class
- *
- * @package Luki
- */
 class Starter
 {
 
@@ -45,16 +35,17 @@ class Starter
 
     public static function Start($starterFile)
     {
-        ob_start(array( 'self', 'sanitizeOutput' ));
+        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Functions.php';
+        set_exception_handler("default_exception_handler");
+
+        ob_start(array('self', 'sanitizeOutput'));
 
         $memoryUsage = memory_get_usage();
 
         self::installLoader();
 
         $microTime = Time::explodeMicrotime();
-        
-        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Functions.php';
-                
+
         self::openStarterFile($starterFile);
         self::defineConstants();
         self::initFolders();
@@ -71,12 +62,10 @@ class Starter
         self::initTemplate();
         self::initElasticsearch();
         self::detectRobot();
-        
+
         self::dispatchURL();
 
         ob_end_flush();
-
-        unset($starterFile, $microTime, $memoryUsage);
         exit;
     }
 
@@ -85,18 +74,15 @@ class Starter
         try {
             $loaderFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Loader.php';
 
-            if ( is_file($loaderFile) ) {
+            if (is_file($loaderFile)) {
                 require_once($loaderFile);
                 Loader::Init();
             } else {
                 throw new \Exception(sprintf(self::LOADER_NOT_EXISTS, $loaderFile));
             }
-        }
-        catch ( \Exception $exception ) {
+        } catch (\Exception $exception) {
             exit($exception->getMessage());
         }
-
-        unset($loaderFile);
     }
 
     public static function openStarterFile($starterFile)
@@ -106,43 +92,36 @@ class Starter
 
         Storage::Set('Configuration', new Config($adapter));
 
-        if ( 'development' == Storage::Configuration()->getValue('environment', 'definition') ) {
-            Storage::Set('Development', TRUE);
+        if ('development' == Storage::Configuration()->getValue('environment', 'definition')) {
+            Storage::Set('Development', true);
         }
-
-        unset($starterFile, $adapterName, $adapter);
     }
 
     public static function initLanguage()
     {
         $languages = Storage::Configuration()->getSection('language');
-        $translator = NULL;
-        
-        foreach ( $languages as $language => $file ) {
-            if(empty($translator)) {
+        $translator = null;
+
+        foreach ($languages as $language => $file) {
+            if (empty($translator)) {
                 $translator = new Language($language, $file);
-            }
-            else {
+            } else {
                 $translator->addToLanguages($language, $file);
             }
         }
-        
-        if(!empty($translator)) {
+
+        if (!empty($translator)) {
             Storage::Set('Language', $translator);
         }
-
-        unset($languages, $language, $file, $translator);
     }
 
     public static function initFolders()
     {
         $folders = Storage::Configuration()->getSection('folder');
 
-        foreach ( $folders as $key => $path ) {
+        foreach ($folders as $key => $path) {
             Storage::Set($key, $path);
         }
-
-        unset($folders, $key, $path);
     }
 
     public static function initRequest()
@@ -153,7 +132,7 @@ class Starter
 
     public static function initProfiler($microTime, $memory)
     {
-        if ( Storage::isDevelopment() ) {
+        if (Storage::isDevelopment()) {
             Storage::Set('Profiler', new Profiler($microTime, $memory));
             Storage::Profiler()->Add('Session', session_id());
         }
@@ -163,55 +142,51 @@ class Starter
     {
         $cache = Storage::Configuration()->getSection('cache');
 
-        if ( !empty($cache) ) {
+        if (!empty($cache)) {
             $adapterName = Cache::findAdapter($cache['adapter']);
             $adapter = new $adapterName($cache);
             Storage::Set('Cache', new Cache($adapter));
 
-            if ( !empty($cache['expiration']) ) {
+            if (!empty($cache['expiration'])) {
                 Storage::Cache()->setExpiration($cache['expiration']);
             }
 
-            if ( isset($cache['useCache']) ) {
+            if (isset($cache['useCache'])) {
                 Storage::Cache()->useCache($cache['useCache']);
             }
         }
-
-        unset($cache, $adapterName, $adapter);
     }
 
     public static function initElasticsearch()
     {
         $elasticsearch = Storage::Configuration()->getSection('elasticsearch');
 
-        if ( !empty($elasticsearch) ) {
-            
+        if (!empty($elasticsearch)) {
+
             Storage::Set('Elasticsearch', new Elasticsearch);
 
-            if ( !empty($elasticsearch['server']) ) {
+            if (!empty($elasticsearch['server'])) {
                 Storage::Elasticsearch()->setServer($elasticsearch['server']);
             }
 
-            if ( isset($elasticsearch['port']) ) {
+            if (isset($elasticsearch['port'])) {
                 Storage::Elasticsearch()->setPort($elasticsearch['port']);
             }
 
-            if ( isset($elasticsearch['index']) ) {
+            if (isset($elasticsearch['index'])) {
                 Storage::Elasticsearch()->setIndex($elasticsearch['index']);
             }
         }
-
-        unset($elasticsearch);
     }
 
     public static function addPathToLoader()
     {
         $loader = Storage::Configuration()->getSection('loader');
 
-        if ( !empty($loader) ) {
-            foreach ( $loader as $path ) {
-                if ( is_array($path) ) {
-                    foreach ( $path as $onePath ) {
+        if (!empty($loader)) {
+            foreach ($loader as $path) {
+                if (is_array($path)) {
+                    foreach ($path as $onePath) {
                         Loader::addPath($onePath);
                     }
                 } else {
@@ -219,150 +194,120 @@ class Starter
                 }
             }
         }
-
-        unset($loader, $path, $onePath);
     }
 
     public static function initDatabase()
     {
         $databases = Storage::Configuration()->getSection('database');
 
-        if ( !empty($databases) ) {
-            foreach ( $databases as $name => $database ) {
+        if (!empty($databases)) {
+            foreach ($databases as $name => $database) {
                 $adapterName = Data::findAdapter($database['adapter']);
                 $adapter = new $adapterName($database);
                 Storage::Set($name, $adapter);
             }
         }
-
-        unset($databases, $name, $database, $adapterName, $adapter);
     }
 
     public static function initTemplate()
     {
         $path = Storage::Configuration()->getValue('twigPath', 'definition');
         Template::setPath($path);
-
-        unset($path);
     }
 
     public static function initLog()
     {
         $logDefinition = Storage::Configuration()->getSection('log');
 
-        if ( !empty($logDefinition) ) {
+        if (!empty($logDefinition)) {
             $formatName = Log::findFormat($logDefinition['format']);
             $format = new $formatName();
-            $filename =  $logDefinition['dir'] . '/' . strftime($logDefinition['name'], strtotime('now'));
-            $writerName = Log::findWriter($logDefinition['writer']);            
+            $filename = $logDefinition['dir'] . '/' . strftime($logDefinition['name'], strtotime('now'));
+            $writerName = Log::findWriter($logDefinition['writer']);
             $writer = new $writerName($filename);
             Storage::Set('Log', new Log($format, $writer));
         }
-
-        unset($logDefinition, $formatName, $format, $writerName, $writer, $filename);
     }
 
     public static function initSession()
     {
         $sessionType = Storage::Configuration()->getValue('session', 'definition');
 
-        if ( !empty($sessionType) ) {
+        if (!empty($sessionType)) {
             Session::Start($sessionType);
         }
-
-        unset($sessionType);
     }
 
     public static function defineConstants()
     {
         $constants = Storage::Configuration()->getSection('constants');
 
-        foreach ( $constants as $key => $value ) {
-            define($key, $value, TRUE);
+        foreach ($constants as $key => $value) {
+            define($key, $value, true);
         }
-
-        unset($constants, $key, $value);
     }
 
     public static function setTimezone()
     {
         $timeZone = Storage::Configuration()->getValue('timezone', 'definition');
 
-        if ( !empty($timeZone) ) {
+        if (!empty($timeZone)) {
             date_default_timezone_set($timeZone);
         }
-
-        unset($timeZone);
     }
 
     public static function setLocale()
     {
         $locale = Storage::Configuration()->getValue('locale', 'definition');
 
-        if ( !empty($locale) ) {
+        if (!empty($locale)) {
             setlocale(LC_ALL, $locale);
         }
-
-        unset($locale);
     }
 
     public static function dispatchURL()
     {
-        if(Storage::Configuration()->isValue('dispatcher', 'definition')){
+        if (Storage::Configuration()->isValue('dispatcher', 'definition')) {
             $file = Storage::Configuration()->getValue('dispatcher', 'definition');
             $class = 'Luki\Dispatcher';
-        }
-        elseif(Storage::Configuration()->isValue('router', 'definition')){
-            $file = Storage::Configuration()->getValue('router', 'definition');        
+        } elseif (Storage::Configuration()->isValue('router', 'definition')) {
+            $file = Storage::Configuration()->getValue('router', 'definition');
             $class = 'Luki\Router';
-        }
-        else {
+        } else {
             Exit('Missing definition for Routing or Dispatcher');
         }
-        
+
         $adapterName = Config::findAdapter($file);
-        $adapter = new $adapterName($file);        
+        $adapter = new $adapterName($file);
         $dispatcher = new $class(Storage::Request(), new Config($adapter));
         echo $dispatcher->Dispatch();
-        
-        unset($dispatcher, $adapterName, $adapter, $file);
+
+        $dispatcher->__destruct();
+        $adapter->__destruct();
     }
 
     public static function sanitizeOutput($output)
     {
-        if ( !Storage::isDevelopment() ) {
-            $search = array(
-              '/\>[^\S ]+/s', //strip whitespaces after tags, except space
-              '/[^\S ]+\</s', //strip whitespaces before tags, except space
-              '/(\s)+/s'  // shorten multiple whitespace sequences
-            );
-            $replace = array(
-              '>',
-              '<',
-              '\\1'
-            );
+        if (!Storage::isDevelopment()) {
+            $search = array('/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s');
+            $replace = array('>', '<', '\\1');
             $output = preg_replace($search, $replace, $output);
         }
 
-        unset($search, $replace);
         return $output;
     }
-    
+
     public static function showErrors()
     {
         ob_end_flush();
         error_reporting(E_ALL);
         ini_set('display_errors', 1);
-        ini_set('display_startup_errors',1);        
+        ini_set('display_startup_errors', 1);
     }
 
     public static function detectRobot()
     {
         $robots = '/(bot|crawler|spider|80legs|baidu|yahoo! slurp|ia_archiver|mediapartners-google|lwp-trivial|nederland.zoek|ahoy|anthill|appie|arale|araneo|ariadne|atn_worldwide|atomz|bjaaland|ukonline|calif|combine|cosmos|cusco|cyberspyder|digger|grabber|downloadexpress|ecollector|ebiness|esculapio|esther|felix ide|hamahakki|kit-fireball|fouineur|freecrawl|desertrealm|gcreep|golem|griffon|gromit|gulliver|gulper|whowhere|havindex|hotwired|htdig|ingrid|informant|inspectorwww|iron33|teoma|ask jeeves|jeeves|image.kapsi.net|kdd-explorer|label-grabber|larbin|linkidator|linkwalker|lockon|marvin|mattie|mediafox|merzscope|nec-meshexplorer|udmsearch|moget|motor|muncher|muninn|muscatferret|mwdsearch|sharp-info-agent|webmechanic|netscoop|newscan-online|objectssearch|orbsearch|packrat|pageboy|parasite|patric|pegasus|phpdig|piltdownman|pimptrain|plumtreewebaccessor|getterrobo-plus|raven|roadrunner|robbie|robocrawl|robofox|webbandit|scooter|search-au|searchprocess|senrigan|shagseeker|site valet|skymob|slurp|snooper|speedy|curl_image_client|suke|www.sygol.com|tach_bw|templeton|titin|topiclink|udmsearch|urlck|valkyrie libwww-perl|verticrawl|victoria|webscout|voyager|crawlpaper|webcatcher|t-h-u-n-d-e-r-s-t-o-n-e|webmoose|pagesinventory|webquest|webreaper|webwalker|winona|occam|robi|fdse|jobo|rhcs|gazz|dwcp|yeti|fido|wlm|wolp|wwwc|xget|legs|curl|webs|wget|sift|cmc)+/i';
         Storage::Set('Robot', preg_match($robots, $_SERVER['HTTP_USER_AGENT']));
-
-        unset($robots);
     }
 }
-
-# End of file

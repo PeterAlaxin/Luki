@@ -1,121 +1,97 @@
 <?php
-
 /**
  * Storage class
  *
  * Luki framework
- * Date 29.11.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
- * * @license http://opensource.org/licenses/MIT The MIT License (MIT)
+ * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Storage
  * @filesource
  */
 
 namespace Luki;
 
-/**
- * Storage class
- *
- * Useful storage for any informations
- *
- * @package Luki
- */
 class Storage
 {
 
-    private static $_storage = array();
+    private static $storage = array();
 
-    public static function Set($name, $value = '', $permanent = FALSE)
+    public function __destruct()
     {
-        $isSet = FALSE;
+        foreach ($this as &$value) {
+            $value = null;
+        }
+    }
 
-        if ( is_string($name) ) {
-            if($permanent) {
+    public static function Set($name, $value = '', $permanent = false)
+    {
+        if (is_string($name)) {
+            if ($permanent) {
                 $_SESSION[$name] = $value;
+            } else {
+                self::$storage[$name] = $value;
             }
-            else {
-                self::$_storage[$name] = $value;
-            }
-            $isSet = TRUE;
+            $isSet = true;
+        } else {
+            $isSet = false;
         }
 
-        unset($name, $value, $permanent);
         return $isSet;
     }
 
     public static function Get($name)
     {
-        $value = NULL;
-
-        if ( self::isSaved($name) ) {
-            $value = self::$_storage[$name];
-        }
-        elseif ( self::isSavedPermanent($name) ) {
+        if (self::isSaved($name)) {
+            $value = self::$storage[$name];
+        } elseif (self::isSavedPermanent($name)) {
             $value = $_SESSION[$name];
+        } else {
+            $value = null;
         }
 
-        unset($name);
         return $value;
     }
 
     public static function Clear($name)
     {
-        if ( self::isSaved($name) ) {
-            unset(self::$_storage[$name]);
-        }
-        elseif ( self::isSavedPermanent($name) ) {
+        if (self::isSaved($name)) {
+            unset(self::$storage[$name]);
+        } elseif (self::isSavedPermanent($name)) {
             unset($_SESSION[$name]);
         }
     }
 
     public static function isSaved($name)
     {
-        $isFound = FALSE;
+        $isFound = (is_string($name) and isset(self::$storage[$name]));
 
-        if ( is_string($name) and isset(self::$_storage[$name]) ) {
-            $isFound = TRUE;
-        }
-
-        unset($name);
         return $isFound;
     }
 
     public static function isSavedPermanent($name)
     {
-        $isFound = FALSE;
+        $isFound = (is_string($name) and isset($_SESSION[$name]));
 
-        if ( is_string($name) and isset($_SESSION[$name]) ) {
-            $isFound = TRUE;
-        }
-
-        unset($name);
         return $isFound;
     }
 
     public static function __callStatic($method, $arguments)
     {
-        if ( 'is' == substr($method, 0, 2) ) {
+        if ('is' == substr($method, 0, 2)) {
             $variable = substr($method, 2);
             $value = self::isSaved($variable);
         } else {
             $value = self::Get($method);
         }
 
-        unset($method, $arguments, $variable);
         return $value;
     }
-    
+
     public static function getData()
     {
-        return self::$_storage;
+        return self::$storage;
     }
-
 }
-
-# End of file

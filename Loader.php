@@ -1,41 +1,38 @@
 <?php
-
 /**
  * Loader class
  *
  * Luki framework
- * Date 18.9.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Loader
  * @filesource
  */
 
 namespace Luki;
 
-/**
- * Loader class
- *
- * Load files, classes
- *
- * @package Luki
- */
+use Luki\Exception\LoaderException;
+
 class Loader
 {
 
     const CLASS_NOT_EXISTS = 'Class "%s" not exists!';
 
-    private static $_paths = array();
+    private static $paths = array();
 
     protected function __construct()
     {
         
+    }
+
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public static function Init()
@@ -46,52 +43,46 @@ class Loader
 
         $lukiDirectorys = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
         array_pop($lukiDirectorys);
-        
-        $lukiDirectory = implode(DIRECTORY_SEPARATOR, $lukiDirectorys) . DIRECTORY_SEPARATOR;
-        array_unshift(self::$_paths, $lukiDirectory);
 
-        unset($lukiDirectorys, $lukiDirectory);
+        $lukiDirectory = implode(DIRECTORY_SEPARATOR, $lukiDirectorys) . DIRECTORY_SEPARATOR;
+        array_unshift(self::$paths, $lukiDirectory);
     }
 
     public static function Reset()
     {
         $functions = spl_autoload_functions();
-        if ( is_array($functions) ) {
-            foreach ( $functions as $function ) {
+        if (is_array($functions)) {
+            foreach ($functions as $function) {
                 spl_autoload_unregister($function);
             }
         }
 
         spl_autoload_register();
-        self::$_paths = array();
-
-        unset($functions, $function);
+        self::$paths = array();
     }
 
     public static function addPath($path = '')
     {
-        if ( !empty($path) and is_dir($path) ) {
+        if (!empty($path) and is_dir($path)) {
 
-            if ( substr($path, -1) !== DIRECTORY_SEPARATOR ) {
+            if (substr($path, -1) !== DIRECTORY_SEPARATOR) {
                 $path .= DIRECTORY_SEPARATOR;
             }
 
-            if ( !in_array($path, self::$_paths) ) {
-                array_unshift(self::$_paths, $path);
+            if (!in_array($path, self::$paths)) {
+                array_unshift(self::$paths, $path);
             }
         }
-
-        unset($path);
     }
 
     public static function getPath()
     {
-        return self::$_paths;
+        return self::$paths;
     }
 
-    public static function addLoader($function, $isThrow = TRUE, $isPrepend = FALSE)
+    public static function addLoader($function, $isThrow = true, $isPrepend = false)
     {
-        if ( !empty($function) ) {
+        if (!empty($function)) {
             spl_autoload_register($function, $isThrow, $isPrepend);
         }
     }
@@ -100,60 +91,55 @@ class Loader
     {
         try {
             $classFile = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-            $isFound = FALSE;
+            $isFound = false;
 
-            foreach ( self::$_paths as $path ) {
+            foreach (self::$paths as $path) {
                 $fileWithPath = $path . $classFile;
 
-                if ( is_file($fileWithPath) and include_once($fileWithPath) ) {
-                    $isFound = TRUE;
+                if (is_file($fileWithPath) and include_once($fileWithPath)) {
+                    $isFound = true;
                     break;
                 }
             }
 
-            if ( !$isFound ) {
-                throw new \Exception(sprintf(self::CLASS_NOT_EXISTS, $class));
+            if (!$isFound) {
+                throw new LoaderException(sprintf(self::CLASS_NOT_EXISTS, $class));
             }
+        } catch (\Exception $exception) {
+            throw new LoaderException($exception->getMessage());
         }
-        catch ( \Exception $exception ) {
-            exit($exception->getMessage());
-        }
-
-        unset($class, $classFile, $fileWithPath);
     }
 
     public static function isClass($class = '')
     {
-        $className = NULL;
+        $className = null;
         $classFile = preg_replace('/_/', '/', $class) . '.php';
 
-        foreach ( self::$_paths as $path ) {
+        foreach (self::$paths as $path) {
             $fileWithPath = $path . $classFile;
 
-            if ( is_file($fileWithPath) and is_readable($fileWithPath) ) {
+            if (is_file($fileWithPath) and is_readable($fileWithPath)) {
                 $className = $fileWithPath;
                 break;
             }
         }
 
-        unset($class, $classFile, $fileWithPath);
         return $className;
     }
 
     public static function isFile($file)
     {
-        $fileName = NULL;
+        $fileName = null;
 
-        foreach ( self::$_paths as $path ) {
+        foreach (self::$paths as $path) {
             $fileWithPath = $path . $file;
 
-            if ( is_file($fileWithPath) and is_readable($fileWithPath) ) {
+            if (is_file($fileWithPath) and is_readable($fileWithPath)) {
                 $fileName = $fileWithPath;
                 break;
             }
         }
 
-        unset($file, $fileWithPath);
         return $fileName;
     }
 
@@ -161,7 +147,4 @@ class Loader
     {
         
     }
-
 }
-
-# End of file

@@ -1,15 +1,10 @@
 <?php
-
 /**
  * Hidden input
  *
  * Luki framework
- * Date 30.5.2014
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,23 +14,15 @@
 
 namespace Luki\Formular;
 
-use Luki\Formular\basicFactory;
+use Luki\Formular\BasicFactory;
 
-/**
- * Hidden input
- * 
- * @package Luki
- */
-class Hidden extends basicFactory
+class Hidden extends BasicFactory
 {
 
     public function __construct($name, $label, $placeholder = '')
     {
         parent::__construct($name, '');
-
         $this->setType('hidden');
-
-        unset($name, $label, $placeholder);
     }
 
     public function getHtml()
@@ -45,7 +32,4 @@ class Hidden extends basicFactory
 
         return $html;
     }
-
 }
-
-# End of file

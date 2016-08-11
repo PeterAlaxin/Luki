@@ -1,15 +1,10 @@
 <?php
-
 /**
  * Negative number validator
  *
  * Luki framework
- * Date 14.12.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
@@ -19,14 +14,9 @@
 
 namespace Luki\Validator;
 
-use Luki\Validator\basicFactory;
+use Luki\Validator\BasicFactory;
 
-/**
- * Negative number validator
- * 
- * @package Luki
- */
-class NumberNegative extends basicFactory
+class NumberNegative extends BasicFactory
 {
 
     public function __construct($options = array())
@@ -36,10 +26,5 @@ class NumberNegative extends basicFactory
         $validator = '/^-[0-9]*[.]?[0-9]*$/';
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" is not valid negative number!');
-
-        unset($options, $validator);
     }
-
 }
-
-# End of file

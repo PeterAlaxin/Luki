@@ -1,35 +1,25 @@
 <?php
-
 /**
  * Random template function 
  *
  * Luki framework
- * Date 22.3.2013
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Template
  * @filesource
  */
 
 namespace Luki\Template\Functions;
 
-/**
- * Random template function
- * 
- * @package Luki
- */
 class Random
 {
 
-    public function Get($value = NULL)
+    public function Get($value = null)
     {
-        switch ( gettype($value) ) {
+        switch (gettype($value)) {
             case 'string':
                 $random = substr($value, mt_rand(0, strlen($value) - 1), 1);
                 break;
@@ -39,15 +29,11 @@ class Random
             case 'integer':
                 $random = mt_rand(0, $value);
                 break;
-            case 'NULL':
+            case 'null':
             default :
                 $random = mt_rand();
         }
 
-        unset($value);
         return $random;
     }
-
 }
-
-# End of file

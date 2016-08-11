@@ -1,245 +1,224 @@
 <?php
-
 /**
  * Config class
  *
  * Luki framework
- * Date 19.9.2012
- *
- * @version 3.0.0
  *
  * @author Peter Alaxin, <peter@lavien.sk>
- * @copyright (c) 2009, Almex spol. s r.o.
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Class
+ * @subpackage Config
  * @filesource
  */
 
 namespace Luki;
 
-use Luki\Config\basicInterface;
+use Luki\Config\BasicInterface;
 
-/**
- * Config class
- *
- * Load configuration
- *
- * @package Luki
- */
 class Config
 {
 
-    private $_configuration = array();
-    private $_configurationAdapter = NULL;
-    private $_defaultSection = '';
-    private $_sections = array();
+    private $configuration = array();
+    private $adapter = null;
+    private $defaultSection = '';
+    private $sections = array();
 
-    public function __construct(basicInterface $configurationAdapter)
+    public function __construct(BasicInterface $adapter)
     {
-        $this->_configurationAdapter = $configurationAdapter;
-        $this->_configuration = $this->_configurationAdapter->getConfiguration();
-        $this->_sections = $this->_configurationAdapter->getSections();
+        $this->adapter = $adapter;
+        $this->configuration = $this->adapter->getConfiguration();
+        $this->sections = $this->adapter->getSections();
 
-        if ( isset($this->_sections[0]) ) {
-            $this->_defaultSection = $this->_sections[0];
+        if (isset($this->sections[0])) {
+            $this->defaultSection = $this->sections[0];
         }
+    }
 
-        unset($configurationAdapter);
+    public function __destruct()
+    {
+        foreach ($this as &$value) {
+            $value = null;
+        }
     }
 
     public static function findAdapter($file)
     {
         $filePathInformation = pathinfo($file);
-        $adapter = __NAMESPACE__ . '\Config\\' . $filePathInformation['extension'] . 'Adapter';
+        $adapter = __NAMESPACE__ . '\Config\\' . ucfirst($filePathInformation['extension']) . 'Adapter';
 
-        unset($filePathInformation);
         return $adapter;
     }
 
     public function getConfiguration()
     {
-        return $this->_configuration;
+        return $this->configuration;
     }
 
     public function getConfigurationFile()
     {
-        return $this->_configurationAdapter->getFilename();
+        return $this->adapter->getFilename();
     }
 
-    public function addSection($section, $values = array())
+    public function addSection($sectionName, $values = array())
     {
-        $isAdded = FALSE;
+        if (!empty($sectionName) and is_string($sectionName) and ! in_array($sectionName, $this->sections)) {
+            $this->configuration[$sectionName] = array();
+            $this->sections[] = $sectionName;
+            $this->setDefaultSection($sectionName);
+            $isAdded = true;
 
-        if ( !empty($section) and is_string($section) and ! in_array($section, $this->_sections) ) {
-            $this->_configuration[$section] = array();
-            $this->_sections[] = $section;
-            $this->setDefaultSection($section);
-            $isAdded = TRUE;
-
-            if ( !empty($values) and is_array($values) ) {
+            if (!empty($values) and is_array($values)) {
                 $this->addValue($values);
             }
+        } else {
+            $isAdded = false;
         }
 
-        unset($section, $values);
         return $isAdded;
     }
 
-    public function deleteSection($section)
+    public function deleteSection($sectionName)
     {
-        $isDeleted = FALSE;
-        $section = $this->_fillEmptySection($section);
+        $section = $this->fillEmptySection($sectionName);
 
-        if ( in_array($section, $this->_sections) ) {
-            unset($this->_configuration[$section]);
-            $this->_sections = array_keys($this->_configuration);
-            $isDeleted = TRUE;
+        if (in_array($section, $this->sections)) {
+            unset($this->configuration[$section]);
+            $this->sections = array_keys($this->configuration);
+            $isDeleted = true;
+        } else {
+            $isDeleted = false;
         }
 
-        unset($section);
         return $isDeleted;
     }
 
-    public function getSection($section)
+    public function getSection($sectionName)
     {
-        $section = $this->_fillEmptySection($section);
+        $section = $this->fillEmptySection($sectionName);
         $values = array();
 
-        if ( in_array($section, $this->_sections) ) {
-            $values = $this->_configuration[$section];
+        if (in_array($section, $this->sections)) {
+            $values = $this->configuration[$section];
         }
 
-        unset($section);
         return $values;
     }
 
     public function getSections()
     {
-        return $this->_sections;
+        return $this->sections;
     }
 
     public function addValue($key, $value = '', $section = '')
     {
-        $isAdded = FALSE;
-
-        if ( !empty($key) ) {
-            if ( is_array($key) ) {
+        if (!empty($key)) {
+            if (is_array($key)) {
                 $values = $key;
                 $section = $value;
             } else {
-                $values = array( $key => $value );
+                $values = array($key => $value);
             }
 
-            $section = $this->_fillEmptySection($section);
+            $section = $this->fillEmptySection($section);
             $this->addSection($section);
 
-            foreach ( $values as $key => $value ) {
-                $this->_configuration[(string) $section][(string) $key] = (string) $value;
+            foreach ($values as $key => $value) {
+                $this->configuration[(string) $section][(string) $key] = (string) $value;
             }
-            $isAdded = TRUE;
+            $isAdded = true;
+        } else {
+            $isAdded = false;
         }
 
-        unset($key, $value, $section, $values);
         return $isAdded;
     }
 
-    public function deleteKey($key, $section = '')
+    public function deleteKey($key, $sectionName = '')
     {
-        $isDeleted = FALSE;
-
-        $section = $this->_fillEmptySection($section);
-        if ( isset($this->_configuration[$section][$key]) ) {
-            unset($this->_configuration[$section][$key]);
-            $isDeleted = TRUE;
+        $section = $this->fillEmptySection($sectionName);
+        if (isset($this->configuration[$section][$key])) {
+            unset($this->configuration[$section][$key]);
+            $isDeleted = true;
+        } else {
+            $isDeleted = false;
         }
 
-        unset($key, $section);
         return $isDeleted;
     }
 
-    public function getValue($key, $section = '')
+    public function getValue($key, $sectionName = '')
     {
-        $section = $this->_fillEmptySection($section);
-        $value = NULL;
+        $section = $this->fillEmptySection($sectionName);
 
-        if ( isset($this->_configuration[$section][$key]) ) {
-            $value = $this->_configuration[$section][$key];
+        if (isset($this->configuration[$section][$key])) {
+            $value = $this->configuration[$section][$key];
+        } else {
+            $value = null;
         }
 
-        unset($key, $section);
         return $value;
     }
 
-    public function setValue($key, $value = '', $section = '')
+    public function setValue($key, $value = '', $sectionName = '')
     {
-        $isSet = $this->addValue($key, $value, $section);
+        $isSet = $this->addValue($key, $value, $sectionName);
 
-        unset($key, $value, $section);
         return $isSet;
     }
 
-    public function setDefaultSection($section = '')
+    public function setDefaultSection($sectionName = '')
     {
-        $isSet = FALSE;
-
-        if ( !empty($section) and in_array($section, $this->_sections) ) {
-            $this->_defaultSection = $section;
-            $isSet = TRUE;
+        if (!empty($sectionName) and in_array($sectionName, $this->sections)) {
+            $this->defaultSection = $sectionName;
+            $isSet = true;
+        } else {
+            $isSet = false;
         }
 
-        unset($section);
         return $isSet;
     }
 
     public function getDefaultSection()
     {
-        return $this->_defaultSection;
+        return $this->defaultSection;
     }
 
     public function Save($file = '')
     {
-        $isSaved = FALSE;
+        $isSaved = false;
 
-        if ( !empty($file) ) {
-            $this->_configurationAdapter->setFilename($file);
+        if (!empty($file)) {
+            $this->adapter->setFilename($file);
         }
 
-        if ( $this->_configurationAdapter->setConfiguration($this->_configuration) ) {
-            $isSaved = $this->_configurationAdapter->saveConfiguration();
+        if ($this->adapter->setConfiguration($this->configuration)) {
+            $isSaved = $this->adapter->saveConfiguration();
         }
 
-        unset($file);
         return $isSaved;
     }
 
-    public function isSection($section)
+    public function isSection($sectionName)
     {
-        $isSection = in_array($section, $this->_sections);
-        
-        unset($section);
+        $isSection = in_array($sectionName, $this->sections);
+
         return $isSection;
     }
-    
-    public function isValue($key, $section = '')
+
+    public function isValue($key, $sectionName = '')
     {
-        $section = $this->_fillEmptySection($section);
-        $isValue = isset($this->_configuration[$section][$key]);
-        
-        unset($key, $section);
+        $isValue = isset($this->configuration[$this->fillEmptySection($sectionName)][$key]);
+
         return $isValue;
     }
-        
-    private function _fillEmptySection($section = '')
+
+    private function fillEmptySection($sectionName = '')
     {
-        if ( empty($section) and ! empty($this->_defaultSection) ) {
-            $section = $this->_defaultSection;
+        if (empty($sectionName) and ! empty($this->defaultSection)) {
+            $sectionName = $this->defaultSection;
         }
 
-        return $section;
+        return $sectionName;
     }
-
 }
-
-# End of file
