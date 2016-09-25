@@ -31,7 +31,11 @@ class Select extends BasicFactory
 
     public function getHtml()
     {
-        $html = array('label' => $this->prepareLabel(), 'input' => $this->prepareInput());
+        $html = array(
+			'label' => $this->prepareLabel(), 
+			'input' => $this->prepareInput(),
+			'value' => $this->getValue()
+			);
 
         return $html;
     }

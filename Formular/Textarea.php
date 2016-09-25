@@ -28,8 +28,11 @@ class Textarea extends BasicFactory
             }
         }
 
-        $html = array('label' => '<label for="' . $this->getId() . '">' . $this->getLabel() . '</label>',
-            'input' => '<textarea ' . $attributes . '>' . $this->getValue() . '</textarea>');
+        $html = array(
+			'label' => '<label for="' . $this->getId() . '">' . $this->getLabel() . '</label>',
+            'input' => '<textarea ' . $attributes . '>' . $this->getValue() . '</textarea>',
+			'value' => $this->getValue()
+			);
 
         return $html;
     }
