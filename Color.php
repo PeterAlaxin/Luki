@@ -136,6 +136,63 @@ class Color
 		return $isVisible;
 	}
 
+	public function findVisible($hex)
+	{
+		$baseBrightnes = self::getBrightness($this->getHEX());
+		$newBrightnes = self::getBrightness($hex);
+		
+		if ($this->getHEX() == $hex) {
+			$hex = ($baseBrightnes > 128) ? self::darken($hex, 1) : self::lighten($hex, 1);			
+			$newBrightnes = self::getBrightness($hex);
+		}
+
+		if (!$this->isVisible($hex)) {
+			if ($baseBrightnes > $newBrightnes) {
+				$hex = $this->findDarken($hex);
+			} else {
+				$hex = $this->findLighten($hex);
+			}
+		}
+
+		return $hex;
+	}
+
+	private function findDarken($hex)
+	{
+		while (true) {
+			$newHex = self::darken($hex, 1);
+			if ($hex == $newHex) {
+				$newHex = false;
+				break;
+			}
+			if ($this->isVisible($newHex)) {
+				break;
+			} else {
+				$hex = $newHex;
+			}
+		}
+		
+		return $newHex;
+	}
+
+	private function findLighten($hex)
+	{
+		while (true) {
+			$newHex = self::lighten($hex, 1);
+			if ($hex == $newHex) {
+				$newHex = false;
+				break;
+			}
+			if ($this->isVisible($newHex)) {
+				break;
+			} else {
+				$hex = $newHex;
+			}
+		}
+		
+		return $newHex;
+	}
+
 	public static function clear($hex)
 	{
 		$color = str_replace('#', '', $hex);
