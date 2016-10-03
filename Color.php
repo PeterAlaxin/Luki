@@ -140,9 +140,9 @@ class Color
 	{
 		$baseBrightnes = self::getBrightness($this->getHEX());
 		$newBrightnes = self::getBrightness($hex);
-		
+
 		if ($this->getHEX() == $hex) {
-			$hex = ($baseBrightnes > 128) ? self::darken($hex, 1) : self::lighten($hex, 1);			
+			$hex = ($baseBrightnes > 128) ? self::darken($hex, 1) : self::lighten($hex, 1);
 			$newBrightnes = self::getBrightness($hex);
 		}
 
@@ -171,7 +171,7 @@ class Color
 				$hex = $newHex;
 			}
 		}
-		
+
 		return $newHex;
 	}
 
@@ -189,7 +189,7 @@ class Color
 				$hex = $newHex;
 			}
 		}
-		
+
 		return $newHex;
 	}
 
@@ -539,5 +539,120 @@ class Color
 		$brightnes = (($rgb['r'] * 299) + ($rgb['g'] * 587) + ($rgb['b'] * 114)) / 1000;
 
 		return $brightnes;
+	}
+
+	public static function getDualColors($hex)
+	{
+		$dual = array($hex, static::complementary($hex));
+
+		return $dual;
+	}
+
+	public static function getTripleColors($hex, $distance = 120)
+	{
+		$triple = array($hex);
+		$hsl = static::hex2hsl($hex);
+
+		if ($distance < 5 or $distance > 175) {
+			$distance = 120;
+		}
+
+		$new = $hsl;
+		$new['h'] += $distance;
+		if ($new['h'] > 360) {
+			$new['h'] = $new['h'] - 360;
+		}
+		$triple[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+
+		$new = $hsl;
+		$new['h'] -= $distance;
+		if ($new['h'] < 0) {
+			$new['h'] = 360 + $new['h'];
+		}
+		$triple[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+
+		return $triple;
+	}
+
+	public static function getQuatroColors($hex, $distance = 90)
+	{
+		$quatro = static::getDualColors($hex);
+		$hsl = static::hex2hsl($hex);
+
+		if ($distance < 5 or $distance > 175) {
+			$distance = 90;
+		}
+
+		$new = $hsl;
+		$new['h'] += $distance;
+		if ($new['h'] > 360) {
+			$new['h'] = $new['h'] - 360;
+		}
+		$quatro[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+
+		$new = $hsl;
+		$new['h'] += $distance + 180;
+		if ($new['h'] > 360) {
+			$new['h'] = $new['h'] - 360;
+		}
+		$quatro[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+
+		return $quatro;
+	}
+
+	public static function getScheme($hex, $distance = 10)
+	{
+		$scheme = array($hex);
+		$hsl = static::hex2hsl($hex);
+
+		$new = $hsl;
+		for ($i = 1; $i < 3; $i++) {
+			$new['l'] = min(100, $new['l'] + $distance);
+			$scheme[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+		}
+
+		$new = $hsl;
+		for ($i = 1; $i < 3; $i++) {
+			$new['l'] = max(0, $new['l'] - $distance);
+			$scheme[] = static::hsl2hex($new['h'], $new['s'], $new['l']);
+		}
+
+		return $scheme;
+	}
+
+	public static function getDualScheme($hex, $distanceScheme = null)
+	{
+		$dual = static::getDualColors($hex);
+		$scheme = array();
+
+		foreach ($dual as $item) {
+			$scheme[] = static::getScheme($item, $distanceScheme);
+		}
+
+		return $scheme;
+	}
+
+	public static function getTripleScheme($hex, $distanceTriple = null, $distanceScheme = null)
+	{
+		$triple = static::getTripleColors($hex, $distanceTriple);
+		$scheme = array();
+
+		foreach ($triple as $item) {
+			$scheme[] = static::getScheme($item, $distanceScheme);
+		}
+
+		return $scheme;
+	}
+
+	public static function getQuatroScheme($hex, $distanceQuatro = null, $distanceScheme = null)
+	{
+		$quatro = static::getQuatroColors($hex, $distanceQuatro);
+		$scheme = array();
+
+		foreach ($quatro as $item) {
+			$scheme[] = static::getScheme($item, $distanceScheme);
+		}
+
+		return $scheme;
 	}
 }
