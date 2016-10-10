@@ -24,7 +24,7 @@ class First
                 $first = mb_substr($value, 0, 1);
                 break;
             case 'array':
-                $first = array_slice($value, 0, 1);
+                $first = array_shift(array_slice($value, 0, 1));
                 break;
             default:
                 $first = $value;
