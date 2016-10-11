@@ -17,6 +17,7 @@ namespace Luki\Data\MySQL;
 use Luki\Data\MySQL\BasicAdapter;
 use Luki\Data\MySQL\Select;
 use Luki\Data\MySQL\MysqliResult as Result;
+use Luki\Exception\DataException;
 use Luki\Storage;
 use Luki\Time;
 
