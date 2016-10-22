@@ -156,9 +156,9 @@ class Security
 		$key1Final = empty($key1) ? self::getKey() : md5($key1);
 		$key2Final = empty($key2) ? md5(strrev($key1Final)) : md5($key2);
 
-		$encoded = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key1Final, $text, MCRYPT_MODE_CBC, $key2Final));
+		$encrypted = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key1Final, $text, MCRYPT_MODE_CBC, $key2Final));
 
-		return $encoded;
+		return $encrypted;
 	}
 
 	static function textDecrypt($text, $key1 = '', $key2 = '')
