@@ -68,7 +68,7 @@ abstract class Model
             $name = $this->getCacheName($name);
             $cache = Storage::Cache()->Get($name);
         } else {
-            $cache = false;
+            $cache = null;
         }
 
         return $cache;
