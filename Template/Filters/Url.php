@@ -24,7 +24,7 @@ class Url
         $url = empty($parts['scheme']) ? 'http://' : $parts['scheme'] . '://';
         $url .= empty($parts['user']) ? '' : $parts['user'] . ':';
         $url .= empty($parts['pass']) ? '' : $parts['pass'] . '@';
-        $url .= empty($parts['host']) ? '' : $parts['host'] . '/';
+        $url .= empty($parts['host']) ? '' : $parts['host'];
         $url .= $parts['path'];
         $url .= empty($parts['query']) ? '' : '?' . $parts['query'];
         $url .= empty($parts['fragment']) ? '' : '#' . $parts['fragment'];
