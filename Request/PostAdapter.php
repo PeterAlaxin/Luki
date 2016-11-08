@@ -22,16 +22,16 @@ class postAdapter extends BasicAdapter
 
     public function __construct()
     {
-        if (!empty($_POST)) {
-            $_SESSION['__post__'] = $_POST;
-            Url::Reload($_SERVER['REQUEST_URI']);
-        }
-
-        if (!empty($_SESSION['__post__'])) {
-            $_POST = $_SESSION['__post__'];
-            unset($_SESSION['__post__']);
-        }
-
+		if(empty($_FILES) and !empty($_POST)) {
+			$_SESSION['__post__'] = $_POST;
+			Url::Reload($_SERVER['REQUEST_URI']);
+		}
+		
+		if (!empty($_SESSION['__post__'])) {
+			$_POST = $_SESSION['__post__'];
+			unset($_SESSION['__post__']);
+		}
+		
         $this->saveInputs($_POST);
     }
 }
