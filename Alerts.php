@@ -22,7 +22,7 @@ class Alerts
     public static function addDanger($messagge)
     {
         self::init();
-        $alerts = Storage::Alerts();
+        $alerts = Storage::Get('alerts');
         $alerts['danger'][] = $messagge;
         Storage::Set('alerts', $alerts);
     }
@@ -30,7 +30,7 @@ class Alerts
     public static function addWarning($messagge)
     {
         self::init();
-        $alerts = Storage::Alerts();
+        $alerts = Storage::Get('alerts');
         $alerts['warning'][] = $messagge;
         Storage::Set('alerts', $alerts);
     }
@@ -38,7 +38,7 @@ class Alerts
     public static function addInfo($messagge)
     {
         self::init();
-        $alerts = Storage::Alerts();
+        $alerts = Storage::Get('alerts');
         $alerts['info'][] = $messagge;
         Storage::Set('alerts', $alerts);
     }
@@ -46,7 +46,7 @@ class Alerts
     public static function addSuccess($messagge)
     {
         self::init();
-        $alerts = Storage::Alerts();
+        $alerts = Storage::Get('alerts');
         $alerts['success'][] = $messagge;
         Storage::Set('alerts', $alerts);
     }
@@ -66,7 +66,7 @@ class Alerts
     public static function isAlerts()
     {
         self::init();
-        $alerts = Storage::Alerts();
+        $alerts = Storage::Get('alerts');
         $count = count($alerts['danger']) + count($alerts['warning']) + count($alerts['info']) + count($alerts['success']);
 
         return (bool) $count;
