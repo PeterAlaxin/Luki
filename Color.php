@@ -16,7 +16,6 @@ namespace Luki;
 
 class Color
 {
-
 	const STEP = 15;
 
 	private $hex;
@@ -620,7 +619,7 @@ class Color
 		return $scheme;
 	}
 
-	public static function getDualScheme($hex, $distanceScheme = null)
+	public static function getDualScheme($hex, $distanceScheme = 10)
 	{
 		$dual = static::getDualColors($hex);
 		$scheme = array();
@@ -632,7 +631,7 @@ class Color
 		return $scheme;
 	}
 
-	public static function getTripleScheme($hex, $distanceTriple = null, $distanceScheme = null)
+	public static function getTripleScheme($hex, $distanceTriple = 120, $distanceScheme = 10)
 	{
 		$triple = static::getTripleColors($hex, $distanceTriple);
 		$scheme = array();
@@ -644,7 +643,7 @@ class Color
 		return $scheme;
 	}
 
-	public static function getQuatroScheme($hex, $distanceQuatro = null, $distanceScheme = null)
+	public static function getQuatroScheme($hex, $distanceQuatro = 90, $distanceScheme = 10)
 	{
 		$quatro = static::getQuatroColors($hex, $distanceQuatro);
 		$scheme = array();
