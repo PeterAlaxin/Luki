@@ -15,13 +15,13 @@
 namespace Luki;
 
 use Luki\Cache;
+use Luki\Headers;
 use Luki\Loader;
 use Luki\Storage;
 use Luki\Template;
 
 class Controller
 {
-
     protected $renderAllowed = true;
     protected $models = array();
     protected $output = '';
@@ -32,10 +32,13 @@ class Controller
     protected $route = array();
     protected $useCache = true;
     protected $expiration = 0;
+    public $headers;
 
     function __construct()
     {
-        $this->route = explode('\\', get_class($this));
+        $this->route = explode('\\',
+                get_class($this));
+        $this->headers = new Headers();
 
         $this->setDefaultTemplate();
         $this->setDefaultModel();
@@ -54,8 +57,10 @@ class Controller
         $result = null;
 
         foreach ($this->methods as $model => $methods) {
-            if (in_array($name, $methods)) {
-                $result = call_user_func_array(array($this->models[$model], $name), $arguments);
+            if (in_array($name,
+                            $methods)) {
+                $result = call_user_func_array(array($this->models[$model], $name),
+                        $arguments);
                 break;
             }
         }
@@ -88,7 +93,8 @@ class Controller
 
     public function __unset($name)
     {
-        unset($this->data[$name], $name);
+        unset($this->data[$name],
+                $name);
     }
 
     public function preDispatch()
@@ -120,7 +126,8 @@ class Controller
     public function removeModel($model)
     {
         if (isset($this->models[$model])) {
-            unset($this->models[$model], $this->methods[$model]);
+            unset($this->models[$model],
+                    $this->methods[$model]);
         }
 
         return $this;
@@ -138,16 +145,19 @@ class Controller
         $this->output = null;
 
         if (Storage::isSaved('Cache') and $this->useCache) {
-            $hash = $this->template . '_' . md5(json_encode($this->data));
+            $hash = $this->template.'_'.md5(json_encode($this->data));
             $this->output = Storage::Cache()->Get($hash);
         }
 
         if (empty($this->output)) {
-            $oTemplate = new Template($this->template, $this->data);
+            $oTemplate = new Template($this->template,
+                    $this->data);
             $this->output = $oTemplate->Render();
 
             if (Storage::isSaved('Cache') and $this->useCache) {
-                Storage::Cache()->Set($hash, $this->output, $this->expiration);
+                Storage::Cache()->Set($hash,
+                        $this->output,
+                        $this->expiration);
             }
         }
 
@@ -156,13 +166,15 @@ class Controller
 
     public function getOutput()
     {
+        $this->headers->setHeaders();
+
         return $this->output;
     }
 
     public function Show()
     {
         echo $this->Render()
-            ->getOutput();
+                ->getOutput();
 
         if ($this->endProgramAfterRender) {
             exit;
@@ -181,14 +193,14 @@ class Controller
     private function setDefaultTemplate()
     {
         if (!empty($this->route[0]) and ! empty($this->route[1])) {
-            $this->template = Loader::isFile($this->route[0] . '/template/' . $this->route[1] . '.twig');
+            $this->template = Loader::isFile($this->route[0].'/template/'.$this->route[1].'.twig');
         }
     }
 
     private function setDefaultModel()
     {
         if (!empty($this->route[0]) and ! empty($this->route[1])) {
-            $this->addModel($this->route[0] . '_model_' . $this->route[1]);
+            $this->addModel($this->route[0].'_model_'.$this->route[1]);
         }
     }
 
@@ -197,7 +209,9 @@ class Controller
         $modelClassFileWithPath = Loader::isClass($model);
 
         if (!empty($modelClassFileWithPath)) {
-            $modelWithPath = '\\' . preg_replace('/_/', '\\', $model);
+            $modelWithPath = '\\'.preg_replace('/_/',
+                            '\\',
+                            $model);
             $this->models[$model] = new $modelWithPath;
             $this->methods[$model] = get_class_methods($this->models[$model]);
         }
