@@ -23,26 +23,28 @@ use Luki\Time;
 
 class MysqlAdapter extends BasicAdapter
 {
-
     public $connection = null;
 
     public function __construct($options)
     {
-        $this->connection = mysql_connect($options['server'], $options['user'], $options['password']);
+        $this->connection = mysql_connect($options['server'],
+                $options['user'],
+                $options['password']);
 
         if (!isset($this->connection) or false === $this->connection) {
             throw new DataException('MySQL connection error');
         }
 
-        if (!mysql_select_db($options['database'], $this->connection)) {
+        if (!mysql_select_db($options['database'],
+                        $this->connection)) {
             throw new DataException('MySQL connection error');
         }
 
-        $this->Query('SET CHARACTER_SET_CONNECTION=' . $options['coding'] . ';');
-        $this->Query('SET CHARACTER_SET_CLIENT=' . $options['coding'] . ';');
-        $this->Query('SET CHARACTER_SET_RESULTS=' . $options['coding'] . ';');
-        $this->Query('SET NAMES ' . $options['coding'] . ';');
-        $this->Query('SET lc_time_names = "' . $options['locale'] . '";');
+        $this->Query('SET CHARACTER_SET_CONNECTION='.$options['coding'].';');
+        $this->Query('SET CHARACTER_SET_CLIENT='.$options['coding'].';');
+        $this->Query('SET CHARACTER_SET_RESULTS='.$options['coding'].';');
+        $this->Query('SET NAMES '.$options['coding'].';');
+        $this->Query('SET lc_time_names = "'.$options['locale'].'";');
     }
 
     public function __destruct()
@@ -66,11 +68,17 @@ class MysqlAdapter extends BasicAdapter
             Time::stopwatchStart('Luki_Data_MySQL_MySQL');
         }
 
-        $result = mysql_query((string) $sql, $this->connection);
+        $result = mysql_query((string) $sql,
+                $this->connection);
+
+        if (false === $result and Storage::isLog()) {
+            Storage::Log()->Error($this->mySql->error.' in "'.(string) $sql.'"');
+        }
 
         if (Storage::isProfiler()) {
             $time = Time::getStopwatch('Luki_Data_MySQL_MySQL');
-            Storage::Profiler()->Add('Data', array('sql' => (string) $sql, 'time' => $time));
+            Storage::Profiler()->Add('Data',
+                    array('sql' => (string) $sql, 'time' => $time));
         }
 
         if (is_resource($result)) {
@@ -82,7 +90,8 @@ class MysqlAdapter extends BasicAdapter
 
     public function escapeString($string)
     {
-        $string = mysql_real_escape_string($string, $this->connection);
+        $string = mysql_real_escape_string($string,
+                $this->connection);
 
         return $string;
     }

@@ -23,22 +23,24 @@ use Luki\Time;
 
 class MysqliAdapter extends BasicAdapter
 {
-
     public $mySql = null;
 
     public function __construct($options)
     {
-        $this->mySql = new \mysqli($options['server'], $options['user'], $options['password'], $options['database']);
+        $this->mySql = new \mysqli($options['server'],
+                $options['user'],
+                $options['password'],
+                $options['database']);
 
         if (!empty($this->mySql->connect_error)) {
             throw new DataException('MySQL connection error');
         }
 
-        $this->Query('SET CHARACTER_SET_CONNECTION=' . $options['coding'] . ';');
-        $this->Query('SET CHARACTER_SET_CLIENT=' . $options['coding'] . ';');
-        $this->Query('SET CHARACTER_SET_RESULTS=' . $options['coding'] . ';');
-        $this->Query('SET NAMES ' . $options['coding'] . ';');
-        $this->Query('SET lc_time_names = "' . $options['locale'] . '";');
+        $this->Query('SET CHARACTER_SET_CONNECTION='.$options['coding'].';');
+        $this->Query('SET CHARACTER_SET_CLIENT='.$options['coding'].';');
+        $this->Query('SET CHARACTER_SET_RESULTS='.$options['coding'].';');
+        $this->Query('SET NAMES '.$options['coding'].';');
+        $this->Query('SET lc_time_names = "'.$options['locale'].'";');
     }
 
     public function __destruct()
@@ -64,12 +66,18 @@ class MysqliAdapter extends BasicAdapter
 
         $result = $this->mySql->query((string) $sql);
 
-        if (Storage::isProfiler()) {
-            $time = Time::getStopwatch('Luki_Data_MySQL_MySQLi');
-            Storage::Profiler()->Add('Data', array('sql' => (string) $sql, 'time' => $time));
+        if (false === $result and Storage::isLog()) {
+            Storage::Log()->Error($this->mySql->error.' in "'.(string) $sql.'"');
         }
 
-        if (is_a($result, 'mysqli_result')) {
+        if (Storage::isProfiler()) {
+            $time = Time::getStopwatch('Luki_Data_MySQL_MySQLi');
+            Storage::Profiler()->Add('Data',
+                    array('sql' => (string) $sql, 'time' => $time));
+        }
+
+        if (is_a($result,
+                        'mysqli_result')) {
             $result = new Result($result);
         }
 
