@@ -20,17 +20,16 @@ use Luki\Log\Writer\BasicInterface as Writer;
 
 class Log
 {
-
     const EMERGENCY = 0;
-    const ALERT = 1;
-    const CRITICAL = 2;
-    const ERROR = 3;
-    const WARNING = 4;
-    const NOTICE = 5;
-    const INFO = 6;
-    const DEBUG = 7;
+    const ALERT     = 1;
+    const CRITICAL  = 2;
+    const ERROR     = 3;
+    const WARNING   = 4;
+    const NOTICE    = 5;
+    const INFO      = 6;
+    const DEBUG     = 7;
 
-    private $_priority = array(
+    private $_priority       = array(
         'emergency',
         'alert',
         'critical',
@@ -39,9 +38,9 @@ class Log
         'notice',
         'info',
         'debug');
-    private $format = null;
-    private $writer = null;
-    private $validators = array();
+    private $format          = null;
+    private $writer          = null;
+    private $validators      = array();
     private $timestampFormat = 'c';
 
     public function __construct(Format $format, Writer $writer)
@@ -59,14 +58,14 @@ class Log
 
     public static function findFormat($adapter)
     {
-        $adapter = __NAMESPACE__ . '\Log\\Format\\' . $adapter;
+        $adapter = __NAMESPACE__.'\Log\\Format\\'.$adapter;
 
         return $adapter;
     }
 
     public static function findWriter($adapter)
     {
-        $adapter = __NAMESPACE__ . '\Log\\Writer\\' . $adapter;
+        $adapter = __NAMESPACE__.'\Log\\Writer\\'.$adapter;
 
         return $adapter;
     }
@@ -164,21 +163,21 @@ class Log
 
     private function addToLog($message, $priority)
     {
-        $now = date('Y-m-d H:i:s');
+        $now             = date('Y-m-d H:i:s');
         $timestampFormat = Date::DateTimeToFormat($now, $this->timestampFormat);
-        $isValid = true;
+        $isValid         = true;
 
         $parameters = array(
-            'timestamp' => $timestampFormat,
-            'message' => $message,
-            'priority' => $this->_priority[$priority],
+            'timestamp'     => $timestampFormat,
+            'message'       => $message,
+            'priority'      => $this->_priority[$priority],
             'priorityValue' => $priority
         );
 
         foreach ($this->validators as $validatorName) {
-            $value = $parameters[$validatorName['key']];
+            $value     = $parameters[$validatorName['key']];
             $validator = $validatorName['validator'];
-            $isValid = $validator->isValid($value);
+            $isValid   = $validator->isValid($value);
 
             if (!$isValid) {
                 break;

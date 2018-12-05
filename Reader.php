@@ -16,8 +16,7 @@ namespace Luki;
 
 class Reader
 {
-
-    private $file = null;
+    private $file    = null;
     private $adapter = null;
 
     public function __construct($file)
@@ -35,8 +34,8 @@ class Reader
 
     private function findAdapter()
     {
-        $extension = strtolower(pathinfo($this->file, PATHINFO_EXTENSION));
-        $name = __NAMESPACE__ . '\Reader\\' . ucfirst($extension) . 'Adapter';
+        $extension     = strtolower(pathinfo($this->file, PATHINFO_EXTENSION));
+        $name          = __NAMESPACE__.'\Reader\\'.ucfirst($extension).'Adapter';
         $this->adapter = new $name($this->file);
     }
 
@@ -91,8 +90,8 @@ class Reader
 
     public function getPercent()
     {
-        $all = $this->getFilesize();
-        $read = $this->getReadBytes();
+        $all     = $this->getFilesize();
+        $read    = $this->getReadBytes();
         $percent = round(($read / $all) * 10000) / 100;
 
         return $percent;

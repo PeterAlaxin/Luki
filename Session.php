@@ -18,7 +18,6 @@ use Luki\Storage;
 
 class Session
 {
-
     public static $limiters = array('public', 'private_no_expire', 'private', 'nocache');
 
     public function __destruct()
@@ -67,14 +66,15 @@ class Session
 
     public static function Destroy()
     {
-        $isDestroyed = false;
-        $sessionName = session_name();
+        $isDestroyed   = false;
+        $sessionName   = session_name();
         $sessionCookie = session_get_cookie_params();
 
         self::Restart();
         if (session_destroy()) {
             setcookie(
-                $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'], $sessionCookie['secure']
+                $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'],
+                $sessionCookie['secure']
             );
             $isDestroyed = true;
 

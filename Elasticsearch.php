@@ -19,10 +19,9 @@ use Luki\Elasticsearch\Search;
 
 class Elasticsearch
 {
-
-    private $server = 'http://localhost';
+    private $server     = 'http://localhost';
     public static $port = '9200';
-    private $url = 'http://localhost:9200/';
+    private $url        = 'http://localhost:9200/';
     private $index;
 
     public function __destruct()
@@ -78,7 +77,7 @@ class Elasticsearch
 
     public function insert(Record $record)
     {
-        $link = $this->url . $record->getType() . '/' . $record->getId();
+        $link    = $this->url.$record->getType().'/'.$record->getId();
         $content = json_encode($record->getContent());
         self::sendToServer('PUT', $link, $content);
 
@@ -88,7 +87,7 @@ class Elasticsearch
     public function search($text, $type)
     {
         $search = new Search($this->url);
-        $hits = $search->setText($text)
+        $hits   = $search->setText($text)
             ->setType($type)
             ->search();
 
@@ -100,11 +99,11 @@ class Elasticsearch
         $this->url = $this->server;
 
         if (!empty($this->port)) {
-            $this->url .= ':' . $this->port;
+            $this->url .= ':'.$this->port;
         }
 
         if (!empty($this->index)) {
-            $this->url .= '/' . $this->index;
+            $this->url .= '/'.$this->index;
         }
 
         $this->url .= '/';
@@ -112,7 +111,7 @@ class Elasticsearch
 
     public static function sendToServer($type, $url, $query)
     {
-        $ci = curl_init();
+        $ci       = curl_init();
         curl_setopt($ci, CURLOPT_URL, $url);
         curl_setopt($ci, CURLOPT_PORT, self::$port);
         curl_setopt($ci, CURLOPT_TIMEOUT, 200);

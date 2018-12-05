@@ -18,8 +18,7 @@ use Luki\Time;
 
 class Date
 {
-
-    public static $format = 'Y-m-d';
+    public static $format        = 'Y-m-d';
     public static $dateValidator = '/^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$/';
 
     public function __destruct()
@@ -34,7 +33,7 @@ class Date
         $oDate = date_create('now');
         if (false !== $oDate->format($format)) {
             self::$format = $format;
-            $isSet = true;
+            $isSet        = true;
         } else {
             $isSet = false;
         }
@@ -68,17 +67,17 @@ class Date
         if (is_null($day)) {
             if (is_null($date)) {
                 $date = 'now';
-                $day = 1;
+                $day  = 1;
             } elseif (is_int($date)) {
-                $day = $date;
+                $day  = $date;
                 $date = 'now';
             } elseif (is_string($date)) {
                 $day = 1;
             }
         }
 
-        $newDate = false;
-        $interval = new \DateInterval('P0D');
+        $newDate     = false;
+        $interval    = new \DateInterval('P0D');
         $interval->d = $interval->d + (int) $day;
 
         $dateObject = date_create($date);
@@ -94,18 +93,18 @@ class Date
     {
         if (is_null($minute)) {
             if (is_null($date)) {
-                $date = 'now';
+                $date   = 'now';
                 $minute = 1;
             } elseif (is_int($date)) {
                 $minute = $date;
-                $date = 'now';
+                $date   = 'now';
             } elseif (is_string($date)) {
                 $minute = 1;
             }
         }
 
-        $newDate = false;
-        $interval = new \DateInterval('P0D');
+        $newDate     = false;
+        $interval    = new \DateInterval('P0D');
         $interval->i = $interval->i + (int) $minute;
 
         $dateObject = date_create($date);
@@ -121,18 +120,18 @@ class Date
     {
         if (is_null($month)) {
             if (is_null($date)) {
-                $date = 'now';
+                $date  = 'now';
                 $month = 1;
             } elseif (is_int($date)) {
                 $month = $date;
-                $date = 'now';
+                $date  = 'now';
             } elseif (is_string($date)) {
                 $month = 1;
             }
         }
 
-        $newDate = false;
-        $interval = new \DateInterval('P0M');
+        $newDate     = false;
+        $interval    = new \DateInterval('P0M');
         $interval->m = $interval->m + (int) $month;
 
         $dateObject = date_create($date);
@@ -158,8 +157,8 @@ class Date
             }
         }
 
-        $newDate = false;
-        $interval = new \DateInterval('P0Y');
+        $newDate     = false;
+        $interval    = new \DateInterval('P0Y');
         $interval->y = $interval->y + $year;
 
         $dateObject = date_create($date);
@@ -190,7 +189,7 @@ class Date
 
     public static function revertDate($date)
     {
-        $newDate = false;
+        $newDate      = false;
         $oldDelimiter = null;
 
         if (self::validDate($date)) {
@@ -214,52 +213,56 @@ class Date
     {
         if (!$usingTimestamps) {
             $dateFrom = strtotime($dateFrom, 0);
-            $dateTo = strtotime($dateTo, 0);
+            $dateTo   = strtotime($dateTo, 0);
         }
 
         $difference = $dateTo - $dateFrom;
         switch ($interval) {
             case 'yyyy':
                 $yearsDifference = floor($difference / 31536000);
-                if (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom), date("n", $dateFrom), date("j", $dateFrom), date("Y", $dateFrom) + $yearsDifference) > $dateTo) {
+                if (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom), date("n", $dateFrom),
+                        date("j", $dateFrom), date("Y", $dateFrom) + $yearsDifference) > $dateTo) {
                     $yearsDifference--;
                 }
-                if (mktime(date("H", $dateTo), date("i", $dateTo), date("s", $dateTo), date("n", $dateTo), date("j", $dateTo), date("Y", $dateTo) - ($yearsDifference + 1)) > $dateFrom) {
+                if (mktime(date("H", $dateTo), date("i", $dateTo), date("s", $dateTo), date("n", $dateTo),
+                        date("j", $dateTo), date("Y", $dateTo) - ($yearsDifference + 1)) > $dateFrom) {
                     $yearsDifference++;
                 }
-                $dateDiff = $yearsDifference;
+                $dateDiff           = $yearsDifference;
                 unset($yearsDifference);
                 break;
             case "q":
                 $quartersDifference = floor($difference / 8035200);
-                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom), date("n", $dateFrom) + ($quartersDifference * 3), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
+                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom),
+                    date("n", $dateFrom) + ($quartersDifference * 3), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
                     $quartersDifference++;
                 }
                 $quartersDifference--;
-                $dateDiff = $quartersDifference;
+                $dateDiff         = $quartersDifference;
                 unset($quartersDifference);
                 break;
             case "m":
                 $monthsDifference = floor($difference / 2678400);
-                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom), date("n", $dateFrom) + ($monthsDifference), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
+                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom),
+                    date("n", $dateFrom) + ($monthsDifference), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
                     $monthsDifference++;
                 }
                 $monthsDifference--;
-                $dateDiff = $monthsDifference;
+                $dateDiff        = $monthsDifference;
                 unset($monthsDifference);
                 break;
             case 'y':
-                $dateDiff = date("z", $dateTo) - date("z", $dateFrom);
+                $dateDiff        = date("z", $dateTo) - date("z", $dateFrom);
                 break;
             case "d":
-                $dateDiff = floor($difference / 86400);
+                $dateDiff        = floor($difference / 86400);
                 break;
             case "w":
-                $daysDifference = floor($difference / 86400);
+                $daysDifference  = floor($difference / 86400);
                 $weeksDifference = floor($daysDifference / 7);
-                $firstDay = date("w", $dateFrom);
-                $daysRemainder = floor($daysDifference % 7);
-                $oddDays = $firstDay + $daysRemainder;
+                $firstDay        = date("w", $dateFrom);
+                $daysRemainder   = floor($daysDifference % 7);
+                $oddDays         = $firstDay + $daysRemainder;
                 if ($oddDays > 7) {
                     $daysRemainder--;
                 }
@@ -293,11 +296,11 @@ class Date
         }
 
         if (self::validDate($date)) {
-            $day = strftime('%u', strtotime($date));
+            $day            = strftime('%u', strtotime($date));
             $nextWorkingDay = $date;
 
             if ($day > 5) {
-                $date = self::addDay($date, 8 - $day);
+                $date           = self::addDay($date, 8 - $day);
                 $nextWorkingDay = self::nextWorkingDay($date);
             }
         }
@@ -309,7 +312,7 @@ class Date
     {
         $oldFormat = self::getFormat();
         $microTime = self::DateTimeToMicrotime($dateTime);
-        $date = false;
+        $date      = false;
 
         if (is_null($format)) {
             $format = $oldFormat;
@@ -327,7 +330,7 @@ class Date
     public static function DateTimeToMicrotime($dateTime)
     {
         $microTime = false;
-        $dateTime = explode(' ', $dateTime);
+        $dateTime  = explode(' ', $dateTime);
 
         if (1 === preg_match(self::$dateValidator, $dateTime[0])) {
             $date = explode('-', $dateTime[0]);
@@ -337,7 +340,7 @@ class Date
             }
 
             if (1 === preg_match(Time::$timeValidator, $dateTime[1])) {
-                $time = explode(':', $dateTime[1]);
+                $time      = explode(':', $dateTime[1]);
                 $microTime = mktime($time[0], $time['1'], $time[2], $date[1], $date[2], $date[0]);
             }
         }

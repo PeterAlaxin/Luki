@@ -19,11 +19,10 @@ use Luki\Request;
 
 class Dispatcher
 {
-
     private $crumb;
     private $config;
     private $isDispatched = false;
-    private $crumbArray = array();
+    private $crumbArray   = array();
     private $controller;
 
     public function __construct(Request $request, Config $config)
@@ -32,8 +31,8 @@ class Dispatcher
             $this->fixRequest($request);
         }
 
-        $this->crumb = $request;
-        $this->config = $config;
+        $this->crumb      = $request;
+        $this->config     = $config;
         $this->crumbArray = $request->getCrumb();
     }
 
@@ -48,13 +47,13 @@ class Dispatcher
     {
         $serverName = $request->server->get('SERVER_NAME');
         $requestUri = $request->server->get('REQUEST_URI');
-        $domain = explode('.', $serverName);
+        $domain     = explode('.', $serverName);
 
         if (count($domain) > 2) {
             $prefix = array_shift($domain);
             $request->server->set('SERVER_NAME', implode('.', $domain));
             $request->server->set('HTTP_HOST', implode('.', $domain));
-            $request->server->set('REQUEST_URI', '/' . $prefix . $requestUri);
+            $request->server->set('REQUEST_URI', '/'.$prefix.$requestUri);
             $request->reset();
         }
     }
@@ -62,8 +61,8 @@ class Dispatcher
     public function Dispatch()
     {
         $this->isDispatched = false;
-        $count = $this->crumb->getCrumbCount();
-        $routes = $this->config->getSections();
+        $count              = $this->crumb->getCrumbCount();
+        $routes             = $this->config->getSections();
 
         foreach ($routes as $oneRoute) {
             $route = $this->config->getSection($oneRoute);
@@ -83,11 +82,11 @@ class Dispatcher
     private function checkRoute($route)
     {
         if (is_array($route['url'])) {
-            $route['url'] = '';
+            $route['url']   = '';
             $route['count'] = 0;
         }
 
-        $url = explode('/', (string) $route['url']);
+        $url                = explode('/', (string) $route['url']);
         $this->isDispatched = true;
 
         for ($i = 0; $i < $route['count']; $i++) {
@@ -100,7 +99,7 @@ class Dispatcher
 
     private function prepareController($route)
     {
-        $controller = $route['modul'] . '\\' . $route['controller'];
+        $controller       = $route['modul'].'\\'.$route['controller'];
         $this->controller = new $controller;
 
         $methods = get_class_methods(get_class($this->controller));
@@ -109,7 +108,7 @@ class Dispatcher
             $this->controller->preDispatch();
         }
 
-        $action = $route['action'] . 'Action';
+        $action = $route['action'].'Action';
         if (in_array($action, $methods)) {
             $this->controller->$action();
         } elseif (in_array('indexAction', $methods)) {

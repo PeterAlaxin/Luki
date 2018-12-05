@@ -18,10 +18,9 @@ use Luki\Date;
 
 class Time
 {
-
-    public static $format = 'H:i:s';
+    public static $format        = 'H:i:s';
     public static $timeValidator = '/^(([0-1]?[0-9])|([2][0-3])):([0-5]?[0-9])(:([0-5]?[0-9]))?$/';
-    private static $sections = array();
+    private static $sections     = array();
 
     public function __destruct()
     {
@@ -35,7 +34,7 @@ class Time
         $date = date_create('now');
         if (false !== $date->format($format)) {
             self::$format = $format;
-            $isSet = true;
+            $isSet        = true;
         } else {
             $isSet = false;
         }
@@ -80,12 +79,12 @@ class Time
         $timeZone = date_default_timezone_get();
 
         $dateTimeZoneHere = new \DateTimeZone($timeZone);
-        $dateTimeZoneUTC = new \DateTimeZone("UTC");
+        $dateTimeZoneUTC  = new \DateTimeZone("UTC");
 
         $dateTimeUTC = new \DateTime($dateTime, $dateTimeZoneUTC);
 
-        $offset = $dateTimeZoneHere->getOffset($dateTimeUTC);
-        $interval = new \DateInterval('PT' . abs($offset) . 'S');
+        $offset   = $dateTimeZoneHere->getOffset($dateTimeUTC);
+        $interval = new \DateInterval('PT'.abs($offset).'S');
 
         if ($offset < 0) {
             $interval->invert = 1;
@@ -105,10 +104,10 @@ class Time
             }
 
             self::$sections[$section] = array(
-                'start' => $microTime,
-                'stop' => 0,
+                'start'  => $microTime,
+                'stop'   => 0,
                 'result' => 0);
-            $start = self::$sections[$section]['start'];
+            $start                    = self::$sections[$section]['start'];
         } else {
             $start = false;
         }
@@ -130,8 +129,8 @@ class Time
     public static function stopwatchStop($section = 'default')
     {
         if (!empty(self::$sections[$section])) {
-            $stop = self::explodeMicrotime();
-            self::$sections[$section]['stop'] = $stop;
+            $stop                               = self::explodeMicrotime();
+            self::$sections[$section]['stop']   = $stop;
             self::$sections[$section]['result'] = $stop - self::$sections[$section]['start'];
         } else {
             $stop = false;

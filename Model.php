@@ -22,7 +22,6 @@ use Luki\Url;
 
 abstract class Model
 {
-
     public $data = array();
 
     public function __destruct()
@@ -53,8 +52,8 @@ abstract class Model
     public function getAdapter($options)
     {
         if (!empty($options['adapter'])) {
-            $adapterName = $options['adapter'] . 'Adapter';
-            $adapter = new $adapterName($options);
+            $adapterName = $options['adapter'].'Adapter';
+            $adapter     = new $adapterName($options);
         } else {
             $adapter = false;
         }
@@ -65,7 +64,7 @@ abstract class Model
     public function getFromCache($name = '')
     {
         if (Storage::isCache() and Storage::Cache()->isUsedCache()) {
-            $name = $this->getCacheName($name);
+            $name  = $this->getCacheName($name);
             $cache = Storage::Cache()->Get($name);
         } else {
             $cache = null;
@@ -86,8 +85,8 @@ abstract class Model
 
     public function getEntity($table, BasicInterface $adapter)
     {
-        $entityName = $table . 'Entity';
-        $entityFile = Storage::dirEntity() . '/' . $entityName . '.php';
+        $entityName = $table.'Entity';
+        $entityFile = Storage::dirEntity().'/'.$entityName.'.php';
         if (!is_file($entityFile)) {
             $newEntity = new Entity($table);
             $newEntity->setData($adapter)
@@ -104,12 +103,12 @@ abstract class Model
     private function getCacheName($name)
     {
         $callers = debug_backtrace();
-        $newName = $callers[2]['class'] . '_' . $callers[2]['function'];
+        $newName = $callers[2]['class'].'_'.$callers[2]['function'];
 
         if (!empty($name)) {
-            $newName .= '_' . $name;
+            $newName .= '_'.$name;
         } elseif (!empty($callers[2]['args'])) {
-            $newName .= '_' . Url::makeLink(implode('_', $callers[2]['args']), false);
+            $newName .= '_'.Url::makeLink(implode('_', $callers[2]['args']), false);
         }
 
         return $newName;

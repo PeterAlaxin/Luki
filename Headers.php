@@ -16,19 +16,34 @@ namespace Luki;
 
 class Headers
 {
-    private $headers = array();
+    private $headers          = array();
     private $cachingDirective = 'public';
-    private $maxAge = 3600;
-    private $sMaxAge = 0;
-    private $mustRevalidate = false;
-    private $proxyRevalidate = false;
-    private $date = null;
+    private $maxAge           = 3600;
+    private $sMaxAge          = 0;
+    private $mustRevalidate   = false;
+    private $proxyRevalidate  = false;
+    private $date             = null;
+
+    public function __construct()
+    {
+        $this->setSecurity();
+    }
 
     public function clearHeaders()
     {
         $this->headers = array();
+        $this->setSecurity();
 
         return $this;
+    }
+
+    private function setSecurity()
+    {
+        if (Storage::isConfiguration() and Storage::Configuration()->isSection('headers')) {
+            foreach (Storage::Configuration()->getSection('headers') as $key => $value) {
+                $this->headers[$key] = $value;
+            }
+        }
     }
 
     public function setHeaders()
@@ -128,8 +143,7 @@ class Headers
     private function createCacheControl()
     {
         $cacheControl = $this->cachingDirective;
-        if (in_array($this->cachingDirective,
-                        array('public', 'private'))) {
+        if (in_array($this->cachingDirective, array('public', 'private'))) {
             if ($this->maxAge > 0) {
                 $cacheControl .= ', max-age='.$this->maxAge;
             }
@@ -145,14 +159,14 @@ class Headers
         }
 
         $this->headers['Cache-Control'] = $cacheControl;
-        $this->headers['Pragma'] = $this->cachingDirective;
+        $this->headers['Pragma']        = $this->cachingDirective;
     }
 
     private function createDateHeaders()
     {
         $interval = new \DateInterval('PT'.$this->maxAge.'S');
 
-        $this->headers['Date'] = $this->date->format('r');
+        $this->headers['Date']          = $this->date->format('r');
         $this->headers['Last-Modified'] = $this->date->format('r');
 
         $this->date->add($interval);

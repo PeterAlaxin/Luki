@@ -18,20 +18,21 @@ use Luki\Cache\BasicInterface;
 
 class Cache
 {
-
-    const EXPIRE_IN_MINUTE = 60;
+    const EXPIRE_IN_MINUTE       = 60;
     const EXPIRE_IN_HALF_AN_HOUR = 1800;
-    const EXPIRE_IN_HOUR = 3600;
-    const EXPIRE_IN_DAY = 86400;
+    const EXPIRE_IN_HOUR         = 3600;
+    const EXPIRE_IN_DAY          = 86400;
 
     private $cacheAdapter = null;
-    private $expiration = 0;
-    private $useCache = true;
+    private $expiration   = 0;
+    private $useCache     = true;
+    private $isPrivate    = false;
+    private $privateKey   = '';
 
     public function __construct(BasicInterface $adapter)
     {
         $this->cacheAdapter = $adapter;
-        $this->expiration = $this->cacheAdapter->getExpiration();
+        $this->expiration   = $this->cacheAdapter->getExpiration();
     }
 
     public function __destruct()
@@ -43,7 +44,7 @@ class Cache
 
     public static function findAdapter($cacheType)
     {
-        $cacheAdapter = __NAMESPACE__ . '\Cache\\' . $cacheType . 'Adapter';
+        $cacheAdapter = __NAMESPACE__.'\Cache\\'.$cacheType.'Adapter';
 
         return $cacheAdapter;
     }
@@ -52,7 +53,7 @@ class Cache
     {
         if (is_int($expiration)) {
             $this->expiration = $expiration;
-            $isSet = true;
+            $isSet            = true;
         } else {
             $isSet = false;
         }
@@ -78,7 +79,6 @@ class Cache
         if (is_array($key)) {
             foreach ($key as $subKey => $subValue) {
                 $isSet = $this->cacheAdapter->Set($subKey, $subValue, $expiration);
-
                 if (!$isSet) {
                     break;
                 }
@@ -128,5 +128,18 @@ class Cache
     public function isUsedCache()
     {
         return $this->useCache;
+    }
+
+    public function setPrivate($isPrivate = true)
+    {
+        $this->isPrivate  = (bool) $isPrivate;
+        $this->privateKey = session_id();
+
+        return $this;
+    }
+
+    public function isPrivate()
+    {
+        return $this->isPrivate;
     }
 }

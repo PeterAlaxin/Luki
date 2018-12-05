@@ -18,9 +18,8 @@ use Luki\Config;
 
 class Language
 {
-
     private $languagesPath = null;
-    private $languages = array();
+    private $languages     = array();
 
     public function __construct($name, $file)
     {
@@ -83,8 +82,8 @@ class Language
 
         if (is_file($file)) {
             $adapter = new $adapterName($file);
-        } elseif (is_file($this->languagesPath . PATH_SEPARATOR . $file)) {
-            $adapter = new $adapterName($this->languagesPath . PATH_SEPARATOR . $file);
+        } elseif (is_file($this->languagesPath.PATH_SEPARATOR.$file)) {
+            $adapter = new $adapterName($this->languagesPath.PATH_SEPARATOR.$file);
         }
 
         $this->languages[$name] = new Config($adapter);
@@ -146,7 +145,7 @@ class Language
 
     public static function getAllowedLanguages()
     {
-        $languages = array();
+        $languages       = array();
         $acceptLanguages = filter_input(INPUT_SERVER, 'HTTP_ACCEPT_LANGUAGE');
 
         if (isset($acceptLanguages)) {

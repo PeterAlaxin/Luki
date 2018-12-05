@@ -16,7 +16,6 @@ namespace Luki;
 
 class Acl
 {
-
     private $rules = array();
 
     public function __destruct()

@@ -16,7 +16,6 @@ namespace Luki;
 
 class Regional
 {
-
     public static $format = '%x';
 
     public function __destruct()
@@ -29,11 +28,11 @@ class Regional
     public static function setFormat($format = '%x')
     {
         $isSet = false;
-        $date = date_create('now');
+        $date  = date_create('now');
 
         if (false !== $date->format($format)) {
             self::$format = $format;
-            $isSet = null;
+            $isSet        = null;
         }
 
         return $isSet;
@@ -61,16 +60,16 @@ class Regional
 
         switch ($format) {
             case 'text':
-                $format = '%e. %B %Y, %A';
+                $format    = '%e. %B %Y, %A';
                 break;
             case 'gmt':
-                $format = '%a, %d %b %Y %H:%M:%S GMT';
+                $format    = '%a, %d %b %Y %H:%M:%S GMT';
                 $oldLocale = setlocale(LC_TIME, 0);
                 setlocale(LC_TIME, 'en_US.utf8');
                 break;
             case null;
             default:
-                $format = self::$format;
+                $format    = self::$format;
         }
 
         $value = strftime($format, $microValue);
@@ -97,7 +96,7 @@ class Regional
         } else {
             $money = number_format((float) $money, 2, ',', '.');
             if ('eur' == $format) {
-                $money = $money . '&nbsp;€';
+                $money = $money.'&nbsp;€';
             }
         }
 
@@ -106,12 +105,12 @@ class Regional
 
     public static function getDays($isShort = false)
     {
-        $days = array();
+        $days   = array();
         $format = (bool) $isShort ? '%a' : '%A';
 
         for ($day = 1; $day < 8; $day++) {
             $microValue = mktime(0, 0, 0, 1, $day, 2012);
-            $days[] = strftime($format, $microValue);
+            $days[]     = strftime($format, $microValue);
         }
 
         return $days;
@@ -124,7 +123,7 @@ class Regional
 
         for ($month = 1; $month < 13; $month++) {
             $microValue = mktime(0, 0, 0, $month, 1, 2012);
-            $months[] = strftime($format, $microValue);
+            $months[]   = strftime($format, $microValue);
         }
 
         return $months;

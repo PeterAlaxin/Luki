@@ -18,7 +18,6 @@ use Luki\Navigation\Item;
 
 class Navigation
 {
-
     private $navigations = array();
 
     public function __destruct()

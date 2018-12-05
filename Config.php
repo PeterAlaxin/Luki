@@ -18,17 +18,16 @@ use Luki\Config\BasicInterface;
 
 class Config
 {
-
-    private $configuration = array();
-    private $adapter = null;
+    private $configuration  = array();
+    private $adapter        = null;
     private $defaultSection = '';
-    private $sections = array();
+    private $sections       = array();
 
     public function __construct(BasicInterface $adapter)
     {
-        $this->adapter = $adapter;
+        $this->adapter       = $adapter;
         $this->configuration = $this->adapter->getConfiguration();
-        $this->sections = $this->adapter->getSections();
+        $this->sections      = $this->adapter->getSections();
 
         if (isset($this->sections[0])) {
             $this->defaultSection = $this->sections[0];
@@ -45,7 +44,7 @@ class Config
     public static function findAdapter($file)
     {
         $filePathInformation = pathinfo($file);
-        $adapter = __NAMESPACE__ . '\Config\\' . ucfirst($filePathInformation['extension']) . 'Adapter';
+        $adapter             = __NAMESPACE__.'\Config\\'.ucfirst($filePathInformation['extension']).'Adapter';
 
         return $adapter;
     }
@@ -64,9 +63,9 @@ class Config
     {
         if (!empty($sectionName) and is_string($sectionName) and ! in_array($sectionName, $this->sections)) {
             $this->configuration[$sectionName] = array();
-            $this->sections[] = $sectionName;
+            $this->sections[]                  = $sectionName;
             $this->setDefaultSection($sectionName);
-            $isAdded = true;
+            $isAdded                           = true;
 
             if (!empty($values) and is_array($values)) {
                 $this->addValue($values);
@@ -85,7 +84,7 @@ class Config
         if (in_array($section, $this->sections)) {
             unset($this->configuration[$section]);
             $this->sections = array_keys($this->configuration);
-            $isDeleted = true;
+            $isDeleted      = true;
         } else {
             $isDeleted = false;
         }
@@ -96,7 +95,7 @@ class Config
     public function getSection($sectionName)
     {
         $section = $this->fillEmptySection($sectionName);
-        $values = array();
+        $values  = array();
 
         if (in_array($section, $this->sections)) {
             $values = $this->configuration[$section];
@@ -114,7 +113,7 @@ class Config
     {
         if (!empty($key)) {
             if (is_array($key)) {
-                $values = $key;
+                $values  = $key;
                 $section = $value;
             } else {
                 $values = array($key => $value);
@@ -171,7 +170,7 @@ class Config
     {
         if (!empty($sectionName) and in_array($sectionName, $this->sections)) {
             $this->defaultSection = $sectionName;
-            $isSet = true;
+            $isSet                = true;
         } else {
             $isSet = false;
         }

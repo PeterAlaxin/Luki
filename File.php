@@ -39,7 +39,7 @@ class File
     public static function getFilesInDirectory($directory)
     {
         $files = array();
-        $dir = dir($directory);
+        $dir   = dir($directory);
 
         while (($dirName = $dir->read()) !== false) {
             if ($dirName != '.' and $dirName != '..') {
@@ -51,19 +51,19 @@ class File
         return $files;
     }
 
-    public function getSafeDir($id, $level = 4)
+    public static function getSafeDir($id, $level = 4)
     {
         $hash = hash('sha256', $id);
-        $dir = '';
+        $dir  = '';
 
         for ($i = 0; $i < $level; $i++) {
-            $dir .= ord(substr($hash, $i, 1)) . DIRECTORY_SEPARATOR;
+            $dir .= ord(substr($hash, $i, 1)).DIRECTORY_SEPARATOR;
         }
 
         return $dir;
     }
 
-    public function createDir($structure, $mode = 0755)
+    public static function createDir($structure, $mode = 0755)
     {
         $isCreated = false;
         if (mkdir($structure, $mode, true)) {

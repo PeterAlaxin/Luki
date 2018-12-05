@@ -18,57 +18,75 @@ use Luki\Storage;
 
 class Alerts
 {
+    private static $alerts  = array();
+    private static $userKey = null;
 
-    public static function addDanger($messagge)
+    public static function addDanger($messagge, $label = '')
     {
         self::init();
-        $alerts = Storage::Get('alerts');
-        $alerts['danger'][] = $messagge;
-        Storage::Set('alerts', $alerts);
+        self::$alerts[] = array('type' => 'danger', 'messagge' => $messagge, 'label' => $label);
+        self::save();
     }
 
-    public static function addWarning($messagge)
+    public static function addWarning($messagge, $label = '')
     {
         self::init();
-        $alerts = Storage::Get('alerts');
-        $alerts['warning'][] = $messagge;
-        Storage::Set('alerts', $alerts);
+        self::$alerts[] = array('type' => 'warning', 'messagge' => $messagge, 'label' => $label);
+        self::save();
     }
 
-    public static function addInfo($messagge)
+    public static function addInfo($messagge, $label = '')
     {
         self::init();
-        $alerts = Storage::Get('alerts');
-        $alerts['info'][] = $messagge;
-        Storage::Set('alerts', $alerts);
+        self::$alerts[] = array('type' => 'info', 'messagge' => $messagge, 'label' => $label);
+        self::save();
     }
 
-    public static function addSuccess($messagge)
+    public static function addSuccess($messagge, $label = '')
     {
         self::init();
-        $alerts = Storage::Get('alerts');
-        $alerts['success'][] = $messagge;
-        Storage::Set('alerts', $alerts);
+        self::$alerts[] = array('type' => 'success', 'messagge' => $messagge, 'label' => $label);
+        self::save();
     }
 
     public static function init()
     {
-        if (!Storage::isSaved('alerts')) {
-            Storage::Set('alerts', array(
-                'danger' => array(),
-                'warning' => array(),
-                'info' => array(),
-                'success' => array(),
-            ));
+        if (empty(self::$userKey)) {
+            self::$userKey = 'alerts_'.session_id();
+        }
+
+        if (Storage::isCache() and Storage::Cache()->Has(self::$userKey)) {
+            self::$alerts = Storage::Cache()->Get(self::$userKey);
         }
     }
 
     public static function isAlerts()
     {
         self::init();
-        $alerts = Storage::Get('alerts');
-        $count = count($alerts['danger']) + count($alerts['warning']) + count($alerts['info']) + count($alerts['success']);
+        $count = !empty(self::$alerts);
 
         return (bool) $count;
+    }
+
+    public static function getAlerts()
+    {
+        self::init();
+
+        return self::$alerts;
+    }
+
+    public static function deleteAlerts()
+    {
+        self::$alerts = array();
+        if (Storage::isCache()) {
+            Storage::Cache()->Set(self::$userKey, self::$alerts);
+        }
+    }
+
+    public static function save()
+    {
+        if (Storage::isCache()) {
+            Storage::Cache()->Set(self::$userKey, self::$alerts);
+        }
     }
 }

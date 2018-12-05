@@ -18,14 +18,13 @@ use Luki\Exception\LoaderException;
 
 class Loader
 {
-
     const CLASS_NOT_EXISTS = 'Class "%s" not exists!';
 
     private static $paths = array();
 
     protected function __construct()
     {
-        
+
     }
 
     public function __destruct()
@@ -44,7 +43,7 @@ class Loader
         $lukiDirectorys = explode(DIRECTORY_SEPARATOR, dirname(__FILE__));
         array_pop($lukiDirectorys);
 
-        $lukiDirectory = implode(DIRECTORY_SEPARATOR, $lukiDirectorys) . DIRECTORY_SEPARATOR;
+        $lukiDirectory = implode(DIRECTORY_SEPARATOR, $lukiDirectorys).DIRECTORY_SEPARATOR;
         array_unshift(self::$paths, $lukiDirectory);
     }
 
@@ -90,11 +89,11 @@ class Loader
     public static function Autoload($class = '')
     {
         try {
-            $classFile = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-            $isFound = false;
+            $classFile = str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php';
+            $isFound   = false;
 
             foreach (self::$paths as $path) {
-                $fileWithPath = $path . $classFile;
+                $fileWithPath = $path.$classFile;
 
                 if (is_file($fileWithPath) and include_once($fileWithPath)) {
                     $isFound = true;
@@ -113,10 +112,10 @@ class Loader
     public static function isClass($class = '')
     {
         $className = null;
-        $classFile = preg_replace('/_/', '/', $class) . '.php';
+        $classFile = preg_replace('/_/', '/', $class).'.php';
 
         foreach (self::$paths as $path) {
-            $fileWithPath = $path . $classFile;
+            $fileWithPath = $path.$classFile;
 
             if (is_file($fileWithPath) and is_readable($fileWithPath)) {
                 $className = $fileWithPath;
@@ -132,7 +131,7 @@ class Loader
         $fileName = null;
 
         foreach (self::$paths as $path) {
-            $fileWithPath = $path . $file;
+            $fileWithPath = $path.$file;
 
             if (is_file($fileWithPath) and is_readable($fileWithPath)) {
                 $fileName = $fileWithPath;
@@ -145,6 +144,6 @@ class Loader
 
     private function __clone()
     {
-        
+
     }
 }

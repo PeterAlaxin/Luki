@@ -22,40 +22,39 @@ use Luki\Request\ServerAdapter;
 
 class Request
 {
-
     public $cookie;
     public $files;
     public $get;
     public $post;
     public $server;
-    private $ajax = null;
-    private $baseUrl = null;
-    private $clientIP = null;
-    private $crumb = null;
-    private $crumbCount = null;
-    private $fullUrl = null;
-    private $httpHost = null;
-    private $httpUserAgent = null;
-    private $languages = null;
-    private $pathInfo = null;
-    private $protocol = null;
-    private $queryString = null;
+    private $ajax           = null;
+    private $baseUrl        = null;
+    private $clientIP       = null;
+    private $crumb          = null;
+    private $crumbCount     = null;
+    private $fullUrl        = null;
+    private $httpHost       = null;
+    private $httpUserAgent  = null;
+    private $languages      = null;
+    private $pathInfo       = null;
+    private $protocol       = null;
+    private $queryString    = null;
     private $redirectStatus = null;
-    private $requestMethod = null;
-    private $requestTime = null;
-    private $requestUri = null;
-    private $safe = null;
-    private $scriptName = null;
-    private $serverName = null;
-    private $shortUrl = null;
-    private $url = null;
+    private $requestMethod  = null;
+    private $requestTime    = null;
+    private $requestUri     = null;
+    private $safe           = null;
+    private $scriptName     = null;
+    private $serverName     = null;
+    private $shortUrl       = null;
+    private $url            = null;
 
     public function __construct()
     {
         $this->cookie = new CookieAdapter();
-        $this->files = new FilesAdapter();
-        $this->get = new GetAdapter();
-        $this->post = new PostAdapter();
+        $this->files  = new FilesAdapter();
+        $this->get    = new GetAdapter();
+        $this->post   = new PostAdapter();
         $this->server = new ServerAdapter();
     }
 
@@ -68,27 +67,27 @@ class Request
 
     public function reset()
     {
-        $this->ajax = null;
-        $this->baseUrl = null;
-        $this->clientIP = null;
-        $this->crumb = null;
-        $this->crumbCount = null;
-        $this->fullUrl = null;
-        $this->httpHost = null;
-        $this->httpUserAgent = null;
-        $this->languages = null;
-        $this->pathInfo = null;
-        $this->protocol = null;
-        $this->queryString = null;
+        $this->ajax           = null;
+        $this->baseUrl        = null;
+        $this->clientIP       = null;
+        $this->crumb          = null;
+        $this->crumbCount     = null;
+        $this->fullUrl        = null;
+        $this->httpHost       = null;
+        $this->httpUserAgent  = null;
+        $this->languages      = null;
+        $this->pathInfo       = null;
+        $this->protocol       = null;
+        $this->queryString    = null;
         $this->redirectStatus = null;
-        $this->requestMethod = null;
-        $this->requestTime = null;
-        $this->requestUri = null;
-        $this->safe = null;
-        $this->scriptName = null;
-        $this->serverName = null;
-        $this->shortUrl = null;
-        $this->url = null;
+        $this->requestMethod  = null;
+        $this->requestTime    = null;
+        $this->requestUri     = null;
+        $this->safe           = null;
+        $this->scriptName     = null;
+        $this->serverName     = null;
+        $this->shortUrl       = null;
+        $this->url            = null;
 
         $this->getFullUrl();
     }
@@ -180,7 +179,7 @@ class Request
             $languages = explode(',', $this->server->get('HTTP_ACCEPT_LANGUAGE'));
 
             foreach ($languages as $language) {
-                $languageExploded = explode(';', $language);
+                $languageExploded  = explode(';', $language);
                 $this->languages[] = $languageExploded[0];
             }
         }
@@ -224,7 +223,7 @@ class Request
     public function getBaseUrl()
     {
         if (is_null($this->baseUrl)) {
-            $file = '/' . basename($this->getScriptName()) . '/';
+            $file          = '/'.basename($this->getScriptName()).'/';
             $this->baseUrl = ltrim(preg_replace($file, '', $this->scriptName), '/');
         }
 
@@ -234,7 +233,7 @@ class Request
     public function getFullUrl()
     {
         if (is_null($this->fullUrl)) {
-            $this->fullUrl = $this->getShortUrl() .
+            $this->fullUrl = $this->getShortUrl().
                 $this->getURL();
         }
 
@@ -244,8 +243,8 @@ class Request
     public function getShortUrl()
     {
         if (is_null($this->shortUrl)) {
-            $this->shortUrl = $this->getProtocol() .
-                $this->getHost() . '/' .
+            $this->shortUrl = $this->getProtocol().
+                $this->getHost().'/'.
                 $this->getBaseUrl();
         }
 
@@ -255,10 +254,10 @@ class Request
     public function getURL()
     {
         if (is_null($this->url)) {
-            $from = array('?' . $this->getQueryString());
+            $from = array('?'.$this->getQueryString());
             $this->getBaseUrl();
             if (!empty($this->baseUrl)) {
-                $from[] = '/' . $this->baseUrl;
+                $from[] = '/'.$this->baseUrl;
             }
             $this->url = urldecode($this->getRequestUri());
 
@@ -306,11 +305,7 @@ class Request
     public function isAjax()
     {
         if (is_null($this->ajax)) {
-            if (strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest') {
-                $this->ajax = true;
-            } else {
-                $this->ajax = false;
-            }
+            $this->ajax = (strtolower($this->server->get('HTTP_X_REQUESTED_WITH')) === 'xmlhttprequest');
         }
 
         return $this->ajax;

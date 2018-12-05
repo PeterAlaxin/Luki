@@ -16,7 +16,6 @@ namespace Luki;
 
 class Storage
 {
-
     private static $storage = array();
 
     public function __destruct()
@@ -82,7 +81,7 @@ class Storage
     {
         if ('is' == substr($method, 0, 2)) {
             $variable = substr($method, 2);
-            $value = self::isSaved($variable);
+            $value    = self::isSaved($variable);
         } else {
             $value = self::Get($method);
         }

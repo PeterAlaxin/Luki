@@ -20,7 +20,6 @@ use Luki\Router\Route;
 
 class Router
 {
-
     private $request;
     private $config;
     private $routes = array();
@@ -29,7 +28,7 @@ class Router
     public function __construct(Request $request, Config $config)
     {
         $this->request = $request;
-        $this->config = $config;
+        $this->config  = $config;
 
         $this->setRoutes();
         Storage::Set('Router', $this);
@@ -37,12 +36,12 @@ class Router
 
     public function __destruct()
     {
-        if(count($this->routes) > 0) {
+        if (!empty($this->routes)) {
             foreach ($this->routes as $route) {
                 $route = null;
             }
         }
-        
+
         foreach ($this as &$value) {
             $value = null;
         }
@@ -51,20 +50,27 @@ class Router
     public function Dispatch()
     {
         $output = '';
-        $url = '/' . $this->request->getUrl();
+        $url    = '/'.$this->request->getUrl();
+        $found  = false;
 
         foreach ($this->routes as $route) {
             if ($route->isCatch($url, $this->request->getRequestMethod())) {
                 $this->prepareController($route);
                 $output = $this->controller->getOutput();
+                $found  = true;
                 break;
             }
+        }
+
+        if (!$found and array_key_exists('404', $this->routes)) {
+            $this->prepareController($this->routes['404']);
+            $output = $this->controller->getOutput();
         }
 
         return $output;
     }
 
-    public function getRoute($name, $parameters)
+    public function getRoute($name, $parameters = array())
     {
         if (array_key_exists($name, $this->routes)) {
             $route = $this->routes[$name]->getRoute($parameters);
@@ -72,7 +78,7 @@ class Router
             $route = '';
         }
 
-        $route = rtrim($this->request->getShortUrl(), '/') . $route;
+        $route = rtrim($this->request->getShortUrl(), '/').$route;
 
         return $route;
     }
@@ -127,7 +133,7 @@ class Router
 
     private function prepareController($route)
     {
-        $controller = $route->getModul() . '\\' . $route->getController();
+        $controller       = $route->getModul().'\\'.$route->getController();
         $this->controller = new $controller;
 
         $methods = get_class_methods(get_class($this->controller));
@@ -136,7 +142,7 @@ class Router
             $this->controller->preDispatch();
         }
 
-        $action = $route->getAction() . 'Action';
+        $action    = $route->getAction().'Action';
         $arguments = $route->getArguments();
 
         if (in_array($action, $methods)) {

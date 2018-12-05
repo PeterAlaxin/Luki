@@ -16,19 +16,18 @@ namespace Luki;
 
 class Image
 {
-
-    private $defaultWidth = 800;
-    private $defaultHight = 600;
+    private $defaultWidth          = 800;
+    private $defaultHight          = 600;
     private $defaultWattermarkText = array('R' => 255, 'G' => 255, 'B' => 255, 'ALPHA' => 80);
-    private $defaultSquareColor = array('R' => 255, 'G' => 255, 'B' => 255, 'ALPHA' => 80);
-    private $imageTypes = array('1' => 'IMAGETYPE_GIF', '2' => 'IMAGETYPE_JPEG', '3' => 'IMAGETYPE_PNG', '4' => 'IMAGETYPE_SWF',
-        '5' => 'IMAGETYPE_PSD', '6' => 'IMAGETYPE_BMP', '7' => 'IMAGETYPE_TIFF_II', '8' => 'IMAGETYPE_TIFF_MM', '9' => 'IMAGETYPE_JPC',
+    private $defaultSquareColor    = array('R' => 255, 'G' => 255, 'B' => 255, 'ALPHA' => 80);
+    private $imageTypes            = array('1'  => 'IMAGETYPE_GIF', '2'  => 'IMAGETYPE_JPEG', '3'  => 'IMAGETYPE_PNG', '4'  => 'IMAGETYPE_SWF',
+        '5'  => 'IMAGETYPE_PSD', '6'  => 'IMAGETYPE_BMP', '7'  => 'IMAGETYPE_TIFF_II', '8'  => 'IMAGETYPE_TIFF_MM', '9'  => 'IMAGETYPE_JPC',
         '10' => 'IMAGETYPE_JP2', '11' => 'IMAGETYPE_JPX', '12' => 'IMAGETYPE_JB2', '13' => 'IMAGETYPE_SWC', '14' => 'IMAGETYPE_IFF',
         '15' => 'IMAGETYPE_WBMP', '16' => 'IMAGETYPE_XBM');
-    private $supportedTypes = array('IMAGETYPE_GIF' => 'image/gif', 'IMAGETYPE_JPEG' => 'image/jpeg', 'IMAGETYPE_PNG' => 'image/png');
+    private $supportedTypes        = array('IMAGETYPE_GIF' => 'image/gif', 'IMAGETYPE_JPEG' => 'image/jpeg', 'IMAGETYPE_PNG' => 'image/png');
     private $imageFile;
     private $realProperties;
-    private $imageType = '';
+    private $imageType             = '';
     private $image;
 
     function __construct($file = '')
@@ -61,7 +60,7 @@ class Image
 
     public function show()
     {
-        header("Content-type: " . $this->getType(), true);
+        header("Content-type: ".$this->getType(), true);
         $isShowed = $this->outputImage();
 
         return $isShowed;
@@ -77,13 +76,13 @@ class Image
     public function resizeByWidth($width)
     {
         if (strpos($width, '%') > 0) {
-            $ratio = ((int) $width / 100);
+            $ratio    = ((int) $width / 100);
             $newWidth = floor($this->realProperties['width'] * $ratio);
         } else {
             $newWidth = (int) $width;
         }
 
-        $ratio = ($newWidth / $this->realProperties['width']);
+        $ratio     = ($newWidth / $this->realProperties['width']);
         $newHeight = floor($this->realProperties['height'] * $ratio);
         $this->resize($newWidth, $newHeight);
     }
@@ -91,13 +90,13 @@ class Image
     public function resizeByHeight($height)
     {
         if (strpos($height, '%') > 0) {
-            $ratio = ((int) $height / 100);
+            $ratio     = ((int) $height / 100);
             $newHeight = floor($this->realProperties['height'] * $ratio);
         } else {
             $newHeight = (int) $height;
         }
 
-        $ratio = ($newHeight / $this->realProperties['height']);
+        $ratio    = ($newHeight / $this->realProperties['height']);
         $newWidth = floor($this->realProperties['width'] * $ratio);
 
         $this->resize($newWidth, $newHeight);
@@ -106,24 +105,24 @@ class Image
     public function resizeToMax($width, $height)
     {
         if ($this->realProperties['height'] > $this->realProperties['width']) {
-            $ratio = ($height / $this->realProperties['height']);
+            $ratio     = ($height / $this->realProperties['height']);
             $newHeight = $height;
-            $newWidth = floor($this->realProperties['width'] * $ratio);
+            $newWidth  = floor($this->realProperties['width'] * $ratio);
 
             if ($newWidth > $width) {
-                $ratio = ($width / $newWidth);
-                $newWidth = $width;
+                $ratio     = ($width / $newWidth);
+                $newWidth  = $width;
                 $newHeight = floor($newHeight * $ratio);
             }
         } else {
-            $ratio = ($width / $this->realProperties['width']);
-            $newWidth = $width;
+            $ratio     = ($width / $this->realProperties['width']);
+            $newWidth  = $width;
             $newHeight = floor($this->realProperties['height'] * $ratio);
 
             if ($newHeight > $height) {
-                $ratio = ($height / $newHeight);
+                $ratio     = ($height / $newHeight);
                 $newHeight = $height;
-                $newWidth = floor($newWidth * $ratio);
+                $newWidth  = floor($newWidth * $ratio);
             }
         }
 
@@ -132,7 +131,7 @@ class Image
 
     public function resizeTo($width, $height)
     {
-        $ratioWidth = imagesx($this->image) / $width;
+        $ratioWidth  = imagesx($this->image) / $width;
         $ratioHeight = imagesy($this->image) / $height;
 
         if ($ratioHeight < $ratioWidth) {
@@ -146,43 +145,48 @@ class Image
 
     public function cropToWidth($width)
     {
-        $actualWidth = imagesx($this->image);
+        $actualWidth  = imagesx($this->image);
         $actualHeight = imagesy($this->image);
-        $diff = $actualWidth - $width;
+        $diff         = $actualWidth - $width;
 
         $newImage = imagecreatetruecolor($width, $actualHeight);
         $newImage = $this->makeTransparent($newImage);
 
-        imagecopyresampled($newImage, $this->image, 0, 0, floor($diff / 2), 0, $width + $diff, $actualHeight, $actualWidth, $actualHeight);
+        imagecopyresampled($newImage, $this->image, 0, 0, floor($diff / 2), 0, $width + $diff, $actualHeight,
+            $actualWidth, $actualHeight);
         $this->image = $newImage;
     }
 
     public function cropToHeight($height)
     {
-        $actualWidth = imagesx($this->image);
+        $actualWidth  = imagesx($this->image);
         $actualHeight = imagesy($this->image);
-        $diff = $actualHeight - $height;
+        $diff         = $actualHeight - $height;
 
         $newImage = imagecreatetruecolor($actualWidth, $height);
         $newImage = $this->makeTransparent($newImage);
 
-        imagecopyresampled($newImage, $this->image, 0, 0, 0, floor($diff / 2), $actualWidth, $height + $diff, $actualWidth, $actualHeight);
+        imagecopyresampled($newImage, $this->image, 0, 0, 0, floor($diff / 2), $actualWidth, $height + $diff,
+            $actualWidth, $actualHeight);
         $this->image = $newImage;
     }
 
-    public function setWatterMark($sText = '', $nPositionX = 0, $nPositionY = 0, $aColor = array(), $nSize = 40, $nAngle = 0)
+    public function setWatterMark($sText = '', $nPositionX = 0, $nPositionY = 0, $aColor = array(), $nSize = 40,
+                                  $nAngle = 0)
     {
         if (empty($aColor)) {
             $aColor = $this->defaultWattermarkText;
         }
 
         if ($aColor['ALPHA'] > 0) {
-            $cTextColor = imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'], $aColor['ALPHA']);
+            $cTextColor = imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'],
+                $aColor['ALPHA']);
         } else {
             $cTextColor = imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']);
         }
 
-        imagettftext($this->image, $nSize, $nAngle, $nPositionX, $nPositionY, $cTextColor, FONTS_DIR . 'FreeSansBold.ttf', $sText);
+        imagettftext($this->image, $nSize, $nAngle, $nPositionX, $nPositionY, $cTextColor, FONTS_DIR.'FreeSansBold.ttf',
+            $sText);
     }
 
     public function saveAs($newName, $type = '')
@@ -199,9 +203,11 @@ class Image
         }
 
         if ($aColor['ALPHA'] > 0) {
-            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom, imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'], $aColor['ALPHA']));
+            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom,
+                imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'], $aColor['ALPHA']));
         } else {
-            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom, imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']));
+            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom,
+                imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']));
         }
     }
 
@@ -251,12 +257,12 @@ class Image
     {
         $properties = getimagesize($this->imageFile);
 
-        $this->realProperties = array('width' => $properties[0]
+        $this->realProperties = array('width'  => $properties[0]
             , 'height' => $properties[1]
-            , 'type' => $properties[2]
+            , 'type'   => $properties[2]
             , 'string' => $properties[3]
-            , 'bits' => $properties['bits']
-            , 'mime' => $properties['mime']
+            , 'bits'   => $properties['bits']
+            , 'mime'   => $properties['mime']
         );
 
         if (in_array($this->realProperties['type'], array_keys($this->imageTypes))) {
@@ -273,23 +279,24 @@ class Image
 
     private function create()
     {
-        $this->imageType = 3;
-        $this->realProperties = array('width' => $this->defaultWidth
+        $this->imageType      = 3;
+        $this->realProperties = array('width'  => $this->defaultWidth
             , 'height' => $this->defaultHight
-            , 'type' => $this->imageType
-            , 'string' => 'width="' . $this->defaultWidth . '" height="' . $this->defaultHight . '"'
-            , 'bits' => 8
-            , 'mime' => 'image/png'
+            , 'type'   => $this->imageType
+            , 'string' => 'width="'.$this->defaultWidth.'" height="'.$this->defaultHight.'"'
+            , 'bits'   => 8
+            , 'mime'   => 'image/png'
         );
-        $this->image = imagecreate($this->defaultWidth, $this->defaultHight);
+        $this->image          = imagecreate($this->defaultWidth, $this->defaultHight);
         imagecolorallocate($this->image, 255, 255, 2550);
     }
 
     private function resize($width, $height)
     {
-        $image = imagecreatetruecolor($width, $height);
-        $image = $this->makeTransparent($image);
-        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $this->realProperties['width'], $this->realProperties['height']);
+        $image       = imagecreatetruecolor($width, $height);
+        $image       = $this->makeTransparent($image);
+        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $this->realProperties['width'],
+            $this->realProperties['height']);
         $this->image = $image;
     }
 
@@ -299,7 +306,8 @@ class Image
             $trnprt_indx = imagecolortransparent($this->image);
             if ($trnprt_indx >= 0) {
                 $trnprt_color = imagecolorsforindex($this->image, $trnprt_indx);
-                $trnprt_indx = imagecolorallocate($image, $trnprt_color['red'], $trnprt_color['green'], $trnprt_color['blue']);
+                $trnprt_indx  = imagecolorallocate($image, $trnprt_color['red'], $trnprt_color['green'],
+                    $trnprt_color['blue']);
                 imagefill($image, 0, 0, $trnprt_indx);
                 imagecolortransparent($image, $trnprt_indx);
             } elseif ($this->imageType == 'IMAGETYPE_PNG') {

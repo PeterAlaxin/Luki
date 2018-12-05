@@ -16,24 +16,23 @@ namespace Luki;
 
 class Formular
 {
-
-    private $name = '';
-    private $id = '';
-    private $method = 'post';
-    private $inputs = array();
-    private $enctype = 'application/x-www-form-urlencoded';
-    private $hasFocus = true;
-    private $action = '';
-    private $errors = array();
+    private $name         = '';
+    private $id           = '';
+    private $method       = 'post';
+    private $inputs       = array();
+    private $enctype      = 'application/x-www-form-urlencoded';
+    private $hasFocus     = true;
+    private $action       = '';
+    private $errors       = array();
     private $autocomplete = 'on';
-    private $noValidate = false;
-    private $target = '_self';
-    private $class = '';
+    private $noValidate   = false;
+    private $target       = '_self';
+    private $class        = '';
 
     public function __construct($name)
     {
         $this->name = $name;
-        $this->id = $name . '_id';
+        $this->id   = $name.'_id';
     }
 
     public function __destruct()
@@ -160,6 +159,21 @@ class Formular
     public function addInput($input)
     {
         $this->inputs[$input->getName()] = $input;
+        $this->errors[$input->getName()] = array();
+
+        return $this;
+    }
+
+    public function getInput($name)
+    {
+        $input = $this->inputs[$name];
+
+        return $input;
+    }
+
+    public function setInput($name, $input)
+    {
+        $this->inputs[$name] = $input;
 
         return $this;
     }
@@ -193,7 +207,7 @@ class Formular
         foreach ($this->inputs as $name => $input) {
             if (!$input->isValid()) {
                 $this->errors[$name] = $input->getErrors();
-                $valid = false;
+                $valid               = false;
             }
         }
 
@@ -207,7 +221,10 @@ class Formular
 
     public function getFormular()
     {
-        $formular = array('form' => $this->getFormularHeader(), 'inputs' => $this->getInputs(), 'errors' => $this->getErrors());
+        $formular = array(
+            'form'   => $this->getFormularHeader(),
+            'inputs' => $this->getInputs(),
+            'errors' => $this->getErrors());
 
         return $formular;
     }
@@ -215,14 +232,14 @@ class Formular
     public function getFormularHeader()
     {
         $header = '<form ';
-        $header .= 'action="' . $this->getAction() . '" ';
-        $header .= 'autocomplete="' . $this->getAutocomplete() . '" ';
-        $header .= 'enctype="' . $this->getEnctype() . '" ';
-        $header .= 'id="' . $this->getId() . '" ';
-        $header .= 'method="' . $this->getMethod() . '" ';
-        $header .= 'name="' . $this->getName() . '" ';
-        $header .= 'target="' . $this->getTarget() . '" ';
-        $header .= 'class="' . $this->getClass() . '" ';
+        $header .= 'action="'.$this->getAction().'" ';
+        $header .= 'autocomplete="'.$this->getAutocomplete().'" ';
+        $header .= 'enctype="'.$this->getEnctype().'" ';
+        $header .= 'id="'.$this->getId().'" ';
+        $header .= 'method="'.$this->getMethod().'" ';
+        $header .= 'name="'.$this->getName().'" ';
+        $header .= 'target="'.$this->getTarget().'" ';
+        $header .= 'class="'.$this->getClass().'" ';
 
         if ($this->getNovalidate()) {
             $header .= 'novalidate ';
@@ -240,7 +257,7 @@ class Formular
         } else {
             $return = array('status' => 1);
             foreach ($this->getErrors() as $field => $errors) {
-                $return['fields'][] = $field;
+                $return['fields'][]       = $field;
                 $return['errors'][$field] = $errors;
             }
         }

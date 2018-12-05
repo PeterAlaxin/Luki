@@ -18,7 +18,6 @@ use Luki\Data\BasicInterface;
 
 class Data
 {
-
     private $adapter = null;
 
     public function __construct(BasicInterface $dataAdapter)
@@ -35,7 +34,7 @@ class Data
 
     public static function findAdapter($adapter)
     {
-        $adapter = __NAMESPACE__ . '\Data\\' . $adapter . 'Adapter';
+        $adapter = __NAMESPACE__.'\Data\\'.$adapter.'Adapter';
 
         return $adapter;
     }

@@ -16,7 +16,6 @@ namespace Luki;
 
 class Validator
 {
-
     private static $error = '';
 
     public function __destruct()
@@ -28,7 +27,7 @@ class Validator
 
     public static function isValid($value, $validatorName, $options = array(), $message = '')
     {
-        $validator = new $validatorName($options);
+        $validator   = new $validatorName($options);
         self::$error = '';
 
         if (!empty($message)) {

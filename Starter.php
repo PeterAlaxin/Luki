@@ -30,12 +30,11 @@ use Luki\Time;
 
 class Starter
 {
-
     const LOADER_NOT_EXISTS = 'Loader file "%s" does not exists!';
 
     public static function Start($starterFile)
     {
-        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Functions.php';
+        require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'Functions.php';
         set_exception_handler("default_exception_handler");
 
         ob_start(array('self', 'sanitizeOutput'));
@@ -72,7 +71,7 @@ class Starter
     public static function installLoader()
     {
         try {
-            $loaderFile = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Loader.php';
+            $loaderFile = dirname(__FILE__).DIRECTORY_SEPARATOR.'Loader.php';
 
             if (is_file($loaderFile)) {
                 require_once($loaderFile);
@@ -88,18 +87,20 @@ class Starter
     public static function openStarterFile($starterFile)
     {
         $adapterName = Config::findAdapter($starterFile);
-        $adapter = new $adapterName($starterFile);
+        $adapter     = new $adapterName($starterFile);
 
         Storage::Set('Configuration', new Config($adapter));
 
         if ('development' == Storage::Configuration()->getValue('environment', 'definition')) {
             Storage::Set('Development', true);
+        } else {
+            Storage::Set('Production', true);
         }
     }
 
     public static function initLanguage()
     {
-        $languages = Storage::Configuration()->getSection('language');
+        $languages  = Storage::Configuration()->getSection('language');
         $translator = null;
 
         foreach ($languages as $language => $file) {
@@ -117,9 +118,7 @@ class Starter
 
     public static function initFolders()
     {
-        $folders = Storage::Configuration()->getSection('folder');
-
-        foreach ($folders as $key => $path) {
+        foreach (Storage::Configuration()->getSection('folder') as $key => $path) {
             Storage::Set($key, $path);
         }
     }
@@ -144,7 +143,7 @@ class Starter
 
         if (!empty($cache)) {
             $adapterName = Cache::findAdapter($cache['adapter']);
-            $adapter = new $adapterName($cache);
+            $adapter     = new $adapterName($cache);
             Storage::Set('Cache', new Cache($adapter));
 
             if (!empty($cache['expiration'])) {
@@ -181,30 +180,34 @@ class Starter
 
     public static function addPathToLoader()
     {
-        $loader = Storage::Configuration()->getSection('loader');
-
-        if (!empty($loader)) {
-            foreach ($loader as $path) {
-                if (is_array($path)) {
-                    foreach ($path as $onePath) {
-                        Loader::addPath($onePath);
-                    }
-                } else {
-                    Loader::addPath($path);
+        foreach (Storage::Configuration()->getSection('loader') as $path) {
+            if (is_array($path)) {
+                foreach ($path as $onePath) {
+                    Loader::addPath($onePath);
                 }
+            } else {
+                Loader::addPath($path);
             }
         }
     }
 
     public static function initDatabase()
     {
-        $databases = Storage::Configuration()->getSection('database');
+        $databases = Storage::Configuration()->getSection('databases');
 
         if (!empty($databases)) {
             foreach ($databases as $name => $database) {
                 $adapterName = Data::findAdapter($database['adapter']);
-                $adapter = new $adapterName($database);
+                $adapter     = new $adapterName($database);
                 Storage::Set($name, $adapter);
+            }
+        } else {
+            $database = Storage::Configuration()->getSection('database');
+
+            if (!empty($database)) {
+                $adapterName = Data::findAdapter($database['adapter']);
+                $adapter     = new $adapterName($database);
+                Storage::Set($database['name'], $adapter);
             }
         }
     }
@@ -221,10 +224,10 @@ class Starter
 
         if (!empty($logDefinition)) {
             $formatName = Log::findFormat($logDefinition['format']);
-            $format = new $formatName();
-            $filename = $logDefinition['dir'] . '/' . strftime($logDefinition['name'], strtotime('now'));
+            $format     = new $formatName();
+            $filename   = $logDefinition['dir'].'/'.strftime($logDefinition['name'], strtotime('now'));
             $writerName = Log::findWriter($logDefinition['writer']);
-            $writer = new $writerName($filename);
+            $writer     = new $writerName($filename);
             Storage::Set('Log', new Log($format, $writer));
         }
     }
@@ -240,9 +243,7 @@ class Starter
 
     public static function defineConstants()
     {
-        $constants = Storage::Configuration()->getSection('constants');
-
-        foreach ($constants as $key => $value) {
+        foreach (Storage::Configuration()->getSection('constants') as $key => $value) {
             define($key, $value, true);
         }
     }
@@ -268,18 +269,18 @@ class Starter
     public static function dispatchURL()
     {
         if (Storage::Configuration()->isValue('dispatcher', 'definition')) {
-            $file = Storage::Configuration()->getValue('dispatcher', 'definition');
+            $file  = Storage::Configuration()->getValue('dispatcher', 'definition');
             $class = 'Luki\Dispatcher';
         } elseif (Storage::Configuration()->isValue('router', 'definition')) {
-            $file = Storage::Configuration()->getValue('router', 'definition');
+            $file  = Storage::Configuration()->getValue('router', 'definition');
             $class = 'Luki\Router';
         } else {
             Exit('Missing definition for Routing or Dispatcher');
         }
 
         $adapterName = Config::findAdapter($file);
-        $adapter = new $adapterName($file);
-        $dispatcher = new $class(Storage::Request(), new Config($adapter));
+        $adapter     = new $adapterName($file);
+        $dispatcher  = new $class(Storage::Request(), new Config($adapter));
         echo $dispatcher->Dispatch();
 
         $dispatcher->__destruct();
@@ -289,9 +290,12 @@ class Starter
     public static function sanitizeOutput($output)
     {
         if (!Storage::isDevelopment()) {
-            $search = array('/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s');
-            $replace = array('>', '<', '\\1');
-            $output = preg_replace($search, $replace, $output);
+            if (!Storage::Configuration()->isValue('sanitize', 'definition') or 1 == Storage::Configuration()->getValue('sanitize',
+                    'definition')) {
+                $search  = array('/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s');
+                $replace = array('>', '<', '\\1');
+                $output  = preg_replace($search, $replace, $output);
+            }
         }
 
         return $output;
