@@ -1,6 +1,6 @@
 <?php
 /**
- * Even template test 
+ * Even template test
  *
  * Luki framework
  *

@@ -22,13 +22,13 @@ class Slice
         switch (gettype($value)) {
             case 'string':
                 $encoding = mb_detect_encoding($value);
-                $slice = mb_substr($value, $start, $length, $encoding);
+                $slice    = mb_substr($value, $start, $length, $encoding);
                 break;
             case 'array':
-                $slice = array_slice($value, $start, $length);
+                $slice    = array_slice($value, $start, $length);
                 break;
             default:
-                $slice = $value;
+                $slice    = $value;
         }
 
         return $slice;

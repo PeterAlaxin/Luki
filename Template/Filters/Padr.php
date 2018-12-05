@@ -1,6 +1,6 @@
 <?php
 /**
- * Trim template filter adapter
+ * Pad right template filter adapter
  *
  * Luki framework
  *
@@ -14,13 +14,13 @@
 
 namespace Luki\Template\Filters;
 
-class Trim
+class Padr
 {
 
-    public function Get($value, $charList = '')
+    public function Get($value, $length = 1, $string = "-")
     {
-        $trimmed = trim($value, ' \t\n\r\0\x0B'.$charList);
+        $pad = str_pad($value, $length, $string, STR_PAD_RIGHT);
 
-        return $trimmed;
+        return $pad;
     }
 }

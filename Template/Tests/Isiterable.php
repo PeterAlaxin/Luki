@@ -1,6 +1,6 @@
 <?php
 /**
- * Trim template filter adapter
+ * Iterable template test
  *
  * Luki framework
  *
@@ -12,15 +12,15 @@
  * @filesource
  */
 
-namespace Luki\Template\Filters;
+namespace Luki\Template\Tests;
 
-class Trim
+class Isiterable
 {
 
-    public function Get($value, $charList = '')
+    public function Is($value)
     {
-        $trimmed = trim($value, ' \t\n\r\0\x0B'.$charList);
+        $isIterable = is_array($value);
 
-        return $trimmed;
+        return $isIterable;
     }
 }

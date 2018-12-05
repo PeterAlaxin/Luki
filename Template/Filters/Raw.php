@@ -19,7 +19,7 @@ class Raw
 
     public function Get($value)
     {
-        $raw = rawurlencode($value);
+        $raw = htmlspecialchars_decode($value);
 
         return $raw;
     }

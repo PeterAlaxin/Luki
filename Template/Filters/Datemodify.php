@@ -19,7 +19,7 @@ class Datemodify
 
     public function Get($value, $modifier)
     {
-        $date = new \DateTime($value);
+        $date         = new \DateTime($value);
         $dateModified = $date->modify($modifier);
 
         return $dateModified;

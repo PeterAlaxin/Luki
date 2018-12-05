@@ -1,6 +1,6 @@
 <?php
 /**
- * Divisibleby template test 
+ * Divisibleby template test
  *
  * Luki framework
  *

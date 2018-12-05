@@ -18,15 +18,14 @@ use Luki\Template;
 
 class Variable
 {
-
-    protected $content = '';
-    protected $variable = '';
-    protected $functionName = '';
-    protected $function = '';
+    protected $content             = '';
+    protected $variable            = '';
+    protected $functionName        = '';
+    protected $function            = '';
     protected $transformedVariable = '';
-    protected $code = '';
-    protected $filters = array();
-    protected $finalVariable = '';
+    protected $code                = '';
+    protected $filters             = array();
+    protected $finalVariable       = '';
 
     public function __construct($content)
     {
@@ -107,9 +106,9 @@ class Variable
     private function prepareFilters()
     {
         if (strpos($this->content, '|')) {
-            $this->filters = explode('|', $this->content);
-            $this->variable = array_shift($this->filters);
-            $this->functionName = 'fnc_' . sha1($this->content);
+            $this->filters      = explode('|', $this->content);
+            $this->variable     = array_shift($this->filters);
+            $this->functionName = 'fnc_'.sha1($this->content);
         } else {
             $this->variable = $this->content;
         }
@@ -123,23 +122,23 @@ class Variable
 
         if (count($matches) > 0) {
             $newItems = array();
-            $items = explode(', ', $matches[1]);
+            $items    = explode(', ', $matches[1]);
 
             foreach ($items as $item) {
                 if (strpos($item, ': ')) {
-                    $hasKeys = true;
+                    $hasKeys  = true;
                     $subItems = explode(': ', $item);
 
-                    $newItems[] = $this->stringToVariable($subItems[0]) .
-                        ' => ' .
+                    $newItems[] = $this->stringToVariable($subItems[0]).
+                        ' => '.
                         $this->stringToVariable($subItems[1]);
                 } else {
                     $newItems[] = $this->stringToVariable($item);
                 }
             }
 
-            $variable = preg_replace('/[\[{]/', 'array(', $this->variable);
-            $variables = preg_replace('/' . $matches[1] . '/', implode(', ', $newItems), $variable);
+            $variable  = preg_replace('/[\[{]/', 'array(', $this->variable);
+            $variables = preg_replace('/'.$matches[1].'/', implode(', ', $newItems), $variable);
             if ($hasKeys) {
                 $this->transformedVariable = preg_replace('/[}]/', ')', $variables);
             } else {
@@ -152,15 +151,15 @@ class Variable
 
     private function stringToVariable($string)
     {
-        $types = array('RangeOperator' => '/^(.*)\.\.(.*)$/',
-            'Range' => '/^range\((.*)\)$/',
-            'Random' => '/^random\((.*)\)$/',
-            'Constant' => '/^constant\((.*)\)$/',
-            'PathWithArguments' => '/^path\((.*)(, )({.*})\)$/',
+        $types          = array('RangeOperator'        => '/^(.*)\.\.(.*)$/',
+            'Range'                => '/^range\((.*)\)$/',
+            'Random'               => '/^random\((.*)\)$/',
+            'Constant'             => '/^constant\((.*)\)$/',
+            'PathWithArguments'    => '/^path\((.*)(, )({.*})\)$/',
             'PathWithoutArguments' => '/^path\((.*)\)$/',
-            'Date' => '/^date\((.*)(, )(.*)\)|date\((.*)\)$/',
-            'Concat' => '/^(.*) \~ (.*)$/',
-            'SubArray' => '/^(.*)\.(.*)$/'
+            'Date'                 => '/^date\((.*)(, )(.*)\)|date\((.*)\)$/',
+            'Concat'               => '/^(.*) \~ (.*)$/',
+            'SubArray'             => '/^(.*)\.(.*)$/'
         );
         $formatedString = '';
 
@@ -172,50 +171,50 @@ class Variable
                 if (!empty($matches)) {
                     switch ($type) {
                         case 'Random':
-                            $formatedString = '$this->aFunctions["random"]->Get(' . $matches[1] . ')';
+                            $formatedString = '$this->aFunctions["random"]->Get('.$matches[1].')';
                             break;
                         case 'Range':
-                            $formatedString = '$this->aFunctions["range"]->Get(' . $matches[1] . ')';
+                            $formatedString = '$this->aFunctions["range"]->Get('.$matches[1].')';
                             break;
                         case 'Constant':
-                            $formatedString = '$this->aFunctions["constant"]->Get(' . $matches[1] . ')';
+                            $formatedString = '$this->aFunctions["constant"]->Get('.$matches[1].')';
                             break;
                         case 'SubArray':
-                            $items = explode('.', $matches[0]);
-                            $formatedString = '$this->aData["' . implode('"]["', $items) . '"]';
+                            $items          = explode('.', $matches[0]);
+                            $formatedString = '$this->aData["'.implode('"]["', $items).'"]';
                             break;
                         case 'RangeOperator':
-                            $range = explode('..', $string);
-                            $newArray = array();
+                            $range          = explode('..', $string);
+                            $newArray       = array();
                             if (is_numeric($range[0])) {
                                 $min = min($range[0], $range[1]);
                                 $max = max($range[0], $range[1]);
                                 for ($i = $min; $i <= $max; $i++) {
                                     $newArray[] = $i;
                                 }
-                                $formatedString = 'array(' . implode(',', $newArray) . ')';
+                                $formatedString = 'array('.implode(',', $newArray).')';
                             } else {
                                 $min = min(ord($range[0]), ord($range[1]));
                                 $max = max(ord($range[0]), ord($range[1]));
                                 for ($i = $min; $i <= $max; $i++) {
                                     $newArray[] = chr($i);
                                 }
-                                $formatedString = 'array("' . implode('","', $newArray) . '")';
+                                $formatedString = 'array("'.implode('","', $newArray).'")';
                             }
                             break;
                         case 'PathWithArguments':
-                            $parameters = preg_replace('/[\[{]/', 'array(', $matches[3]);
-                            $parameters = preg_replace('/: /', ' => ', $parameters);
-                            $parameters = preg_replace('/[\]}]/', ')', $parameters);
-                            $parameters = $this->fixDataInArray($parameters);
-                            $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ',' . $parameters . ')';
+                            $parameters     = preg_replace('/[\[{]/', 'array(', $matches[3]);
+                            $parameters     = preg_replace('/: /', ' => ', $parameters);
+                            $parameters     = preg_replace('/[\]}]/', ')', $parameters);
+                            $parameters     = $this->fixDataInArray($parameters);
+                            $formatedString = '$this->aFunctions["path"]->Get('.$matches[1].','.$parameters.')';
                             break;
                         case 'PathWithoutArguments':
-                            $formatedString = '$this->aFunctions["path"]->Get(' . $matches[1] . ')';
+                            $formatedString = '$this->aFunctions["path"]->Get('.$matches[1].')';
                             break;
                         case 'Concat':
                             $formatedString = '';
-                            $strings = explode(' ~ ', $string);
+                            $strings        = explode(' ~ ', $string);
                             foreach ($strings as $item) {
                                 if (!empty($formatedString)) {
                                     $formatedString .= '.';
@@ -224,9 +223,11 @@ class Variable
                             }
                             break;
                         case 'Date':
-                            $date = str_replace(array('"', '"'), array('', ''), empty($matches[4]) ? $matches[1] : $matches[4]);
-                            $zone = str_replace(array('"', '"'), array('', ''), empty($matches[3]) ? date_default_timezone_get() : $matches[3]);
-                            $datetime = new \DateTime($date, new \DateTimeZone($zone));
+                            $date           = str_replace(array('"', '"'), array('', ''),
+                                empty($matches[4]) ? $matches[1] : $matches[4]);
+                            $zone           = str_replace(array('"', '"'), array('', ''),
+                                empty($matches[3]) ? date_default_timezone_get() : $matches[3]);
+                            $datetime       = new \DateTime($date, new \DateTimeZone($zone));
                             $formatedString = $datetime->format('U');
                             break;
                     }
@@ -236,7 +237,7 @@ class Variable
             }
 
             if (empty($formatedString)) {
-                $formatedString = '$this->aData["' . $string . '"]';
+                $formatedString = '$this->aData["'.$string.'"]';
             }
         } else {
             $formatedString = $string;
@@ -248,13 +249,13 @@ class Variable
     private function fixDataInArray($arrayText)
     {
         $arrayText = substr($arrayText, 6, strlen($arrayText) - 7);
-        $first = explode(',', $arrayText);
+        $first     = explode(',', $arrayText);
         foreach ($first as $key => $item) {
-            $second = explode('=>', $item);
-            $second[1] = $this->stringToVariable(trim($second[1]));
+            $second      = explode('=>', $item);
+            $second[1]   = $this->stringToVariable(trim($second[1]));
             $first[$key] = implode('=> ', $second);
         }
-        $fixedText = 'array(' . implode(', ', $first) . ')';
+        $fixedText = 'array('.implode(', ', $first).')';
 
         return $fixedText;
     }
@@ -262,29 +263,29 @@ class Variable
     private function prepareVariable()
     {
         if (!empty($this->filters)) {
-            $this->finalVariable = '$this->_' . $this->functionName . '(' . $this->transformedVariable . ')';
+            $this->finalVariable = '$this->_'.$this->functionName.'('.$this->transformedVariable.')';
         } else {
             $this->finalVariable = $this->transformedVariable;
         }
 
-        $this->code = '<?php echo ' . $this->finalVariable . '; ?>';
+        $this->code = '<?php echo '.$this->finalVariable.'; ?>';
     }
 
     private function prepareFunction()
     {
         $matches = array();
 
-        $function = Template::phpRow('public function _' . $this->functionName . '($xValue)');
+        $function = Template::phpRow('public function _'.$this->functionName.'($xValue)');
         $function .= Template::phpRow('{');
         foreach ($this->filters as $filter) {
 
             preg_match_all('|(.*)\((.*)\)|U', $filter, $matches, PREG_SET_ORDER);
 
             if (empty($matches)) {
-                $function .= Template::phpRow('$xValue = $this->aFilters["' . $filter . '"]->Get($xValue);', 2);
+                $function .= Template::phpRow('$xValue = $this->aFilters["'.$filter.'"]->Get($xValue);', 2);
             } else {
                 if (empty($matches[0][2])) {
-                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue);';
+                    $text     = '$xValue = $this->aFilters["'.$matches[0][1].'"]->Get($xValue);';
                     $function .= Template::phpRow($text, 2);
                 } else {
                     $parameters = $matches[0][2];
@@ -309,16 +310,16 @@ class Variable
                         if (is_numeric($parameter) or in_array($parameter, array('array(', '=>', ',', ')'))) {
                             $parameters[] = $parameter;
                         } elseif (strpos($parameter, 'app.') === 0) {
-                            $items = explode('.', $parameter);
-                            $parameters[] = '$this->aData["' . implode('"]["', $items) . '"]';
+                            $items        = explode('.', $parameter);
+                            $parameters[] = '$this->aData["'.implode('"]["', $items).'"]';
                         } elseif (strpos($parameter, '"') === 0 or strpos($parameter, "'") === 0) {
                             $parameters[] = $parameter;
                         } else {
-                            $parameters[] = '$this->aData["' . $parameter . '"]';
+                            $parameters[] = '$this->aData["'.$parameter.'"]';
                         }
                     }
 
-                    $text = '$xValue = $this->aFilters["' . $matches[0][1] . '"]->Get($xValue, ' . implode('', $parameters) . ');';
+                    $text     = '$xValue = $this->aFilters["'.$matches[0][1].'"]->Get($xValue, '.implode('', $parameters).');';
                     $function .= Template::phpRow($text, 2);
                 }
             }

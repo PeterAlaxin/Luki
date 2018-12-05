@@ -1,6 +1,6 @@
 <?php
 /**
- * Random template function 
+ * Random template function
  *
  * Luki framework
  *

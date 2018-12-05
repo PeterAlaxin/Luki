@@ -22,10 +22,10 @@ class Datastream
     public function Get($value)
     {
         $image = new Image($value);
-        $type = $image->getType();
+        $type  = $image->getType();
 
         if (!empty($type)) {
-            $stream = 'data:' . $type . ';base64,' . base64_encode(file_get_contents($value));
+            $stream = 'data:'.$type.';base64,'.base64_encode(file_get_contents($value));
         } else {
             $stream = $value;
         }

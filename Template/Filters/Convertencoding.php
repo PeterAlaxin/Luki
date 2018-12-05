@@ -16,7 +16,6 @@ namespace Luki\Template\Filters;
 
 class Convertencoding
 {
-
     protected $list = array();
 
     public function __construct()

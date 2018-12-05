@@ -1,6 +1,6 @@
 <?php
 /**
- * Cycle template function 
+ * Cycle template function
  *
  * Luki framework
  *

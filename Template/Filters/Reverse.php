@@ -21,7 +21,7 @@ class Reverse
     {
         switch (gettype($value)) {
             case 'string':
-                $value = preg_split("//u", $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+                $value   = preg_split("//u", $value, null, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
                 $reverse = implode('', array_reverse($value));
                 break;
             case 'array':

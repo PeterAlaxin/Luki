@@ -20,13 +20,13 @@ class Bites
     public function Get($value)
     {
         if ($value < 1024) {
-            $bites = number_format($value, 0) . '&nbsp;B';
+            $bites = number_format($value, 0).'&nbsp;B';
         } elseif ($value < 1048576) {
-            $bites = number_format($value / 1024, 2, ',', '.') . '&nbsp;kB';
+            $bites = number_format($value / 1024, 2, ',', '.').'&nbsp;kB';
         } elseif ($value < 1073741824) {
-            $bites = number_format($value / 1048576, 2, ',', '.') . '&nbsp;MB';
+            $bites = number_format($value / 1048576, 2, ',', '.').'&nbsp;MB';
         } else {
-            $bites = number_format($value / 1073741824, 2, ',', '.') . '&nbsp;GB';
+            $bites = number_format($value / 1073741824, 2, ',', '.').'&nbsp;GB';
         }
 
         return $bites;

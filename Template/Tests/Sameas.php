@@ -1,6 +1,6 @@
 <?php
 /**
- * Sameas template test 
+ * Sameas template test
  *
  * Luki framework
  *

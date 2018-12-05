@@ -38,7 +38,7 @@ class Split
     {
         if ($limit > 0) {
             $split = array();
-            $len = mb_strlen($value, "UTF-8");
+            $len   = mb_strlen($value, "UTF-8");
             for ($i = 0; $i < $len; $i += $limit) {
                 $split[] = mb_substr($value, $i, $limit, "UTF-8");
             }
@@ -55,7 +55,7 @@ class Split
 
         if ($limit > 1) {
             $split = array();
-            $last = array();
+            $last  = array();
             foreach ($values as $key => $value) {
                 if ($key + 1 < $limit) {
                     $split[] = $value;

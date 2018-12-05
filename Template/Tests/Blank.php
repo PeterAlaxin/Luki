@@ -1,6 +1,6 @@
 <?php
 /**
- * Blank template test 
+ * Blank template test
  *
  * Luki framework
  *

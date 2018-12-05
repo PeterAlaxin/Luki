@@ -1,6 +1,6 @@
 <?php
 /**
- * Path template function 
+ * Path template function
  *
  * Luki framework
  *

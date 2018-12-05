@@ -1,6 +1,6 @@
 <?php
 /**
- * Constant template function 
+ * Constant template function
  *
  * Luki framework
  *
@@ -19,7 +19,7 @@ class Constant
 
     public function Get($name)
     {
-        $constant = null;
+        $constant  = null;
         $constants = get_defined_constants(true);
 
         foreach ($constants as $group => $groupConstants) {

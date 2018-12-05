@@ -31,17 +31,17 @@ class Wordwrap
             return $str;
         }
 
-        $break = chr(10);
-        $brWidth = mb_strlen($break, $encoding);
-        $strWidth = mb_strlen($str, $encoding);
-        $return = '';
+        $break     = chr(10);
+        $brWidth   = mb_strlen($break, $encoding);
+        $strWidth  = mb_strlen($str, $encoding);
+        $return    = '';
         $lastSpace = false;
 
         for ($i = 0, $count = 0; $i < $strWidth; $i++, $count++) {
             if (mb_substr($str, $i, $brWidth, $encoding) == $break) {
-                $count = 0;
+                $count  = 0;
                 $return .= mb_substr($str, $i, $brWidth, $encoding);
-                $i += $brWidth - 1;
+                $i      += $brWidth - 1;
                 continue;
             }
 
@@ -52,7 +52,7 @@ class Wordwrap
             if ($count >= $width) {
                 if (!$lastSpace) {
                     $return .= $break;
-                    $count = 0;
+                    $count  = 0;
                 } else {
                     $drop = $i - $lastSpace;
 
@@ -60,10 +60,10 @@ class Wordwrap
                         $return = mb_substr($return, 0, -$drop);
                     }
 
-                    $return .= $break;
-                    $i = $lastSpace + ($brWidth - 1);
+                    $return    .= $break;
+                    $i         = $lastSpace + ($brWidth - 1);
                     $lastSpace = false;
-                    $count = 0;
+                    $count     = 0;
                 }
             }
 

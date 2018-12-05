@@ -20,13 +20,12 @@ use Luki\Loader,
 
 class Block
 {
-
     protected $block;
-    protected $content = '';
+    protected $content            = '';
     protected $transformedContent = '';
-    protected $variables = array();
-    protected $operators = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
-    protected $logic = array("is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
+    protected $variables          = array();
+    protected $operators          = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
+    protected $logic              = array("is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
         "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd", "is sameas",
         "is not sameas", "is divisible by", "is not divisible by");
 
@@ -84,7 +83,7 @@ class Block
         preg_match_all('|{% set (.*) = (.*) %}|U', $this->content, $matches, PREG_SET_ORDER);
 
         foreach ($matches as $match) {
-            $text = '<?php $this->aData["' . $match[1] . '"] = ';
+            $text = '<?php $this->aData["'.$match[1].'"] = ';
 
             $subMatches = array();
             preg_match_all('/[a-zA-Z0-9_\."\'\(\),\|]*|\+|-|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);
@@ -100,7 +99,7 @@ class Block
                 }
             }
 
-            $text .= '; ?>';
+            $text          .= '; ?>';
             $this->content = str_replace($match[0], $text, $this->content);
         }
     }
@@ -109,8 +108,8 @@ class Block
     {
         $this->transformedContent = $this->content;
         foreach ($this->variables as $variable) {
-            $from = '{{ ' . $variable->getContent() . ' }}';
-            $to = $variable->getCode();
+            $from                     = '{{ '.$variable->getContent().' }}';
+            $to                       = $variable->getCode();
             $this->transformedContent = str_replace($from, $to, $this->transformedContent);
         }
     }
@@ -125,7 +124,7 @@ class Block
             if (strpos($match[1], ', ')) {
                 list($key, $value) = explode(', ', $match[1]);
             } else {
-                $key = null;
+                $key   = null;
                 $value = $match[1];
             }
 
@@ -133,39 +132,45 @@ class Block
                 $this->variables[] = new Variable($key);
             }
             $this->variables[] = new Variable($value);
-            $variable = $this->transformToVariable($match[2], true);
+            $variable          = $this->transformToVariable($match[2], true);
 
             $for = Template::phpRow('<?php ');
             $for .= Template::phpRow('$this->aLoop[] = $this->aData["loop"];', 2);
-            $for .= Template::phpRow('$this->aData["loop"]["variable"] = ' . $variable . ';', 2);
-            $for .= Template::phpRow('if(empty($this->aData["loop"]["variable"])) { $this->aData["loop"]["variable"] = array(); }', 2);
-            $for .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);', 2);
+            $for .= Template::phpRow('$this->aData["loop"]["variable"] = '.$variable.';', 2);
+            $for .= Template::phpRow('if(empty($this->aData["loop"]["variable"])) { $this->aData["loop"]["variable"] = array(); }',
+                    2);
+            $for .= Template::phpRow('$this->aData["loop"]["length"] = Luki\Template\Variable::getVariableLenght($this->aData["loop"]["variable"]);',
+                    2);
             $for .= Template::phpRow('$this->aData["loop"]["index"] = -1;', 2);
             $for .= Template::phpRow('$this->aData["loop"]["index1"] = 0;', 2);
             $for .= Template::phpRow('$this->aData["loop"]["revindex"] = $this->aData["loop"]["length"];', 2);
             $for .= Template::phpRow('$this->aData["loop"]["revindex1"] = $this->aData["loop"]["length"]+1;', 2);
             $for .= $this->elseFor($match);
             if (!is_null($key)) {
-                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $key . '"] => $this->aData["' . $value . '"]) {', 2);
+                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["'.$key.'"] => $this->aData["'.$value.'"]) {',
+                        2);
             } else {
-                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["' . $value . '"]) {', 2);
+                $for .= Template::phpRow('foreach($this->aData["loop"]["variable"] as $this->aData["'.$value.'"]) {', 2);
             }
             $for .= Template::phpRow('$this->aData["loop"]["index"]++;', 3);
             $for .= Template::phpRow('$this->aData["loop"]["index1"]++;', 3);
             $for .= Template::phpRow('$this->aData["loop"]["revindex"]--;', 3);
             $for .= Template::phpRow('$this->aData["loop"]["revindex1"]--;', 3);
-            $for .= Template::phpRow('$this->aData["loop"]["first"] = $this->aData["loop"]["index"] == 0 ? true : false;', 3);
-            $for .= Template::phpRow('$this->aData["loop"]["last"] = $this->aData["loop"]["index1"] == $this->aData["loop"]["length"] ? true : false;', 3);
-            $for .= Template::phpRow('$this->aData["loop"]["even"] = $this->aData["loop"]["index1"]/2 == round($this->aData["loop"]["index1"]/2) ? true : false;', 3);
+            $for .= Template::phpRow('$this->aData["loop"]["first"] = $this->aData["loop"]["index"] == 0 ? true : false;',
+                    3);
+            $for .= Template::phpRow('$this->aData["loop"]["last"] = $this->aData["loop"]["index1"] == $this->aData["loop"]["length"] ? true : false;',
+                    3);
+            $for .= Template::phpRow('$this->aData["loop"]["even"] = $this->aData["loop"]["index1"]/2 == round($this->aData["loop"]["index1"]/2) ? true : false;',
+                    3);
             $for .= Template::phpRow('$this->aData["loop"]["odd"] = !$this->aData["loop"]["even"]', 3);
             $for .= Template::phpRow(' ?>', 1);
 
             $this->content = str_replace($match[0], $for, $this->content);
         }
 
-        $endFor = Template::phpRow('<?php }');
-        $endFor .= '$this->aData["loop"] = array_pop($this->aLoop);';
-        $endFor .= Template::phpRow(' ?>', 1);
+        $endFor        = Template::phpRow('<?php }');
+        $endFor        .= '$this->aData["loop"] = array_pop($this->aLoop);';
+        $endFor        .= Template::phpRow(' ?>', 1);
         $this->content = str_replace('{% endfor %}', $endFor, $this->content);
     }
 
@@ -173,7 +178,7 @@ class Block
     {
         $matches = array();
         $elseFor = '';
-        $regexp = '|(' . $match[0] . ')([\s\S]*)({% elsefor %})([\s\S]*)({% endfor %})|U';
+        $regexp  = '|('.$match[0].')([\s\S]*)({% elsefor %})([\s\S]*)({% endfor %})|U';
 
         preg_match_all($regexp, $this->content, $matches, PREG_SET_ORDER);
 
@@ -184,7 +189,7 @@ class Block
             $elseFor .= Template::phpRow('<?php ');
             $elseFor .= Template::phpRow('}', 2);
 
-            $this->content = str_replace($matches[0][3] . $matches[0][4], '', $this->content);
+            $this->content = str_replace($matches[0][3].$matches[0][4], '', $this->content);
         }
 
         return $elseFor;
@@ -198,8 +203,9 @@ class Block
         foreach ($matches as $match) {
 
             $subMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-zA-Z0-9_\."\']*|\+|-/', $match[1], $subMatches, PREG_SET_ORDER);
-            $condition = '';
+            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-zA-Z0-9_\."\']*|\+|-/',
+                $match[1], $subMatches, PREG_SET_ORDER);
+            $condition  = '';
 
             foreach ($subMatches as $subMatch) {
                 if (in_array($subMatch[0], $this->operators) or is_numeric($subMatch[0])) {
@@ -218,7 +224,8 @@ class Block
                 }
             }
 
-            $this->content = str_replace($match[0], Template::phpRow('<?php if(' . trim($condition) . ') { ?>', 0, 0), $this->content);
+            $this->content = str_replace($match[0], Template::phpRow('<?php if('.trim($condition).') { ?>', 0, 0),
+                $this->content);
         }
 
         $this->content = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->content);
@@ -235,7 +242,7 @@ class Block
             $variable = $this->transformToVariable($match[2]);
 
             $include = Template::phpRow('<?php ');
-            $include .= Template::phpRow('$oTemplate = new Luki\Template("' . $template . '", ' . $variable . ');', 2);
+            $include .= Template::phpRow('$oTemplate = new Luki\Template("'.$template.'", '.$variable.');', 2);
             $include .= Template::phpRow('echo $oTemplate->Render();', 2);
             $include .= Template::phpRow(' ?>', 1);
 
@@ -249,7 +256,7 @@ class Block
             $template = $this->transformToTemplate($match[1]);
 
             $include = Template::phpRow('<?php ');
-            $include .= Template::phpRow('$oTemplate = new Luki\Template("' . $template . '");', 2);
+            $include .= Template::phpRow('$oTemplate = new Luki\Template("'.$template.'");', 2);
             $include .= Template::phpRow('echo $oTemplate->Render();', 2);
             $include .= Template::phpRow(' ?>', 1);
 
@@ -264,12 +271,12 @@ class Block
 
         foreach ($matches as $match) {
             $controller = $this->transformToController($match[1]);
-            $variable = $this->transformToVariable($match[2]);
+            $variable   = $this->transformToVariable($match[2]);
 
             $include = Template::phpRow('<?php ');
-            $include .= Template::phpRow('$oController = new ' . $controller['controller'] . '(' . $variable . ');', 2);
+            $include .= Template::phpRow('$oController = new '.$controller['controller'].'('.$variable.');', 2);
             $include .= Template::phpRow('$oController->preDispatch();', 2);
-            $include .= Template::phpRow('$oController->' . $controller['action'] . '();', 2);
+            $include .= Template::phpRow('$oController->'.$controller['action'].'();', 2);
             $include .= Template::phpRow('$oController->postDispatch();', 2);
             $include .= Template::phpRow('echo $oController->getOutput();', 2);
             $include .= Template::phpRow(' ?>', 1);
@@ -284,9 +291,9 @@ class Block
             $controller = $this->transformToController($match[1]);
 
             $include = Template::phpRow('<?php ');
-            $include .= Template::phpRow('$oController = new ' . $controller['controller'] . '();', 2);
+            $include .= Template::phpRow('$oController = new '.$controller['controller'].'();', 2);
             $include .= Template::phpRow('$oController->preDispatch();', 2);
-            $include .= Template::phpRow('$oController->' . $controller['action'] . '();', 2);
+            $include .= Template::phpRow('$oController->'.$controller['action'].'();', 2);
             $include .= Template::phpRow('$oController->postDispatch();', 2);
             $include .= Template::phpRow('echo $oController->getOutput();', 2);
             $include .= Template::phpRow(' ?>', 1);
@@ -298,15 +305,15 @@ class Block
     private function transformToController($controller)
     {
         $controller = str_replace(array('"', "'"), array('', ''), $controller);
-        $path = explode(':', $controller);
+        $path       = explode(':', $controller);
 
         if (empty($path[2])) {
             $path[2] = 'index';
         }
 
         $newController = array(
-            'controller' => '\\' . $path[0] . '\\' . $path[1],
-            'action' => $path[2] . 'Action'
+            'controller' => '\\'.$path[0].'\\'.$path[1],
+            'action'     => $path[2].'Action'
         );
 
         return $newController;
@@ -315,24 +322,23 @@ class Block
     private function transformToTemplate($template)
     {
         $templates = explode('/', $template);
-        $newTemplate = array();
 
         foreach ($templates as $key => $item) {
-            if ($key + 1 == count($templates)) {
-                $newTemplate[] = 'template';
-            }
-            $newTemplate[] = $item;
+            $templates[$key] = str_replace(array('"', "'"), array('', ''), $item);
         }
 
-        $template = str_replace(array('"', "'"), array('', ''), implode('/', $newTemplate));
-        $transformedTemplate = Loader::isFile($template);
+        if (empty($templates[2])) {
+            $transformedTemplate = Loader::isFile($templates[0].'/template/'.$templates[1]);
+        } else {
+            $transformedTemplate = Loader::isFile($templates[0].'/template/'.$templates[1].'/'.$templates[2]);
+        }
 
         return $transformedTemplate;
     }
 
     private function transformToVariable($variableName, $addToVariables = false)
     {
-        $variable = new Variable($variableName);
+        $variable     = new Variable($variableName);
         $variableName = $variable->getVariable();
 
         if ($addToVariables) {
@@ -345,7 +351,7 @@ class Block
     private function generateTest($match, $subMatch)
     {
         $condition = '';
-        $test = str_replace('is ', '', str_replace('is not ', '', $subMatch[0]));
+        $test      = str_replace('is ', '', str_replace('is not ', '', $subMatch[0]));
 
         switch ($test) {
             case 'blank':
@@ -356,25 +362,25 @@ class Block
             case 'null':
             case 'odd':
                 $conditions = explode(' ', $match[1]);
-                $variable = $this->transformToVariable($conditions[0]);
-                $condition .= '$this->aTests["' . $test . '"]->Is(' . $variable . ')';
+                $variable   = $this->transformToVariable($conditions[0]);
+                $condition  .= '$this->aTests["'.$test.'"]->Is('.$variable.')';
                 break;
             case 'sameas':
                 $conditions = explode(' ', $match[1]);
-                $first = $this->transformToVariable($conditions[0]);
-                $second = $this->transformToVariable($conditions[count($conditions) - 1]);
-                $condition .= '$this->aTests["' . $test . '"]->Is(' . $first . ', ' . $second . ')';
+                $first      = $this->transformToVariable($conditions[0]);
+                $second     = $this->transformToVariable($conditions[count($conditions) - 1]);
+                $condition  .= '$this->aTests["'.$test.'"]->Is('.$first.', '.$second.')';
                 break;
             case 'divisible by':
                 $conditions = explode(' ', $match[1]);
-                $first = $this->transformToVariable($conditions[0]);
-                $second = str_replace(array("by(", ")"), array("", ""), $conditions[count($conditions) - 1]);
-                $condition .= '$this->aTests["divisibleby"]->Is(' . $first . ', ' . $second . ')';
+                $first      = $this->transformToVariable($conditions[0]);
+                $second     = str_replace(array("by(", ")"), array("", ""), $conditions[count($conditions) - 1]);
+                $condition  .= '$this->aTests["divisibleby"]->Is('.$first.', '.$second.')';
                 break;
         }
 
         if (strpos($subMatch[0], ' not ') > 0) {
-            $condition = '!' . $condition;
+            $condition = '!'.$condition;
         }
 
         return $condition;

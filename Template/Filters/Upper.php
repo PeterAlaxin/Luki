@@ -20,7 +20,7 @@ class Upper
     public function Get($value)
     {
         $encoding = mb_detect_encoding($value);
-        $upper = mb_convert_case($value, MB_CASE_UPPER, $encoding);
+        $upper    = mb_convert_case($value, MB_CASE_UPPER, $encoding);
 
         return $upper;
     }

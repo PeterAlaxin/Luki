@@ -20,7 +20,7 @@ class Lower
     public function Get($value)
     {
         $encoding = mb_detect_encoding($value);
-        $lower = mb_convert_case($value, MB_CASE_LOWER, $encoding);
+        $lower    = mb_convert_case($value, MB_CASE_LOWER, $encoding);
 
         return $lower;
     }

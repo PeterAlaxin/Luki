@@ -1,6 +1,6 @@
 <?php
 /**
- * Range template function 
+ * Range template function
  *
  * Luki framework
  *

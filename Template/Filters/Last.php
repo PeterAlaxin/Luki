@@ -21,14 +21,14 @@ class Last
     {
         switch (gettype($value)) {
             case 'string':
-                $last = mb_substr($value, -1);
+                $last  = mb_substr($value, -1);
                 break;
             case 'array':
                 $value = array_reverse($value);
-                $last = array_slice($value, 0, 1);
+                $last  = array_slice($value, 0, 1);
                 break;
             default:
-                $last = $value;
+                $last  = $value;
         }
 
         return $last;

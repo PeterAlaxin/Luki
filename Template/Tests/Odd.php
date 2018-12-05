@@ -1,6 +1,6 @@
 <?php
 /**
- * Odd template test 
+ * Odd template test
  *
  * Luki framework
  *

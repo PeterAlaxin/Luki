@@ -1,6 +1,6 @@
 <?php
 /**
- * Constant template test 
+ * Constant template test
  *
  * Luki framework
  *

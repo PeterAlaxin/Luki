@@ -20,7 +20,7 @@ class Title
     public function Get($value)
     {
         $encoding = mb_detect_encoding($value);
-        $title = mb_convert_case($value, MB_CASE_TITLE, $encoding);
+        $title    = mb_convert_case($value, MB_CASE_TITLE, $encoding);
 
         return $title;
     }
