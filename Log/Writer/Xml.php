@@ -19,7 +19,6 @@ use Luki\Log\Writer\BasicInterface;
 
 class Xml extends BasicFactory implements BasicInterface
 {
-
     private $xml = null;
 
     public function __construct($file = '')
@@ -29,7 +28,7 @@ class Xml extends BasicFactory implements BasicInterface
         if (is_file($this->file)) {
             $this->xml = new \SimpleXMLElement($this->file, LIBXML_NOERROR, true);
         } else {
-            $file = '<?xml version="1.0" encoding="UTF-8"?><items></items>';
+            $file      = '<?xml version="1.0" encoding="UTF-8"?><items></items>';
             $this->xml = new \SimpleXMLElement($file);
         }
     }

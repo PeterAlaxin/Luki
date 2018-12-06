@@ -18,14 +18,13 @@ use Luki\Validator\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-
     public $isValid;
-    private $error = '';
+    private $error     = '';
     private $validator = '';
-    private $message = '';
+    private $message   = '';
 
     const ALPHA = 'a-zA-ZáäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ';
-    const NUM = '0-9';
+    const NUM   = '0-9';
     const CHARS = '\r\n\+\-\*\\\.\,\:\;\%\(\)\/\?\!\&\=\_\@\#\$\^\{\}\"\'\|\`\<\>\~';
 
     public function __construct($options = array())
@@ -58,6 +57,8 @@ abstract class BasicFactory implements BasicInterface
     public function setMessage($message)
     {
         $this->message = $message;
+
+        return $this;
     }
 
     public function getMessage()
@@ -68,11 +69,15 @@ abstract class BasicFactory implements BasicInterface
     public function fillMessage($from, $to)
     {
         $this->error = preg_replace($from, $to, $this->message);
+
+        return $this;
     }
 
     public function setValidator($validator)
     {
         $this->validator = $validator;
+
+        return $this;
     }
 
     public function getValidator()
@@ -80,9 +85,15 @@ abstract class BasicFactory implements BasicInterface
         return $this->validator;
     }
 
-    public function setError($error)
+    public function setError($error = null)
     {
+        if (empty($error)) {
+            $error = $this->message;
+        }
+
         $this->error = $error;
+
+        return $this;
     }
 
     public function getError()
@@ -92,8 +103,10 @@ abstract class BasicFactory implements BasicInterface
 
     public function setNoError()
     {
-        $this->error = '';
+        $this->error   = '';
         $this->isValid = true;
+
+        return $this;
     }
 
     public function getValueLength($value)

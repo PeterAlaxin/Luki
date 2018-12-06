@@ -26,6 +26,6 @@ class File extends BasicFactory implements BasicInterface
             $content = json_encode($content);
         }
 
-        file_put_contents($this->file, $content . PHP_EOL, FILE_APPEND);
+        file_put_contents($this->file, $content.PHP_EOL, FILE_APPEND);
     }
 }

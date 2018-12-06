@@ -27,10 +27,7 @@ class MysqliAdapter extends BasicAdapter
 
     public function __construct($options)
     {
-        $this->mySql = new \mysqli($options['server'],
-                $options['user'],
-                $options['password'],
-                $options['database']);
+        $this->mySql = new \mysqli($options['server'], $options['user'], $options['password'], $options['database']);
 
         if (!empty($this->mySql->connect_error)) {
             throw new DataException('MySQL connection error');
@@ -72,12 +69,10 @@ class MysqliAdapter extends BasicAdapter
 
         if (Storage::isProfiler()) {
             $time = Time::getStopwatch('Luki_Data_MySQL_MySQLi');
-            Storage::Profiler()->Add('Data',
-                    array('sql' => (string) $sql, 'time' => $time));
+            Storage::Profiler()->Add('Data', array('sql' => (string) $sql, 'time' => $time));
         }
 
-        if (is_a($result,
-                        'mysqli_result')) {
+        if (is_a($result, 'mysqli_result')) {
             $result = new Result($result);
         }
 
@@ -93,19 +88,19 @@ class MysqliAdapter extends BasicAdapter
 
     public function saveLastID($table)
     {
-        $this->lastID = $this->mySql->insert_id;
+        $this->lastID             = $this->mySql->insert_id;
         $this->allLlastID[$table] = $this->lastID;
     }
 
     public function saveUpdated($table)
     {
-        $this->updated = $this->mySql->affected_rows;
+        $this->updated            = $this->mySql->affected_rows;
         $this->allUpdated[$table] = $this->updated;
     }
 
     public function saveDeleted($table)
     {
-        $this->deleted = $this->mySql->affected_rows;
+        $this->deleted            = $this->mySql->affected_rows;
         $this->allDeleted[$table] = $this->deleted;
     }
 }

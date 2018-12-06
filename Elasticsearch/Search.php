@@ -18,7 +18,6 @@ use Luki\Elasticsearch;
 
 class Search
 {
-
     private $url;
     private $text;
     private $searchQuery;
@@ -41,12 +40,12 @@ class Search
 
     public function setText($text)
     {
-        $this->text = (string) $text;
+        $this->text        = (string) $text;
         $this->searchQuery = array(
             'query' => array(
                 'query_string' => array(
-                    'query' => $this->text,
-                    'default_field' => 'content',
+                    'query'            => $this->text,
+                    'default_field'    => 'content',
                     'default_operator' => 'AND'
                 )
             )
@@ -60,7 +59,7 @@ class Search
         $this->type = $type;
 
         if (!empty($type)) {
-            $this->url .= $type . '/';
+            $this->url .= $type.'/';
         }
 
         return $this;
@@ -73,7 +72,7 @@ class Search
         if ($this->level < 4) {
             $this->prepareFinalQuery();
 
-            $result = Elasticsearch::sendToServer('GET', $this->url . '_search?size=20', $this->finalQuery);
+            $result = Elasticsearch::sendToServer('GET', $this->url.'_search?size=20', $this->finalQuery);
 
             $this->found['total'] = $result->hits->total;
             if ($result->hits->total > 0) {
@@ -105,16 +104,17 @@ class Search
                 'my_suggestions' => array(
                     'text' => $this->text,
                     'term' => array(
-                        'size' => 1,
-                        'field' => 'content',
-                        'sort' => 'score',
+                        'size'         => 1,
+                        'field'        => 'content',
+                        'sort'         => 'score',
                         'suggest_mode' => 'popular'
                     )
                 )
             )
         );
 
-        $result = Elasticsearch::sendToServer('GET', $this->url . '_search?search_type=count', json_encode($this->searchQuery));
+        $result = Elasticsearch::sendToServer('GET', $this->url.'_search?search_type=count',
+                json_encode($this->searchQuery));
 
         $this->setText($result->suggest->my_suggestions[0]->options[0]->text);
         $this->found['suggest'] = $this->text;

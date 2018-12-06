@@ -18,11 +18,10 @@ use Luki\Exception\CacheException;
 
 abstract class BasicAdapter
 {
-
-    public $path = '/tmp/';
+    public $path       = '/tmp/';
     public $expiration = 600;
-    public $server = 'localhost';
-    public $port = 11211;
+    public $server     = 'localhost';
+    public $port       = 11211;
 
     public function __construct($options)
     {
@@ -45,13 +44,13 @@ abstract class BasicAdapter
                     if ('/' !== substr($value, -1)) {
                         $value .= '/';
                     }
-                    $this->path = $value;
+                    $this->path       = $value;
                     break;
                 case 'server':
-                    $this->server = $value;
+                    $this->server     = $value;
                     break;
                 case 'port':
-                    $this->port = $value;
+                    $this->port       = $value;
                     break;
                 case 'expiration':
                     $this->expiration = $value;
@@ -66,7 +65,7 @@ abstract class BasicAdapter
             $value = null;
         }
     }
-    
+
     public function getExpiration()
     {
         return $this->expiration;

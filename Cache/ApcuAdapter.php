@@ -20,7 +20,6 @@ use Luki\Storage;
 
 class ApcuAdapter extends BasicAdapter implements BasicInterface
 {
-
     public $messagge = 'APCu is not supported. Install it or use another cache adapter.';
 
     public function __construct($options = array())
@@ -38,7 +37,6 @@ class ApcuAdapter extends BasicAdapter implements BasicInterface
     public function Set($key, $value, $expiration)
     {
         $isSet = apcu_store($key, serialize($value), $expiration);
-
         if (Storage::isProfiler()) {
             Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
         }
@@ -50,7 +48,6 @@ class ApcuAdapter extends BasicAdapter implements BasicInterface
     {
         if (apcu_exists($key)) {
             $value = unserialize(apcu_fetch($key));
-
             if (Storage::isProfiler()) {
                 Storage::Profiler()->Add('Cache', array('type' => 'read', 'key' => $key));
             }
@@ -65,7 +62,6 @@ class ApcuAdapter extends BasicAdapter implements BasicInterface
     {
         if (apcu_exists($key)) {
             $isDeleted = apcu_delete($key);
-
             if (Storage::isProfiler()) {
                 Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
             }

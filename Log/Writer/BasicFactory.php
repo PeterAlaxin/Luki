@@ -18,7 +18,6 @@ use Luki\Log\Writer\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-
     public $file = null;
 
     public function __construct($file)
@@ -35,6 +34,6 @@ abstract class BasicFactory implements BasicInterface
 
     public function Write($content)
     {
-        
+
     }
 }

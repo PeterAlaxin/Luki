@@ -16,38 +16,37 @@ namespace Luki\Data\MySQL;
 
 class Select
 {
-
-    const ALL = 'all';
-    const DISTINCT = 'distinct';
-    const CACHE = 'cache';
+    const ALL             = 'all';
+    const DISTINCT        = 'distinct';
+    const CACHE           = 'cache';
     const CALC_FOUND_ROWS = 'calc';
-    const JOIN = 'join';
-    const GROUP = 'group';
-    const WHERE = 'where';
-    const ORDER = 'order';
-    const LIMIT = 'limit';
-    const UNION = 'union';
+    const JOIN            = 'join';
+    const GROUP           = 'group';
+    const WHERE           = 'where';
+    const ORDER           = 'order';
+    const LIMIT           = 'limit';
+    const UNION           = 'union';
 
-    private $parent = null;
-    private $select = array();
+    private $parent      = null;
+    private $select      = array();
     private $emptySelect = array(
         'distinct' => 'ALL',
-        'cache' => '',
-        'calc' => '',
-        'columns' => array(),
-        'tables' => array(),
-        'from' => array(),
-        'join' => array(),
-        'group' => '',
-        'having' => '',
-        'where' => '',
-        'orWhere' => array(),
-        'order' => '',
-        'limit' => array(
-            'from' => 0,
+        'cache'    => '',
+        'calc'     => '',
+        'columns'  => array(),
+        'tables'   => array(),
+        'from'     => array(),
+        'join'     => array(),
+        'group'    => '',
+        'having'   => '',
+        'where'    => '',
+        'orWhere'  => array(),
+        'order'    => '',
+        'limit'    => array(
+            'from'  => 0,
             'count' => 0
         ),
-        'union' => array()
+        'union'    => array()
     );
 
     public function __construct($parent)
@@ -106,7 +105,7 @@ class Select
         }
 
         $this->select['from'] = $table;
-        $table = $this->_addTable($table);
+        $table                = $this->_addTable($table);
         $this->_addColumns($table, $columns);
 
         return $this;
@@ -150,7 +149,7 @@ class Select
             $condition = $this->escapeString($condition, $parameter);
         }
 
-        $this->select['where'] .= '(' . $condition . ')';
+        $this->select['where'] .= '('.$condition.')';
 
         return $this;
     }
@@ -172,7 +171,7 @@ class Select
 
         foreach ($groups as $key => $group) {
             if ($key > 0) {
-                $group = ', ' . $group;
+                $group = ', '.$group;
             }
             $this->select['group'] .= $group;
         }
@@ -190,7 +189,7 @@ class Select
             $condition = $this->_escape($condition, $parameter);
         }
 
-        $this->select['having'] .= '(' . $condition . ')';
+        $this->select['having'] .= '('.$condition.')';
 
         return $this;
     }
@@ -198,14 +197,14 @@ class Select
     public function orHaving($condition, $parameter = null)
     {
         if (!empty($this->select['having'])) {
-            $this->select['having'] = '(' . $this->select['having'] . ') OR ';
+            $this->select['having'] = '('.$this->select['having'].') OR ';
         }
 
         if (!is_null($parameter)) {
             $condition = $this->_escape($condition, $parameter);
         }
 
-        $this->select['having'] .= '(' . $condition . ')';
+        $this->select['having'] .= '('.$condition.')';
 
         return $this;
     }
@@ -216,7 +215,7 @@ class Select
 
         foreach ($orders as $order) {
             if (!empty($this->select['order'])) {
-                $order = ', ' . $order;
+                $order = ', '.$order;
             }
             $this->select['order'] .= $order;
         }
@@ -269,7 +268,7 @@ class Select
 
             foreach ($table as $key => $value) {
                 $this->select['tables'][$key] = $value;
-                $table = $key;
+                $table                        = $key;
                 break;
             }
         } else {
@@ -299,8 +298,8 @@ class Select
         }
 
         $this->select['join'][] = array(
-            'type' => $type,
-            'table' => $table,
+            'type'      => $type,
+            'table'     => $table,
             'condition' => $condition
         );
 
@@ -316,9 +315,9 @@ class Select
 
             foreach ($this->select['union'] as $key => $select) {
                 if ($key > 0) {
-                    $sql .= ' UNION ALL ' . chr(13);
+                    $sql .= ' UNION ALL '.chr(13);
                 }
-                $sql .= 'SELECT * FROM ( ' . (string) $select . ' ) AS s' . $key . chr(13);
+                $sql .= 'SELECT * FROM ( '.(string) $select.' ) AS s'.$key.chr(13);
             }
         }
         #</editor-fold>
@@ -327,18 +326,18 @@ class Select
             $sql = 'SELECT ';
 
             #<editor-fold defaultstate="collapsed" desc="Distinct">
-            $sql .= $this->select['distinct'] . ' ';
+            $sql .= $this->select['distinct'].' ';
             $sql .= chr(13);
             #</editor-fold>
             #<editor-fold defaultstate="collapsed" desc="Cache">
             if (!empty($this->select['cache'])) {
-                $sql .= $this->select['cache'] . ' ';
+                $sql .= $this->select['cache'].' ';
                 $sql .= chr(13);
             }
             #</editor-fold>
             #<editor-fold defaultstate="collapsed" desc="Calc rows">
             if (!empty($this->select['calc'])) {
-                $sql .= $this->select['calc'] . ' ';
+                $sql .= $this->select['calc'].' ';
                 $sql .= chr(13);
             }
             #</editor-fold>
@@ -349,11 +348,11 @@ class Select
 
                 foreach ($tableColumns as $alias => $column) {
                     if (!empty($columns)) {
-                        $columns .= ', ' . chr(13);
+                        $columns .= ', '.chr(13);
                     }
 
                     if (false === strstr($column, '(')) {
-                        $columns .= $this->quote($table) . '.';
+                        $columns .= $this->quote($table).'.';
                         if ('*' == $column) {
                             $columns .= $column;
                         } else {
@@ -364,11 +363,11 @@ class Select
                     }
 
                     if ($alias != $column) {
-                        $columns .= ' AS ' . $this->quote($alias);
+                        $columns .= ' AS '.$this->quote($alias);
                     }
                 }
             }
-            $sql .= $columns . chr(13);
+            $sql .= $columns.chr(13);
             #</editor-fold>
 
             $sql .= ' FROM ';
@@ -380,7 +379,7 @@ class Select
                 $sql .= $this->quote($realTable);
 
                 if ($realTable != $alias) {
-                    $sql .= ' AS ' . $this->quote($alias);
+                    $sql .= ' AS '.$this->quote($alias);
                 }
                 break;
             }
@@ -407,19 +406,19 @@ class Select
                     $sql .= $this->quote($realTable);
 
                     if ($realTable != $alias) {
-                        $sql .= ' AS ' . $this->quote($alias);
+                        $sql .= ' AS '.$this->quote($alias);
                     }
                     break;
                 }
 
-                $sql .= ' ON ' . $join['condition'];
+                $sql .= ' ON '.$join['condition'];
             }
             $sql .= chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Where">
         if (!empty($this->select['where'])) {
-            $sql .= ' WHERE ' . $this->select['where'];
+            $sql .= ' WHERE '.$this->select['where'];
             $sql .= chr(13);
         }
         if (!empty($this->select['orWhere'])) {
@@ -435,33 +434,33 @@ class Select
                 }
                 $sql .= $condition;
             }
-            $sql .= ')' . chr(13);
+            $sql .= ')'.chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Group">
         if (!empty($this->select['group'])) {
-            $sql .= ' GROUP BY ' . $this->select['group'];
+            $sql .= ' GROUP BY '.$this->select['group'];
             $sql .= chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Having">
         if (!empty($this->select['having'])) {
-            $sql .= ' HAVING ' . $this->select['having'];
+            $sql .= ' HAVING '.$this->select['having'];
             $sql .= chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Order">
         if (!empty($this->select['order'])) {
-            $sql .= ' ORDER BY ' . $this->select['order'];
+            $sql .= ' ORDER BY '.$this->select['order'];
             $sql .= chr(13);
         }
         #</editor-fold>
         #<editor-fold defaultstate="collapsed" desc="Limit">
         if (!empty($this->select['limit']['from']) or ! empty($this->select['limit']['count'])) {
-            $sql .= ' LIMIT ' . $this->select['limit']['from'];
+            $sql .= ' LIMIT '.$this->select['limit']['from'];
 
             if (!empty($this->select['limit']['count'])) {
-                $sql .= ', ' . $this->select['limit']['count'];
+                $sql .= ', '.$this->select['limit']['count'];
             }
         }
 
@@ -473,7 +472,7 @@ class Select
 
     private function quote($string)
     {
-        $string = '`' . $string . '`';
+        $string = '`'.$string.'`';
 
         return $string;
     }

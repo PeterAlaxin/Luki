@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class GreaterThan extends BasicFactory
 {
-
     public $min = 0;
 
     public function __construct($options = array())
@@ -35,7 +34,7 @@ class GreaterThan extends BasicFactory
             $this->setNoError();
         } else {
             $from = array('/%value%/', '/%min%/');
-            $to = array($value, $this->min);
+            $to   = array($value, $this->min);
             $this->fillMessage($from, $to);
         }
 
@@ -45,6 +44,7 @@ class GreaterThan extends BasicFactory
     public function setMin($min)
     {
         $this->min = (float) $min;
+        return $this;
     }
 
     public function getMin()

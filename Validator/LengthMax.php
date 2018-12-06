@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class LengthMax extends BasicFactory
 {
-
     public $max = 0;
 
     public function __construct($options = array())
@@ -30,7 +29,7 @@ class LengthMax extends BasicFactory
     public function isValid($value)
     {
         $this->isValid = false;
-        $nLength = $this->getValueLength($value);
+        $nLength       = $this->getValueLength($value);
 
         if ($nLength <= $this->max) {
             $this->setNoError();
@@ -44,6 +43,7 @@ class LengthMax extends BasicFactory
     public function setMax($max)
     {
         $this->max = (float) $max;
+        return $this;
     }
 
     public function getMax()

@@ -32,10 +32,10 @@ class IniAdapter extends BasicAdapter
 
         $content = '';
         foreach ($this->configuration as $section => $values) {
-            $content .= '[' . $section . ']' . chr(10);
+            $content .= '['.$section.']'.chr(10);
 
             foreach ($values as $key => $value) {
-                $content .= $key . ' = "' . $value . '"' . chr(10);
+                $content .= $key.' = "'.$value.'"'.chr(10);
             }
 
             $content .= chr(10);

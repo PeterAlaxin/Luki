@@ -16,5 +16,5 @@ namespace Luki\Exception;
 
 class ConfigException extends \Exception
 {
-    
+
 }

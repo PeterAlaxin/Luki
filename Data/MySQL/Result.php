@@ -16,17 +16,16 @@ namespace Luki\Data\MySQL;
 
 class Result implements \Iterator
 {
-
-    public $position = 0;
-    public $result = null;
-    public $row = null;
+    public $position        = 0;
+    public $result          = null;
+    public $row             = null;
     public $numberOfRecords = 0;
 
     public function __destruct()
     {
-        $this->position = null;
-        $this->result = null;
-        $this->row = null;
+        $this->position        = null;
+        $this->result          = null;
+        $this->row             = null;
         $this->numberOfRecords = null;
     }
 

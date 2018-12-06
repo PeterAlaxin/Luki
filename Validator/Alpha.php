@@ -23,7 +23,7 @@ class Alpha extends BasicFactory
     {
         parent::__construct($options);
 
-        $validator = '/^[' . self::ALPHA . ']*$/';
+        $validator = '/^['.self::ALPHA.']*$/';
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" contains characters other than letters!');
     }

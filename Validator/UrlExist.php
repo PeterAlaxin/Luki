@@ -19,23 +19,23 @@ use Luki\Validator\BasicFactory;
 class UrlExist extends BasicFactory
 {
 
-	public function __construct($options = array())
-	{
-		parent::__construct($options);
-		$this->setMessage('The URL \'%value%\' does not exists!');
-	}
+    public function __construct($options = array())
+    {
+        parent::__construct($options);
+        $this->setMessage('The URL \'%value%\' does not exists!');
+    }
 
-	public function isValid($value)
-	{
-		$this->isValid = false;
+    public function isValid($value)
+    {
+        $this->isValid = false;
 
-		$headers = @get_headers($value);
-		if (strpos($headers[0], '200') !== false) {
-			$this->setNoError();
-		} else {
-			$this->fillMessage('/%value%/', $value);
-		}
+        $headers = @get_headers($value);
+        if (strpos($headers[0], '200') !== false) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
 
-		return $this->isValid;
-	}
+        return $this->isValid;
+    }
 }

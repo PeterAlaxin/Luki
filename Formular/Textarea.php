@@ -24,15 +24,15 @@ class Textarea extends BasicFactory
         $attributes = '';
         foreach ($this->getAttributes() as $attribute => $value) {
             if ('value' !== $attribute) {
-                $attributes .= $attribute . '="' . $value . '" ';
+                $attributes .= $attribute.'="'.$value.'" ';
             }
         }
 
         $html = array(
-			'label' => '<label for="' . $this->getId() . '">' . $this->getLabel() . '</label>',
-            'input' => '<textarea ' . $attributes . '>' . $this->getValue() . '</textarea>',
-			'value' => $this->getValue()
-			);
+            'label' => '<label for="'.$this->getId().'">'.$this->getLabel().'</label>',
+            'input' => '<textarea '.$attributes.'>'.$this->getValue().'</textarea>',
+            'value' => $this->getValue()
+        );
 
         return $html;
     }

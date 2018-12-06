@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class LengthMin extends BasicFactory
 {
-
     public $min = 0;
 
     public function __construct($options = array())
@@ -30,7 +29,7 @@ class LengthMin extends BasicFactory
     public function isValid($value)
     {
         $this->isValid = false;
-        $length = $this->getValueLength($value);
+        $length        = $this->getValueLength($value);
 
         if ($length >= $this->min) {
             $this->setNoError();
@@ -44,6 +43,7 @@ class LengthMin extends BasicFactory
     public function setMin($min)
     {
         $this->min = (float) $min;
+        return $this;
     }
 
     public function getMin()

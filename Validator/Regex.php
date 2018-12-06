@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class Regex extends BasicFactory
 {
-
     public $regex = null;
 
     public function __construct($options = array())
@@ -35,7 +34,7 @@ class Regex extends BasicFactory
             $this->setNoError();
         } else {
             $from = array('/%value%/', '/%regex%/');
-            $to = array($value, $this->regex);
+            $to   = array($value, $this->regex);
             $this->fillMessage($from, $to);
         }
 
@@ -45,6 +44,7 @@ class Regex extends BasicFactory
     public function setRegex($regex)
     {
         $this->regex = (float) $regex;
+        return $this;
     }
 
     public function getRegex()

@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class InArray extends BasicFactory
 {
-
     public $values = array();
 
     public function __construct($options = array())
@@ -43,6 +42,7 @@ class InArray extends BasicFactory
     public function setValues($values)
     {
         $this->values = (array) $values;
+        return $this;
     }
 
     public function getValues()

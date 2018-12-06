@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class InString extends BasicFactory
 {
-
     public $string = '';
 
     public function __construct($options = array())
@@ -31,7 +30,7 @@ class InString extends BasicFactory
     {
         $this->isValid = false;
 
-        if (1 == preg_match('/' . (string) $value . '/i', $this->string)) {
+        if (1 == preg_match('/'.(string) $value.'/i', $this->string)) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%value%/', $value);
@@ -43,6 +42,7 @@ class InString extends BasicFactory
     public function setString($string)
     {
         $this->string = (string) $string;
+        return $this;
     }
 
     public function getString()

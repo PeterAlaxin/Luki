@@ -19,13 +19,12 @@ use Luki\Exception\ConfigException;
 
 abstract class BasicAdapter implements BasicInterface
 {
-
-    const FILE_NOT_EXISTS = 'File "%s" does not exists!';
-    const FILE_NOT_READABLE = 'File "%s" is not readable!';
-    const FILE_NOT_WRITABLE = 'File "%s" is not writable!';
+    const FILE_NOT_EXISTS         = 'File "%s" does not exists!';
+    const FILE_NOT_READABLE       = 'File "%s" is not readable!';
+    const FILE_NOT_WRITABLE       = 'File "%s" is not writable!';
     const CONFIGURATION_NOT_SAVED = 'File "%s" not saved!';
 
-    public $fileName = '';
+    public $fileName      = '';
     public $configuration = array();
 
     public function __construct($fileName, $allowCreate = false)
@@ -80,7 +79,7 @@ abstract class BasicAdapter implements BasicInterface
     {
         if (is_array($configuration)) {
             $this->configuration = $configuration;
-            $isSaved = true;
+            $isSaved             = true;
         } else {
             $isSaved = false;
         }
@@ -92,7 +91,7 @@ abstract class BasicAdapter implements BasicInterface
     {
         if (!empty($fileName)) {
             $this->fileName = $fileName;
-            $isSaved = true;
+            $isSaved        = true;
         } else {
             $isSaved = false;
         }

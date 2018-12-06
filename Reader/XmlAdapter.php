@@ -16,18 +16,17 @@ namespace Luki\Reader;
 
 class XmlAdapter
 {
-
     private $handle;
     private $totalBytes;
-    private $readBytes = 0;
-    private $blockSize = 8192;
-    private $itemCounter = 0;
+    private $readBytes    = 0;
+    private $blockSize    = 8192;
+    private $itemCounter  = 0;
     private $block;
     private $blockCounter = 0;
-    private $root = null;
+    private $root         = null;
     private $start;
     private $nodes;
-    private $node = null;
+    private $node         = null;
     private $element;
     private $minPosition;
     private $elementName;
@@ -70,7 +69,7 @@ class XmlAdapter
         $isRemote = empty(@filectime($url));
 
         if ($isRemote) {
-            $headers = get_headers($url, 1);
+            $headers          = get_headers($url, 1);
             $this->totalBytes = $headers['Content-Length'];
         } else {
             $this->totalBytes = filesize($url);
@@ -84,7 +83,7 @@ class XmlAdapter
 
     public function setBlocksize($newSize)
     {
-        $oldSize = $this->blockSize;
+        $oldSize         = $this->blockSize;
         $this->blockSize = (int) $newSize;
 
         if (empty($this->blockSize)) {
@@ -143,7 +142,7 @@ class XmlAdapter
 
         preg_match_all('/<!-- (.*) -->/U', $this->block, $matches);
         foreach ($matches[0] as $match) {
-            $this->block = str_replace($match . "\n", '', $this->block);
+            $this->block = str_replace($match."\n", '', $this->block);
         }
 
         $this->readBytes += $this->blockSize;
@@ -158,7 +157,7 @@ class XmlAdapter
         preg_match('/<([^>\?]+)>/', $this->block, $matches);
 
         if (isset($matches[1])) {
-            $this->root = $matches[1];
+            $this->root  = $matches[1];
             $this->start = strpos($this->block, $matches[0]) + strlen($matches[0]);
         }
     }
@@ -181,7 +180,7 @@ class XmlAdapter
 
     private function findMinPosition()
     {
-        $found = array();
+        $found     = array();
         $positions = array(
             strpos($this->element, " "),
             strpos($this->element, "\r"),
@@ -212,12 +211,12 @@ class XmlAdapter
 
     private function findEndTagPosition()
     {
-        $this->endTag = "</" . $this->elementName . ">";
+        $this->endTag         = "</".$this->elementName.">";
         $this->endTagPosition = false;
 
         $lastCharPosition = strlen($this->element) - 1;
         if (substr($this->element, $lastCharPosition) == "/") {
-            $this->endTag = "/>";
+            $this->endTag         = "/>";
             $this->endTagPosition = $lastCharPosition;
 
             $position = strpos($this->nodes, "<");
@@ -234,7 +233,7 @@ class XmlAdapter
     private function setNode()
     {
         if ($this->endTagPosition !== false) {
-            $this->node = trim(substr($this->nodes, 0, $this->endTagPosition + strlen($this->endTag)));
+            $this->node  = trim(substr($this->nodes, 0, $this->endTagPosition + strlen($this->endTag)));
             $this->block = substr($this->block, strpos($this->block, $this->endTag) + strlen($this->endTag));
             $this->start = 0;
             $this->itemCounter++;

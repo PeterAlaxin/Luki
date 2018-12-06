@@ -18,20 +18,19 @@ use Luki\Url;
 
 class Item
 {
-
-    private $item = array(
-        'id' => 0,
-        'parent' => 0,
-        'label' => '',
-        'crumb' => '',
-        'title' => '',
-        'url' => '',
-        'target' => '_self',
-        'class' => '',
-        'hidden' => '',
-        'active' => '',
+    private $item       = array(
+        'id'         => 0,
+        'parent'     => 0,
+        'label'      => '',
+        'crumb'      => '',
+        'title'      => '',
+        'url'        => '',
+        'target'     => '_self',
+        'class'      => '',
+        'hidden'     => '',
+        'active'     => '',
         'controller' => '',
-        'action' => '',
+        'action'     => '',
     );
     private $navigation = array();
 

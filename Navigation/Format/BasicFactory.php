@@ -19,7 +19,6 @@ use Luki\Navigation\Format\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-
     public $format;
     public $navigation = null;
 
@@ -44,6 +43,6 @@ abstract class BasicFactory implements BasicInterface
 
     public function Format($options)
     {
-        
+
     }
 }

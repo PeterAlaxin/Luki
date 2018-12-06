@@ -18,16 +18,15 @@ use Luki\Storage;
 
 class Route
 {
-
     private $name;
     private $pattern;
     private $modul;
     private $controller;
-    private $action = 'index';
-    private $method = array('GET');
+    private $action     = 'index';
+    private $method     = array('GET');
     private $parameters = array();
     private $validator;
-    private $matches = array();
+    private $matches    = array();
 
     public function __construct($name)
     {
@@ -99,24 +98,29 @@ class Route
         $this->validator = str_replace('/', '\/*', $this->pattern);
 
         foreach ($this->parameters as $parameter => $definition) {
-            $this->validator = str_replace('{' . $parameter . '}', '(' . $definition['validator'] . '+)', $this->validator);
-            $this->validator = str_replace('[' . $parameter . ']', '(' . $definition['validator'] . '*)', $this->validator);
+            $this->validator = str_replace('{'.$parameter.'}', '('.$definition['validator'].'+)', $this->validator);
+            $this->validator = str_replace('['.$parameter.']', '('.$definition['validator'].'*)', $this->validator);
         }
 
-        $this->validator = '/^' . $this->validator . '\/*$/';
+        $this->validator = '/^'.$this->validator.'\/*$/';
     }
 
     public function isCatch($url, $method)
     {
+
         if (in_array($method, $this->method)) {
             preg_match($this->validator, $url, $this->matches);
         }
 
         $isCatched = !empty($this->matches);
 
-        if ($isCatched and Storage::isProfiler()) {
-            $route = $this->name . ' | ' . $this->modul . ':' . $this->controller . ':' . $this->action;
-            Storage::Profiler()->Add('Route', $route);
+        if ($isCatched) {
+            Storage::Set('catchedRoute', $this->name);
+
+            if (Storage::isProfiler()) {
+                $route = $this->name.' | '.$this->modul.':'.$this->controller.':'.$this->action;
+                Storage::Profiler()->Add('Route', $route);
+            }
         }
 
         return $isCatched;
@@ -140,7 +144,7 @@ class Route
     public function getArguments()
     {
         $arguments = array();
-        $id = 1;
+        $id        = 1;
         foreach ($this->parameters as $parameter => $options) {
             if ($this->matches[$id] !== '') {
                 $arguments[] = $this->matches[$id];
@@ -158,15 +162,15 @@ class Route
         $route = $this->pattern;
 
         foreach ($this->parameters as $parameter => $options) {
-            if (!empty($parameters[$parameter])) {
-                $route = str_replace('{' . $parameter . '}', $parameters[$parameter], $route);
+            if (array_key_exists($parameter, $parameters)) {
+                $route = str_replace('{'.$parameter.'}', $parameters[$parameter], $route);
             } else {
-                $route = str_replace('{' . $parameter . '}', $options['default'], $route);
+                $route = str_replace('{'.$parameter.'}', $options['default'], $route);
             }
         }
 
         foreach ($parameters as $parameter => $value) {
-            $route = str_replace('[' . $parameter . ']', $value, $route);
+            $route = str_replace('['.$parameter.']', $value, $route);
         }
 
         preg_match_all('|\[(.*)\]|U', $route, $matches, PREG_SET_ORDER);

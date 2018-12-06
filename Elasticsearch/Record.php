@@ -16,7 +16,6 @@ namespace Luki\Elasticsearch;
 
 class Record
 {
-
     private $id;
     private $type;
     private $content = array();

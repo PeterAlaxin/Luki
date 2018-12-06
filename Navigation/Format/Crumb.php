@@ -19,25 +19,24 @@ use Luki\Navigation\Format\BasicInterface;
 
 class Crumb extends BasicFactory implements BasicInterface
 {
-
     public $format = '<a href="%url%" title="%title%" class="%class%" target="%target%">%label%</a>';
-    private $used = array('label', 'title', 'class', 'target');
+    private $used  = array('label', 'title', 'class', 'target');
 
     public function Format($options)
     {
         $itemName = $options['id'];
-        $items = $this->createArray($itemName);
-        $crumb = '';
-        $return = '';
+        $items    = $this->createArray($itemName);
+        $crumb    = '';
+        $return   = '';
 
         foreach ($items as $item) {
             $format = $this->format;
 
             foreach ($this->used as $sKey) {
-                $format = preg_replace('/%' . $sKey . '%/', $item->$sKey, $format);
+                $format = preg_replace('/%'.$sKey.'%/', $item->$sKey, $format);
             }
 
-            $crumb .= $item->crumb . '/';
+            $crumb  .= $item->crumb.'/';
             $return .= $this->sanitizeText(preg_replace('/%url%/', $crumb, $format));
         }
 
@@ -49,8 +48,8 @@ class Crumb extends BasicFactory implements BasicInterface
         $items = array();
 
         do {
-            $item = $this->_navigation->getItem($itemName);
-            $items[] = $item;
+            $item     = $this->_navigation->getItem($itemName);
+            $items[]  = $item;
             $itemName = $item->parent;
         } while ($itemName > 0);
 
@@ -62,7 +61,7 @@ class Crumb extends BasicFactory implements BasicInterface
     private function sanitizeText($text)
     {
         $sanitizeFrom = array('/ id=""/', '/ class=""/', '/ class=" "/', '/ title=""/');
-        $sanitizeTo = array('', '', '', '');
+        $sanitizeTo   = array('', '', '', '');
 
         $output = preg_replace($sanitizeFrom, $sanitizeTo, $text);
 

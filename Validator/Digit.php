@@ -23,7 +23,7 @@ class Digit extends BasicFactory
     {
         parent::__construct($options);
 
-        $validator = '/^[' . self::NUM . ']*$/';
+        $validator = '/^['.self::NUM.']*$/';
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" contains characters other than numbers!');
     }

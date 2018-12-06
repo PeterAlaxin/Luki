@@ -18,10 +18,10 @@ use Luki\Validator\BasicFactory;
 
 class RecordNoExist extends BasicFactory
 {
-
-    public $data = null;
+    public $data  = null;
     public $table = null;
-    public $key = null;
+    public $key   = null;
+    public $where = null;
 
     public function __construct($options = array())
     {
@@ -35,8 +35,12 @@ class RecordNoExist extends BasicFactory
 
         $select = $this->data->Select();
         $select->from($this->table, array($this->key))
-            ->where($this->key . '=?', $value)
+            ->where($this->key.'="?"', $value)
             ->limit(1);
+
+        if (!empty($this->where)) {
+            $select->where($this->where);
+        }
 
         $result = $this->data->Query($select);
 
@@ -52,6 +56,7 @@ class RecordNoExist extends BasicFactory
     public function setData($data)
     {
         $this->data = $data;
+        return $this;
     }
 
     public function getData()
@@ -62,6 +67,7 @@ class RecordNoExist extends BasicFactory
     public function setTable($table)
     {
         $this->table = $table;
+        return $this;
     }
 
     public function getTable()
@@ -72,10 +78,22 @@ class RecordNoExist extends BasicFactory
     public function setKey($key)
     {
         $this->key = $key;
+        return $this;
     }
 
     public function getKey()
     {
         return $this->key;
+    }
+
+    public function setWhere($where)
+    {
+        $this->where = $where;
+        return $this;
+    }
+
+    public function getWhere()
+    {
+        return $this->where;
     }
 }

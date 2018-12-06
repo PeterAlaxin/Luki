@@ -20,9 +20,8 @@ use Luki\Storage;
 
 class FileAdapter extends BasicAdapter implements BasicInterface
 {
-
     public $messagge = 'Path for cache is not writable.';
-    private $prefix = 'LukiFileCache_';
+    private $prefix  = 'LukiFileCache_';
 
     public function __construct($options = array())
     {
@@ -40,7 +39,7 @@ class FileAdapter extends BasicAdapter implements BasicInterface
     {
         $content = array('expiration' => $expiration, 'created' => time(), 'value' => $value);
 
-        $isSet = (bool)file_put_contents($this->path . $this->prefix . $key, serialize($content), LOCK_EX);
+        $isSet = (bool) file_put_contents($this->path.$this->prefix.$key, serialize($content), LOCK_EX);
 
         if (Storage::isProfiler()) {
             Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
@@ -51,8 +50,8 @@ class FileAdapter extends BasicAdapter implements BasicInterface
 
     public function Get($key)
     {
-        if (is_file($this->path . $this->prefix . $key)) {
-            $content = unserialize(file_get_contents($this->path . $this->prefix . $key));
+        if (is_file($this->path.$this->prefix.$key)) {
+            $content = unserialize(file_get_contents($this->path.$this->prefix.$key));
             if (!$this->isExpired($content)) {
                 $value = $content['value'];
                 if (Storage::isProfiler()) {
@@ -70,8 +69,8 @@ class FileAdapter extends BasicAdapter implements BasicInterface
 
     public function Delete($key)
     {
-        if (is_file($this->path . $this->prefix . $key)) {
-            $isDeleted = unlink($this->path . $this->prefix . $key);
+        if (is_file($this->path.$this->prefix.$key)) {
+            $isDeleted = unlink($this->path.$this->prefix.$key);
             if (Storage::isProfiler()) {
                 Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
             }
@@ -84,7 +83,7 @@ class FileAdapter extends BasicAdapter implements BasicInterface
 
     public function Has($key)
     {
-        $has = is_file($this->path . $this->prefix . $key);
+        $has = is_file($this->path.$this->prefix.$key);
 
         return $has;
     }
@@ -92,7 +91,7 @@ class FileAdapter extends BasicAdapter implements BasicInterface
     public function Clear()
     {
         $cacheFolder = dir($this->path);
-        while (false !== ($file = $cacheFolder->read())) {
+        while (false !== ($file        = $cacheFolder->read())) {
             if (0 === strpos($file, $this->prefix)) {
                 $this->Delete(str_replace($this->prefix, '', $file));
             }

@@ -18,23 +18,22 @@ use Luki\Formular\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-
-    private $name = '';
-    private $id = '';
-    private $type = '';
-    private $value = null;
+    private $name       = '';
+    private $id         = '';
+    private $type       = '';
+    private $value      = null;
     private $attributes = array();
-    private $label = '';
+    private $label      = '';
     private $validators = array();
-    private $errors = array();
-    private $required = false;
+    private $errors     = array();
+    private $required   = false;
 
     public function __construct($name, $label, $placeholder = '')
     {
         $this->name = $name;
         $this->setAttribute('name', $this->getName());
 
-        $this->id = $name . '_id';
+        $this->id = $name.'_id';
         $this->setAttribute('id', $this->getId());
 
         $this->setLabel($label);
@@ -60,7 +59,7 @@ abstract class BasicFactory implements BasicInterface
     public function addToAttribute($attribute, $value)
     {
         if (array_key_exists($attribute, $this->attributes)) {
-            $this->attributes[$attribute] .= ' ' . $value;
+            $this->attributes[$attribute] .= ' '.$value;
         } else {
             $this->setAttribute($attribute, $value);
         }
@@ -94,7 +93,10 @@ abstract class BasicFactory implements BasicInterface
 
     public function setType($type)
     {
-        if (in_array($type, array('button', 'checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'hidden', 'image', 'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel', 'text', 'time', 'url', 'week'))) {
+        if (in_array($type,
+                array('button', 'checkbox', 'color', 'date', 'datetime', 'datetime-local', 'email', 'file', 'hidden', 'image',
+                'month', 'number', 'password', 'radio', 'range', 'reset', 'search', 'submit', 'tel', 'text', 'time', 'url',
+                'week'))) {
             $this->type = $type;
             $this->setAttribute('type', $this->getType());
         }
@@ -134,7 +136,7 @@ abstract class BasicFactory implements BasicInterface
 
     public function setRequired()
     {
-        $this->required = true;
+        $this->required               = true;
         $this->attributes['required'] = 'required';
 
         return $this;
@@ -158,13 +160,7 @@ abstract class BasicFactory implements BasicInterface
     {
         $this->_validate();
 
-        if (empty($this->errors)) {
-            $isValid = true;
-        } else {
-            $isValid = false;
-        }
-
-        return $isValid;
+        return empty($this->errors);
     }
 
     public function getErrors()
@@ -176,14 +172,14 @@ abstract class BasicFactory implements BasicInterface
     {
         $attributes = '';
         foreach ($this->getAttributes() as $attribute => $value) {
-            $attributes .= $attribute . '="' . $value . '" ';
+            $attributes .= $attribute.'="'.$value.'" ';
         }
 
         $html = array(
-			'label' => '<label for="' . $this->getId() . '">' . $this->getLabel() . '</label>',
-            'input' => '<input ' . $attributes . '>',
-			'value' => $this->getValue()
-			);
+            'label' => '<label for="'.$this->getId().'">'.$this->getLabel().'</label>',
+            'input' => '<input '.$attributes.'>',
+            'value' => $this->getValue()
+        );
 
         return $html;
     }

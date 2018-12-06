@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class LessThan extends BasicFactory
 {
-
     public $max = 0;
 
     public function __construct($options = array())
@@ -35,7 +34,7 @@ class LessThan extends BasicFactory
             $this->setNoError();
         } else {
             $from = array('/%value%/', '/%max%/');
-            $to = array($value, $this->max);
+            $to   = array($value, $this->max);
             $this->fillMessage($from, $to);
         }
 
@@ -45,6 +44,7 @@ class LessThan extends BasicFactory
     public function setMax($max)
     {
         $this->max = (float) $max;
+        return $this;
     }
 
     public function getMax()

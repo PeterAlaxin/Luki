@@ -27,7 +27,7 @@ class Hidden extends BasicFactory
 
     public function getHtml()
     {
-        $html = parent::getHtml();
+        $html          = parent::getHtml();
         $html['label'] = '';
 
         return $html;

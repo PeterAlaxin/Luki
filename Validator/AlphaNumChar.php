@@ -23,7 +23,7 @@ class AlphaNumChar extends BasicFactory
     {
         parent::__construct($options);
 
-        $validator = '/^[' . self::ALPHA . self::NUM . self::CHARS . ']*$/';
+        $validator = '/^['.self::ALPHA.self::NUM.self::CHARS.']*$/';
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" contains characters other than letters or digits or allowed characters!');
     }

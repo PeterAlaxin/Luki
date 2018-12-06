@@ -16,5 +16,5 @@ namespace Luki\Exception;
 
 class CacheException extends \Exception
 {
-    
+
 }

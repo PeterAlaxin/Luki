@@ -32,6 +32,6 @@ interface BasicInterface
     public function Clear();
 
     public function isSupported();
-    
+
     public function getExpiration();
 }

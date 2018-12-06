@@ -18,23 +18,22 @@ use Luki\Data\BasicInterface;
 
 abstract class BasicAdapter implements BasicInterface
 {
-
     public $allLlastID = array();
-    public $lastID = 0;
+    public $lastID     = 0;
     public $allUpdated = array();
-    public $updated = 0;
+    public $updated    = 0;
     public $allDeleted = array();
-    public $deleted = 0;
+    public $deleted    = 0;
 
     public function Select()
     {
-        
+
     }
 
     public function Insert($table, $values)
     {
         $isFirst = true;
-        $sql = 'INSERT INTO `' . $table . '` SET ';
+        $sql     = 'INSERT INTO `'.$table.'` SET ';
 
         foreach ($values as $key => $value) {
             if (!$isFirst) {
@@ -43,7 +42,7 @@ abstract class BasicAdapter implements BasicInterface
                 $isFirst = false;
             }
 
-            $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+            $sql .= '`'.$key.'`="'.$this->escapeString($value).'"';
         }
 
         $result = $this->Query($sql);
@@ -62,7 +61,7 @@ abstract class BasicAdapter implements BasicInterface
         if (!empty($table) and ! empty($values)) {
 
             $isFirst = true;
-            $sql = 'UPDATE `' . $table . '` SET ';
+            $sql     = 'UPDATE `'.$table.'` SET ';
 
             foreach ($values as $key => $value) {
                 if (!$isFirst) {
@@ -71,12 +70,12 @@ abstract class BasicAdapter implements BasicInterface
                     $isFirst = false;
                 }
 
-                $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+                $sql .= '`'.$key.'`="'.$this->escapeString($value).'"';
             }
 
             if (!empty($where)) {
                 $isFirst = true;
-                $sql .= ' WHERE ';
+                $sql     .= ' WHERE ';
 
                 foreach ($where as $key => $value) {
                     if (!$isFirst) {
@@ -85,7 +84,7 @@ abstract class BasicAdapter implements BasicInterface
                         $isFirst = false;
                     }
 
-                    $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+                    $sql .= '`'.$key.'`="'.$this->escapeString($value).'"';
                 }
             }
 
@@ -105,11 +104,11 @@ abstract class BasicAdapter implements BasicInterface
 
         if (!empty($table)) {
 
-            $sql = 'DELETE FROM `' . $table . '`';
+            $sql = 'DELETE FROM `'.$table.'`';
 
             if (!empty($where)) {
                 $isFirst = true;
-                $sql .= ' WHERE ';
+                $sql     .= ' WHERE ';
 
                 foreach ($where as $key => $value) {
                     if (!$isFirst) {
@@ -118,7 +117,7 @@ abstract class BasicAdapter implements BasicInterface
                         $isFirst = false;
                     }
 
-                    $sql .= '`' . $key . '`="' . $this->escapeString($value) . '"';
+                    $sql .= '`'.$key.'`="'.$this->escapeString($value).'"';
                 }
             }
 
@@ -139,7 +138,7 @@ abstract class BasicAdapter implements BasicInterface
         } elseif (isset($this->allLlastID[$table])) {
             $lastId = $this->allLlastID[$table];
         } else {
-            $lastId = flase;
+            $lastId = false;
         }
 
         return $lastId;
@@ -174,15 +173,30 @@ abstract class BasicAdapter implements BasicInterface
     public function getFoundRows()
     {
         $result = $this->Query('SELECT FOUND_ROWS() AS foundRows;');
-        $found = $result->Get('foundRows');
+        $found  = $result->Get('foundRows');
 
         return $found;
     }
 
     public function getStructure($table)
     {
-        $result = $this->Query('SHOW FULL COLUMNS FROM ' . $table);
+        $result = $this->Query('SHOW FULL COLUMNS FROM '.$table);
 
         return $result;
+    }
+
+    public function startTransaction()
+    {
+        $this->Query('START TRANSACTION;');
+    }
+
+    public function commit()
+    {
+        $this->Query('COMMIT;');
+    }
+
+    public function rollback()
+    {
+        $this->Query('ROLLBACK;');
     }
 }

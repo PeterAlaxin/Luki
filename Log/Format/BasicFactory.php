@@ -18,7 +18,6 @@ use Luki\Log\Format\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-
     public $format = '';
 
     public function __construct($format = '')
@@ -35,6 +34,6 @@ abstract class BasicFactory implements BasicInterface
 
     public function Transform($parameters)
     {
-        
+
     }
 }

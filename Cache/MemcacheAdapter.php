@@ -20,7 +20,6 @@ use Luki\Storage;
 
 class MemcacheAdapter extends BasicAdapter implements BasicInterface
 {
-
     public $messagge = 'Memcache is not supported. Install it or use another cache adapter.';
     private $cache;
 
@@ -44,7 +43,6 @@ class MemcacheAdapter extends BasicAdapter implements BasicInterface
     public function Set($key, $value, $expiration)
     {
         $isSet = $this->cache->set($key, serialize($value), MEMCACHE_COMPRESSED, $expiration);
-
         if (Storage::isProfiler()) {
             Storage::Profiler()->Add('Cache', array('type' => 'write', 'key' => $key));
         }
@@ -58,7 +56,6 @@ class MemcacheAdapter extends BasicAdapter implements BasicInterface
 
         if ((bool) $value) {
             $value = unserialize($value);
-
             if (Storage::isProfiler()) {
                 Storage::Profiler()->Add('Cache', array('type' => 'read', 'key' => $key));
             }
@@ -75,7 +72,6 @@ class MemcacheAdapter extends BasicAdapter implements BasicInterface
 
         if ((bool) $value) {
             $isDeleted = $this->cache->delete($key);
-
             if (Storage::isProfiler()) {
                 Storage::Profiler()->Add('Cache', array('type' => 'delete', 'key' => $key));
             }

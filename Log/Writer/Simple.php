@@ -26,6 +26,6 @@ class Simple extends BasicFactory implements BasicInterface
             $content = json_encode($content);
         }
 
-        echo $content . '<br />';
+        echo $content.'<br />';
     }
 }

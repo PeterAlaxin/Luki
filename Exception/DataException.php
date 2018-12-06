@@ -16,5 +16,5 @@ namespace Luki\Exception;
 
 class DataException extends \Exception
 {
-    
+
 }

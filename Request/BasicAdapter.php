@@ -16,7 +16,6 @@ namespace Luki\Request;
 
 abstract class BasicAdapter
 {
-
     public $data = array();
 
     public function __destruct()
@@ -35,7 +34,9 @@ abstract class BasicAdapter
                         $input = stripslashes($input);
                     }
 
-                    $input = htmlspecialchars($input, ENT_QUOTES);
+                    #$input = htmlspecialchars($input, ENT_QUOTES);
+                    #$input = htmlspecialchars_decode(htmlspecialchars($input, ENT_NOQUOTES | ENT_IGNORE, 'UTF-8'), ENT_NOQUOTES);
+                    $input = htmlspecialchars($input, ENT_NOQUOTES | ENT_IGNORE, 'UTF-8');
                 }
                 $this->data[$key] = $input;
             }

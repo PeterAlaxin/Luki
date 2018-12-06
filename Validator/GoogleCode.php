@@ -11,6 +11,7 @@
  * @subpackage Validator
  * @filesource
  */
+
 namespace Luki\Validator;
 
 use Luki\Validator\BasicFactory;

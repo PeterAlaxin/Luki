@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class Identical extends BasicFactory
 {
-
     public $token = null;
 
     public function __construct($options = array())
@@ -35,7 +34,7 @@ class Identical extends BasicFactory
             $this->setNoError();
         } else {
             $from = array('/%value%/', '/%token%/');
-            $to = array($value, $this->token);
+            $to   = array($value, $this->token);
             $this->fillMessage($from, $to);
         }
 
@@ -45,6 +44,7 @@ class Identical extends BasicFactory
     public function setToken($token)
     {
         $this->token = $token;
+        return $this;
     }
 
     public function getToken()

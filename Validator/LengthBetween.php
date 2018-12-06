@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class LengthBetween extends BasicFactory
 {
-
     public $min = 0;
     public $max = 0;
 
@@ -31,13 +30,13 @@ class LengthBetween extends BasicFactory
     public function isValid($value)
     {
         $this->isValid = false;
-        $lenght = $this->getValueLength($value);
+        $lenght        = $this->getValueLength($value);
 
         if ($lenght >= $this->min and $lenght <= $this->max) {
             $this->setNoError();
         } else {
             $from = array('/%min%/', '/%max%/');
-            $to = array($this->min, $this->max);
+            $to   = array($this->min, $this->max);
             $this->fillMessage($from, $to);
         }
 
@@ -47,6 +46,7 @@ class LengthBetween extends BasicFactory
     public function setMin($min)
     {
         $this->min = (float) $min;
+        return $this;
     }
 
     public function getMin()
@@ -57,6 +57,7 @@ class LengthBetween extends BasicFactory
     public function setMax($max)
     {
         $this->max = (float) $max;
+        return $this;
     }
 
     public function getMax()

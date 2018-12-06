@@ -19,33 +19,32 @@ use Luki\Navigation\Format\basicInterface;
 
 /**
  * Menu Navigation Format
- * 
+ *
  * @package Luki
  */
 class Menu extends BasicFactory implements basicInterface
 {
-
-    public $format = '<a href="%url%" title="%title%" class="%class% %active%" target="%target%">%label%</a>';
-    private $parentLevel = 'ul';
+    public $format        = '<a href="%url%" title="%title%" class="%class% %active%" target="%target%">%label%</a>';
+    private $parentLevel  = 'ul';
     private $parentString = '<%ParentLevel% id="%ParentID%" class="%ParentClass%">%Content%</%ParentLevel%>';
-    private $childLevel = 'li';
-    private $childString = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%%ChildContent%</%ChildLevel%>';
-    private $start = 0;
-    private $isStarted = false;
-    private $isAll = false;
-    private $id = '';
-    private $class = '';
-    private $used = array('label', 'title', 'class', 'target', 'active');
-    private $options = array(
-        'parentLevel' => '_parentLevel',
+    private $childLevel   = 'li';
+    private $childString  = '<%ChildLevel% id="%ChildID%" class="%ChildClass% %hidden%">%Content%%ChildContent%</%ChildLevel%>';
+    private $start        = 0;
+    private $isStarted    = false;
+    private $isAll        = false;
+    private $id           = '';
+    private $class        = '';
+    private $used         = array('label', 'title', 'class', 'target', 'active');
+    private $options      = array(
+        'parentLevel'  => '_parentLevel',
         'parentString' => '_parentString',
-        'childLevel' => '_childLevel',
-        'childString' => '_childString',
-        'start' => '_start',
-        'format' => '_format',
-        'all' => '_isAll',
-        'id' => '_id',
-        'class' => '_class',
+        'childLevel'   => '_childLevel',
+        'childString'  => '_childString',
+        'start'        => '_start',
+        'format'       => '_format',
+        'all'          => '_isAll',
+        'id'           => '_id',
+        'class'        => '_class',
     );
 
     public function Format($options = array())
@@ -73,7 +72,7 @@ class Menu extends BasicFactory implements basicInterface
 
         foreach ($options as $key => $value) {
             if (!empty($this->options[$key])) {
-                $optionsKey = $this->options[$key];
+                $optionsKey        = $this->options[$key];
                 $this->$optionsKey = $value;
             }
         }
@@ -84,7 +83,7 @@ class Menu extends BasicFactory implements basicInterface
         $format = $this->format;
 
         foreach ($this->used as $key) {
-            $format = preg_replace('/%' . $key . '%/', $item->$key, $format);
+            $format = preg_replace('/%'.$key.'%/', $item->$key, $format);
         }
 
         $formatedUrl = preg_replace('/%url%/', $crumb, $format);
@@ -108,17 +107,17 @@ class Menu extends BasicFactory implements basicInterface
 
         if (0 == $this->start or $this->isStarted) {
             $from = array('/%hidden%/', '/%ChildLevel%/', '/%ChildID%/', '/%ChildClass%/', '/%Content%/');
-            $to = array($item->hidden, $this->childLevel, $item->id, $item->class, $this->formatUrl($item, $crumb));
+            $to   = array($item->hidden, $this->childLevel, $item->id, $item->class, $this->formatUrl($item, $crumb));
 
             $formatedChildLevel = preg_replace($from, $to, $this->childString);
         }
 
         $childContent = '';
-        $navigation = $item->getNavigation();
+        $navigation   = $item->getNavigation();
         if (count($navigation) > 0) {
 
             foreach ($navigation as $childItem) {
-                $childContent .= $this->childLevel($childItem, $crumb . '/' . $childItem->crumb);
+                $childContent .= $this->childLevel($childItem, $crumb.'/'.$childItem->crumb);
             }
 
             if (0 == $this->start or $this->isStarted) {
@@ -140,7 +139,7 @@ class Menu extends BasicFactory implements basicInterface
     private function parentLevel($id = '', $class = '')
     {
         $from = array('/%ParentLevel%/', '/%ParentID%/', '/%ParentClass%/');
-        $to = array($this->parentLevel, $id, $class);
+        $to   = array($this->parentLevel, $id, $class);
 
         $formatedParentLevel = $this->sanitizeText(preg_replace($from, $to, $this->parentString));
 
@@ -150,7 +149,7 @@ class Menu extends BasicFactory implements basicInterface
     private function sanitizeText($text)
     {
         $sanitizeFrom = array('/ id=""/', '/ class=""/', '/ class=" "/', '/ title=""/');
-        $sanitizeTo = array('', '', '', '');
+        $sanitizeTo   = array('', '', '', '');
 
         $output = preg_replace($sanitizeFrom, $sanitizeTo, $text);
 

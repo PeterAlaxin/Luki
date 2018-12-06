@@ -27,16 +27,13 @@ class MysqlAdapter extends BasicAdapter
 
     public function __construct($options)
     {
-        $this->connection = mysql_connect($options['server'],
-                $options['user'],
-                $options['password']);
+        $this->connection = mysql_connect($options['server'], $options['user'], $options['password']);
 
         if (!isset($this->connection) or false === $this->connection) {
             throw new DataException('MySQL connection error');
         }
 
-        if (!mysql_select_db($options['database'],
-                        $this->connection)) {
+        if (!mysql_select_db($options['database'], $this->connection)) {
             throw new DataException('MySQL connection error');
         }
 
@@ -68,8 +65,7 @@ class MysqlAdapter extends BasicAdapter
             Time::stopwatchStart('Luki_Data_MySQL_MySQL');
         }
 
-        $result = mysql_query((string) $sql,
-                $this->connection);
+        $result = mysql_query((string) $sql, $this->connection);
 
         if (false === $result and Storage::isLog()) {
             Storage::Log()->Error($this->mySql->error.' in "'.(string) $sql.'"');
@@ -77,8 +73,7 @@ class MysqlAdapter extends BasicAdapter
 
         if (Storage::isProfiler()) {
             $time = Time::getStopwatch('Luki_Data_MySQL_MySQL');
-            Storage::Profiler()->Add('Data',
-                    array('sql' => (string) $sql, 'time' => $time));
+            Storage::Profiler()->Add('Data', array('sql' => (string) $sql, 'time' => $time));
         }
 
         if (is_resource($result)) {
@@ -90,27 +85,26 @@ class MysqlAdapter extends BasicAdapter
 
     public function escapeString($string)
     {
-        $string = mysql_real_escape_string($string,
-                $this->connection);
+        $string = mysql_real_escape_string($string, $this->connection);
 
         return $string;
     }
 
     public function saveLastID($table)
     {
-        $this->lastID = mysql_insert_id($this->connection);
+        $this->lastID             = mysql_insert_id($this->connection);
         $this->allLlastID[$table] = $this->lastID;
     }
 
     public function saveUpdated($table)
     {
-        $this->updated = mysql_affected_rows($this->connection);
+        $this->updated            = mysql_affected_rows($this->connection);
         $this->allUpdated[$table] = $this->updated;
     }
 
     public function saveDeleted($table)
     {
-        $this->deleted = mysql_affected_rows($this->connection);
+        $this->deleted            = mysql_affected_rows($this->connection);
         $this->allDeleted[$table] = $this->deleted;
     }
 }

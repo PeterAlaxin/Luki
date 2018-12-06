@@ -34,7 +34,7 @@ class Simple extends BasicFactory implements BasicInterface
         $content = $this->format;
 
         foreach ($parameters as $key => $value) {
-            $content = preg_replace('/%' . $key . '%/', $value, $content);
+            $content = preg_replace('/%'.$key.'%/', $value, $content);
         }
 
         return $content;

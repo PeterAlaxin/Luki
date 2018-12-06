@@ -18,7 +18,6 @@ use Luki\Validator\BasicFactory;
 
 class Length extends BasicFactory
 {
-
     public $length = null;
 
     public function __construct($options = array())
@@ -30,7 +29,7 @@ class Length extends BasicFactory
     public function isValid($value)
     {
         $this->isValid = false;
-        $length = $this->getValueLength($value);
+        $length        = $this->getValueLength($value);
 
         if ($length == $this->length) {
             $this->setNoError();
@@ -44,6 +43,7 @@ class Length extends BasicFactory
     public function setLength($lenght)
     {
         $this->length = (int) $lenght;
+        return $this;
     }
 
     public function getLength()

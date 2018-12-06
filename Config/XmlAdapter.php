@@ -24,7 +24,7 @@ class XmlAdapter extends BasicAdapter
         parent::__construct($fileName, $allowCreate);
 
         libxml_use_internal_errors(true);
-        $xml = simplexml_load_file($this->fileName, 'SimpleXMLElement', LIBXML_NOERROR);
+        $xml                 = simplexml_load_file($this->fileName, 'SimpleXMLElement', LIBXML_NOERROR);
         $this->configuration = json_decode(json_encode($xml), true);
     }
 
@@ -32,10 +32,10 @@ class XmlAdapter extends BasicAdapter
     {
         parent::saveConfiguration();
 
-        $content = new DOMDocument('1.0', 'UTF-8');
+        $content                     = new DOMDocument('1.0', 'UTF-8');
         $content->preserveWhiteSpace = false;
-        $content->formatOutput = true;
-        $element = $content->createElement('configuration');
+        $content->formatOutput       = true;
+        $element                     = $content->createElement('configuration');
         $content->appendChild($element);
 
         foreach ($this->configuration as $section => $values) {

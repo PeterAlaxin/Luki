@@ -18,9 +18,10 @@ use Luki\Formular\BasicFactory;
 
 class Select extends BasicFactory
 {
-
-    private $data = array();
-    private $values = array();
+    private $data       = array();
+    private $values     = array();
+    private $validators = array();
+    private $errors     = array();
 
     public function setData($data)
     {
@@ -32,10 +33,10 @@ class Select extends BasicFactory
     public function getHtml()
     {
         $html = array(
-			'label' => $this->prepareLabel(), 
-			'input' => $this->prepareInput(),
-			'value' => $this->getValue()
-			);
+            'label' => $this->prepareLabel(),
+            'input' => $this->prepareInput(),
+            'value' => $this->getValue()
+        );
 
         return $html;
     }
@@ -45,7 +46,7 @@ class Select extends BasicFactory
         $attributes = '';
         foreach ($this->getAttributes() as $attribute => $value) {
             if ('value' !== $attribute) {
-                $attributes .= $attribute . '="' . $value . '" ';
+                $attributes .= $attribute.'="'.$value.'" ';
             }
         }
 
@@ -54,7 +55,7 @@ class Select extends BasicFactory
 
     private function prepareLabel()
     {
-        $label = '<label for="' . $this->getId() . '">';
+        $label = '<label for="'.$this->getId().'">';
         $label .= $this->getLabel();
         $label .= '</label>';
 
@@ -63,16 +64,26 @@ class Select extends BasicFactory
 
     private function prepareInput()
     {
-        $input = '<select ' . $this->prepareAttributes() . '>';
+        $input = '<select '.$this->prepareAttributes().'>';
 
         foreach ($this->data as $value => $option) {
-            $input .= '<option value="' . $value . '"';
-
-            if (in_array($value, $this->values)) {
-                $input .= ' selected="selected"';
+            if (is_array($option)) {
+                $input .= '<optgroup label="'.$value.'">';
+                foreach ($option as $subvalue => $suboption) {
+                    $input .= '<option value="'.$subvalue.'"';
+                    if (in_array($subvalue, $this->values)) {
+                        $input .= ' selected="selected"';
+                    }
+                    $input .= '>'.$suboption.'</option>';
+                }
+                $input .= '</optgroup>';
+            } else {
+                $input .= '<option value="'.$value.'"';
+                if (in_array($value, $this->values)) {
+                    $input .= ' selected="selected"';
+                }
+                $input .= '>'.$option.'</option>';
             }
-
-            $input .= '>' . $option . '</option>';
         }
 
         $input .= '</select>';
@@ -87,12 +98,23 @@ class Select extends BasicFactory
         return $this;
     }
 
+    public function addValidator(\Luki\Validator\BasicFactory $validator)
+    {
+        $this->validators[] = $validator;
+
+        return $this;
+    }
+
     public function isValid()
     {
         $this->_validate();
-        $isValid = empty($this->errors);
 
-        return $isValid;
+        return empty($this->errors);
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     private function _validate()
