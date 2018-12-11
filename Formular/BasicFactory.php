@@ -178,7 +178,8 @@ abstract class BasicFactory implements BasicInterface
         $html = array(
             'label' => '<label for="'.$this->getId().'">'.$this->getLabel().'</label>',
             'input' => '<input '.$attributes.'>',
-            'value' => $this->getValue()
+            'value' => $this->getValue(),
+            'id'    => $this->id
         );
 
         return $html;
