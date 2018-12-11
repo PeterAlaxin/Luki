@@ -214,8 +214,7 @@ class Variable
                             break;
                         case 'Concat':
                             $formatedString = '';
-                            $strings        = explode(' ~ ', $string);
-                            foreach ($strings as $item) {
+                            foreach (explode(' ~ ', $string) as $item) {
                                 if (!empty($formatedString)) {
                                     $formatedString .= '.';
                                 }

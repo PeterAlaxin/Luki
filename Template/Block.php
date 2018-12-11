@@ -86,7 +86,7 @@ class Block
             $text = '<?php $this->aData["'.$match[1].'"] = ';
 
             $subMatches = array();
-            preg_match_all('/[a-zA-Z0-9_\."\'\(\),\|]*|\+|-|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);
+            preg_match_all('/[a-zA-Z0-9_\."\'\(\),\|]*|\+|-|~|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);
 
             foreach ($subMatches as $subMatch) {
                 if ('' === $subMatch[0]) {
@@ -94,6 +94,13 @@ class Block
                 }
                 if (in_array($subMatch[0], array('+', '-', '*', '/', '(', ')'))) {
                     $text .= $subMatch[0];
+                } elseif ('~' === $subMatch[0]) {
+                    foreach (explode(' ~ ', $match[2]) as $key => $item) {
+                        if ($key) {
+                            $text .= '.';
+                        }
+                        $this->transformToVariable($item, true);
+                    }
                 } else {
                     $text .= $this->transformToVariable($subMatch[0], true);
                 }
