@@ -31,8 +31,7 @@ class Time extends BasicFactory
     public function isValid($value)
     {
         $this->isValid = false;
-
-        if (empty($value) or 1 === preg_match($this->validator, $value)) {
+        if (empty($value) or 1 === preg_match($this->getValidator(), $value)) {
             $this->setNoError();
         } else {
             $this->fillMessage('/%value%/', $value);
