@@ -190,7 +190,7 @@ abstract class BasicFactory implements BasicInterface
         $this->errors = array();
 
         foreach ($this->validators as $validator) {
-            if (!$validator->isValid($this->value)) {
+            if (!$validator->isValid($this->getValue())) {
                 $this->errors[] = $validator->getError();
             }
         }

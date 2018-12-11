@@ -18,10 +18,24 @@ use Luki\Formular\BasicFactory;
 
 class DateTime extends BasicFactory
 {
+    private $value = null;
 
     public function __construct($name, $label, $placeholder = '')
     {
         parent::__construct($name, $label, $placeholder);
-        $this->setType('datetime');
+        $this->setType('datetime-local');
+    }
+
+    public function setValue($value)
+    {
+        $this->value = date("Y-m-d\TH:i:s", strtotime($value));
+        $this->setAttribute('value', $this->getValue());
+
+        return $this;
+    }
+
+    public function getValue()
+    {
+        return $this->value;
     }
 }
