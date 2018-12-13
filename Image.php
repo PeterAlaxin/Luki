@@ -29,6 +29,7 @@ class Image
     private $realProperties;
     private $imageType             = '';
     private $image;
+    private $quaity                = 100;
 
     function __construct($file = '')
     {
@@ -85,6 +86,8 @@ class Image
         $ratio     = ($newWidth / $this->realProperties['width']);
         $newHeight = floor($this->realProperties['height'] * $ratio);
         $this->resize($newWidth, $newHeight);
+
+        return $this;
     }
 
     public function resizeByHeight($height)
@@ -100,6 +103,8 @@ class Image
         $newWidth = floor($this->realProperties['width'] * $ratio);
 
         $this->resize($newWidth, $newHeight);
+
+        return $this;
     }
 
     public function resizeToMax($width, $height)
@@ -127,6 +132,8 @@ class Image
         }
 
         $this->resize($newWidth, $newHeight);
+
+        return $this;
     }
 
     public function resizeTo($width, $height)
@@ -141,6 +148,8 @@ class Image
             $this->resizeByWidth($width);
             $this->cropToHeight($height);
         }
+
+        return $this;
     }
 
     public function cropToWidth($width)
@@ -155,6 +164,8 @@ class Image
         imagecopyresampled($newImage, $this->image, 0, 0, floor($diff / 2), 0, $width + $diff, $actualHeight,
             $actualWidth, $actualHeight);
         $this->image = $newImage;
+
+        return $this;
     }
 
     public function cropToHeight($height)
@@ -169,6 +180,8 @@ class Image
         imagecopyresampled($newImage, $this->image, 0, 0, 0, floor($diff / 2), $actualWidth, $height + $diff,
             $actualWidth, $actualHeight);
         $this->image = $newImage;
+
+        return $this;
     }
 
     public function setWatterMark($sText = '', $nPositionX = 0, $nPositionY = 0, $aColor = array(), $nSize = 40,
@@ -187,6 +200,8 @@ class Image
 
         imagettftext($this->image, $nSize, $nAngle, $nPositionX, $nPositionY, $cTextColor, FONTS_DIR.'FreeSansBold.ttf',
             $sText);
+
+        return $this;
     }
 
     public function saveAs($newName, $type = '')
@@ -209,6 +224,8 @@ class Image
             imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom,
                 imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']));
         }
+
+        return $this;
     }
 
     private function readFile()
@@ -241,11 +258,11 @@ class Image
                 $isShowed = imagegif($this->image, $newImageName);
                 break;
             case 2:
-                $isShowed = imagejpeg($this->image, $newImageName, 95);
+                $isShowed = imagejpeg($this->image, $newImageName, $this->quaity);
                 break;
             case 3:
             default:
-                $isShowed = imagepng($this->image, $newImageName, 9);
+                $isShowed = imagepng($this->image, $newImageName, round($this->quaity / 10));
         }
 
         imagedestroy($this->image);
@@ -319,5 +336,17 @@ class Image
         }
 
         return $image;
+    }
+
+    public function setQuality($quality)
+    {
+        $this->quaity = (int) $quality;
+
+        return $this;
+    }
+
+    public function getQuality()
+    {
+        return $this->quaity;
     }
 }
