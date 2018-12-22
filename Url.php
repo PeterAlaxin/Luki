@@ -78,7 +78,7 @@ class Url
     static public function Reload($link = '', $response = 302)
     {
         if (!empty($link)) {
-            if (Storage::isLog() and Storage::isRequest()) {
+            if (Storage::isLogRedirect() and Storage::LogRedirect() and Storage::isRequest()) {
                 Storage::Log()->Notice('Redirect '.Storage::Request()->getFullUrl().' => '.$link);
             }
 

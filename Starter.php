@@ -229,6 +229,7 @@ class Starter
             $writerName = Log::findWriter($logDefinition['writer']);
             $writer     = new $writerName($filename);
             Storage::Set('Log', new Log($format, $writer));
+            Storage::Set('LogRedirect', !empty($logDefinition['logRedirect']));
         }
     }
 
