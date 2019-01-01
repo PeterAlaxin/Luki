@@ -180,7 +180,7 @@ abstract class BasicAdapter implements BasicInterface
 
     public function getStructure($table)
     {
-        $result = $this->Query('SHOW FULL COLUMNS FROM '.$table);
+        $result = $this->Query('SHOW FULL COLUMNS FROM `'.$table.'`;');
 
         return $result;
     }
