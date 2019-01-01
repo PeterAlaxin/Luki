@@ -374,6 +374,12 @@ class Entity
         $this->code .= Template::phpRow('$this->row[$key]["OriginalValue"] = $column["Default"];', 3);
         $this->code .= Template::phpRow('$this->row[$key]["ActualValue"] = $column["Default"];', 3);
         $this->code .= Template::phpRow('};', 2);
+        foreach ($this->structure as $field) {
+            if ('id' === $field['Field']) {
+                $this->code .= Template::phpRow('$this->setId(0);', 2);
+                break;
+            }
+        }
         $this->code .= Template::phpRow('return $this;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
