@@ -62,7 +62,7 @@ class Router
             }
         }
 
-        if (!$found and array_key_exists('404', $this->routes)) {
+        if (!$found and $this->isRoute('404')) {
             $this->prepareController($this->routes['404']);
             $output = $this->controller->getOutput();
         }
@@ -72,7 +72,7 @@ class Router
 
     public function getRoute($name, $parameters = array())
     {
-        if (array_key_exists($name, $this->routes)) {
+        if ($this->isRoute($name)) {
             $route = $this->routes[$name]->getRoute($parameters);
         } else {
             $route = '';
@@ -81,6 +81,41 @@ class Router
         $route = rtrim($this->request->getShortUrl(), '/').$route;
 
         return $route;
+    }
+
+    public function getRouteModul($name)
+    {
+        $modul = null;
+        if ($this->isRoute($name)) {
+            $modul = $this->routes[$name]->getModul();
+        }
+
+        return $modul;
+    }
+
+    public function getRouteController($name)
+    {
+        $modul = null;
+        if ($this->isRoute($name)) {
+            $modul = $this->routes[$name]->getController();
+        }
+
+        return $modul;
+    }
+
+    public function getRouteAction($name)
+    {
+        $modul = null;
+        if ($this->isRoute($name)) {
+            $modul = $this->routes[$name]->getAction();
+        }
+
+        return $modul;
+    }
+
+    public function isRoute($name)
+    {
+        return array_key_exists($name, $this->routes);
     }
 
     private function setRoutes()
