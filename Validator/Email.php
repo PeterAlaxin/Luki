@@ -27,4 +27,17 @@ class Email extends BasicFactory
         $this->setValidator($validator);
         $this->setMessage('The value "%value%" is not valid e-mail address!');
     }
+
+    public function isValid($value)
+    {
+        $this->isValid = false;
+
+        if ('' === $value or 1 === preg_match($this->validator, $value)) {
+            $this->setNoError();
+        } else {
+            $this->fillMessage('/%value%/', $value);
+        }
+
+        return $this->isValid;
+    }
 }
