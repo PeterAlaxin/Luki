@@ -19,9 +19,9 @@ use Luki\Validator\BasicInterface;
 abstract class BasicFactory implements BasicInterface
 {
     public $isValid;
-    private $error     = '';
-    private $validator = '';
-    private $message   = '';
+    public $validator = '';
+    private $error    = '';
+    private $message  = '';
 
     const ALPHA = 'a-zA-ZáäčďéěëíľňôóöŕřšťúůüýžÁÄČĎÉĚËÍĽŇÓÖÔŘŔŠŤÚŮÜÝŽ\ ';
     const NUM   = '0-9';
