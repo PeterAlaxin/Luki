@@ -154,7 +154,7 @@ class Entity
     {
         foreach ($this->structure as $field) {
             $this->code .= Template::phpRow('public function find($value) {');
-            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("'.$field['Field'].' = ?", $value)->limit(1);',
+            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("`'.$field['Field'].'` = ?", $value)->limit(1);',
                     2);
             $this->code .= Template::phpRow('$result = $this->data->Query($select);', 2);
             $this->code .= Template::phpRow('if(!$result) {', 2);
@@ -446,7 +446,7 @@ class Entity
     {
         foreach ($this->structure as $fielName => $field) {
             $this->code .= Template::phpRow('public function findBy'.$fielName.'($value, $order=null, $limit=0) {');
-            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("'.$field['Field'].' = \'?\'", $value);',
+            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("`'.$field['Field'].'` = \'?\'", $value);',
                     2);
 
             $this->code .= Template::phpRow('if(!empty($order)) {', 2);
@@ -470,7 +470,7 @@ class Entity
     {
         foreach ($this->structure as $fielName => $field) {
             $this->code .= Template::phpRow('public function findOneBy'.$fielName.'($value, $order=null) {');
-            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("'.$field['Field'].' = \'?\'", $value)->limit(1);',
+            $this->code .= Template::phpRow('$select = $this->data->Select()->from("'.$this->table.'")->where("`'.$field['Field'].'` = \'?\'", $value)->limit(1);',
                     2);
 
             $this->code .= Template::phpRow('if(!empty($order)) {', 2);
