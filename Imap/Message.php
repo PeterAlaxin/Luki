@@ -87,7 +87,6 @@ class Message
     {
         if (empty($this->body)) {
             $structure = imap_fetchstructure($this->stream, $this->uid, FT_UID);
-
             if ($structure->type == TYPEMULTIPART) {
                 foreach ($structure->parts as $key => $part) {
                     $this->body[] = array(
@@ -96,9 +95,13 @@ class Message
                     );
                 }
             } else {
+                $content = imap_body($this->stream, $this->uid, FT_UID);
+                if (false !== base64_decode($content, true)) {
+                    $content = imap_base64($content);
+                }
                 $this->body[] = array(
                     'type'    => 'PLAIN',
-                    'content' => imap_body($this->stream, $this->uid, FT_UID)
+                    'content' => $content
                 );
             }
         }
