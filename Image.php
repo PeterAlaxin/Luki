@@ -30,6 +30,7 @@ class Image
     private $imageType             = '';
     private $image;
     private $quaity                = 100;
+    private $exif                  = array();
 
     function __construct($file = '')
     {
@@ -274,17 +275,20 @@ class Image
     {
         $properties = getimagesize($this->imageFile);
 
-        $this->realProperties = array('width'  => $properties[0]
-            , 'height' => $properties[1]
-            , 'type'   => $properties[2]
-            , 'string' => $properties[3]
-            , 'bits'   => $properties['bits']
-            , 'mime'   => $properties['mime']
+        $this->realProperties = array(
+            'width'  => $properties[0],
+            'height' => $properties[1],
+            'type'   => $properties[2],
+            'string' => $properties[3],
+            'bits'   => $properties['bits'],
+            'mime'   => $properties['mime']
         );
 
         if (in_array($this->realProperties['type'], array_keys($this->imageTypes))) {
             $this->imageType = $this->imageTypes[$this->realProperties['type']];
         }
+
+        $this->exif = exif_read_data($this->imageFile);
     }
 
     private function isSupportedType()
@@ -348,5 +352,40 @@ class Image
     public function getQuality()
     {
         return $this->quaity;
+    }
+
+    public function rotate($dg)
+    {
+        if ($dg > 0 and $dg < 360) {
+            $bgColor     = imageColorAllocateAlpha($this->image, 0, 0, 0, 127);
+            $this->image = imagerotate($this->image, $dg, $bgColor);
+
+            imagealphablending($this->image, false);
+            imagesavealpha($this->image, true);
+
+            $this->realProperties['width']  = imagesx($this->image);
+            $this->realProperties['height'] = imagesy($this->image);
+        }
+
+        return $this;
+    }
+
+    public function autoRotate()
+    {
+        if (!empty($this->exif) and ! empty($this->exif['Orientation'])) {
+            switch ($this->exif['Orientation']) {
+                case 8:
+                    $this->rotate(90);
+                    break;
+                case 3:
+                    $this->rotate(180);
+                    break;
+                case 6:
+                    $this->rotate(270);
+                    break;
+            }
+        }
+
+        return $this;
     }
 }
