@@ -16,28 +16,23 @@ namespace Luki;
 
 class Image
 {
-    private $defaultWidth          = 800;
-    private $defaultHight          = 600;
-    private $defaultWattermarkText = array('R' => 255, 'G' => 255, 'B' => 255, 'ALPHA' => 80);
-    private $defaultSquareColor    = array('R' => 255, 'G' => 255, 'B' => 255, 'ALPHA' => 80);
-    private $imageTypes            = array('1'  => 'IMAGETYPE_GIF', '2'  => 'IMAGETYPE_JPEG', '3'  => 'IMAGETYPE_PNG', '4'  => 'IMAGETYPE_SWF',
-        '5'  => 'IMAGETYPE_PSD', '6'  => 'IMAGETYPE_BMP', '7'  => 'IMAGETYPE_TIFF_II', '8'  => 'IMAGETYPE_TIFF_MM', '9'  => 'IMAGETYPE_JPC',
-        '10' => 'IMAGETYPE_JP2', '11' => 'IMAGETYPE_JPX', '12' => 'IMAGETYPE_JB2', '13' => 'IMAGETYPE_SWC', '14' => 'IMAGETYPE_IFF',
-        '15' => 'IMAGETYPE_WBMP', '16' => 'IMAGETYPE_XBM');
-    private $supportedTypes        = array('IMAGETYPE_GIF' => 'image/gif', 'IMAGETYPE_JPEG' => 'image/jpeg', 'IMAGETYPE_PNG' => 'image/png');
-    private $imageFile;
-    private $realProperties;
-    private $imageType             = '';
+    const GIF = 'image/gif';
+    const JPG = 'image/jpeg';
+    const PNG = 'image/png';
+
+    private $file;
     private $image;
-    private $quaity                = 100;
-    private $exif                  = array();
+    private $type;
+    private $exif;
+    private $font;
+    private $quality   = 100;
+    private $imageType = array(self::GIF, self::JPG, self::PNG);
+    private $color     = array(255, 255, 255, 80);
 
     function __construct($file = '')
     {
         if (!empty($file)) {
             $this->open($file);
-        } else {
-            $this->create();
         }
     }
 
@@ -50,351 +45,89 @@ class Image
 
     public function open($file)
     {
-        if (is_file($file)) {
-            $this->imageFile = $file;
-            $this->getImageProperties();
-
-            if ($this->isSupportedType()) {
-                $this->readFile();
-            }
+        if ($this->checkFile($file)) {
+            $this->read($file);
         }
+
+        return $this;
+    }
+
+    public function createPng($width, $height)
+    {
+        $this->image = $this->create($width, $height, true);
+        $this->type  = self::PNG;
+
+        return $this;
+    }
+
+    public function createJpg($width, $height)
+    {
+        $this->image = $this->create($width, $height);
+        $this->type  = self::JPG;
+
+        return $this;
+    }
+
+    public function createGif($width, $height)
+    {
+        $this->image = $this->create($width, $height);
+        $this->type  = self::GIF;
+
+        return $this;
+    }
+
+    public function fill($red = 0, $green = 0, $blue = 0)
+    {
+        $color = imagecolorallocate($this->image, $red, $green, $blue);
+        imagefill($this->image, 0, 0, $color);
+
+        return $this;
     }
 
     public function show()
     {
-        header("Content-type: ".$this->getType(), true);
-        $isShowed = $this->outputImage();
+        header("Content-type: ".$this->type, true);
+        $result = $this->outputImage();
 
-        return $isShowed;
+        return $result;
     }
 
-    public function getType()
+    public function saveAs($name, $type = '')
     {
-        $type = $this->supportedTypes[$this->imageType];
+        $result = $this->outputImage($name, $type);
 
-        return $type;
-    }
-
-    public function resizeByWidth($width)
-    {
-        if (strpos($width, '%') > 0) {
-            $ratio    = ((int) $width / 100);
-            $newWidth = floor($this->realProperties['width'] * $ratio);
-        } else {
-            $newWidth = (int) $width;
-        }
-
-        $ratio     = ($newWidth / $this->realProperties['width']);
-        $newHeight = floor($this->realProperties['height'] * $ratio);
-        $this->resize($newWidth, $newHeight);
-
-        return $this;
-    }
-
-    public function resizeByHeight($height)
-    {
-        if (strpos($height, '%') > 0) {
-            $ratio     = ((int) $height / 100);
-            $newHeight = floor($this->realProperties['height'] * $ratio);
-        } else {
-            $newHeight = (int) $height;
-        }
-
-        $ratio    = ($newHeight / $this->realProperties['height']);
-        $newWidth = floor($this->realProperties['width'] * $ratio);
-
-        $this->resize($newWidth, $newHeight);
-
-        return $this;
-    }
-
-    public function resizeToMax($width, $height)
-    {
-        if (imagesy($this->image) > imagesx($this->image)) {
-            $ratio     = ($height / imagesy($this->image));
-            $newHeight = $height;
-            $newWidth  = floor(imagesx($this->image) * $ratio);
-
-            if ($newWidth > $width) {
-                $ratio     = ($width / $newWidth);
-                $newWidth  = $width;
-                $newHeight = floor($newHeight * $ratio);
-            }
-        } else {
-            $ratio     = ($width / imagesx($this->image));
-            $newWidth  = $width;
-            $newHeight = floor(imagesy($this->image) * $ratio);
-
-            if ($newHeight > $height) {
-                $ratio     = ($height / $newHeight);
-                $newHeight = $height;
-                $newWidth  = floor($newWidth * $ratio);
-            }
-        }
-
-        $this->resize($newWidth, $newHeight);
-
-        return $this;
-    }
-
-    public function fitTo($width, $height)
-    {
-        $this->resizeToMax($width, $height);
-
-        $srcWidth  = imagesx($this->image);
-        $srcHeight = imagesy($this->image);
-
-        $newImage = imagecreatetruecolor($width, $height);
-        imagesavealpha($newImage, true);
-        $color    = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
-        imagefill($newImage, 0, 0, $color);
-
-        $newY = 0;
-        if ($height > imagesy($this->image)) {
-            $newY = floor(($height - imagesy($this->image)) / 2);
-        }
-
-        $newX = 0;
-        if ($width > imagesx($this->image)) {
-            $newX = floor(($width - imagesx($this->image)) / 2);
-        }
-
-        imagecopymerge($newImage, $this->image, $newX, $newY, 0, 0, $srcWidth, $srcHeight, 100);
-
-        $this->image = $newImage;
-
-        return $this;
-    }
-
-    public function resizeTo($width, $height)
-    {
-        $ratioWidth  = imagesx($this->image) / $width;
-        $ratioHeight = imagesy($this->image) / $height;
-
-        if ($ratioHeight < $ratioWidth) {
-            $this->resizeByHeight($height);
-            $this->cropToWidth($width);
-        } else {
-            $this->resizeByWidth($width);
-            $this->cropToHeight($height);
-        }
-
-        return $this;
-    }
-
-    public function cropToWidth($width)
-    {
-        $actualWidth  = imagesx($this->image);
-        $actualHeight = imagesy($this->image);
-        $diff         = $actualWidth - $width;
-
-        $newImage = imagecreatetruecolor($width, $actualHeight);
-        $newImage = $this->makeTransparent($newImage);
-
-        imagecopyresampled($newImage, $this->image, 0, 0, floor($diff / 2), 0, $width + $diff, $actualHeight,
-            $actualWidth, $actualHeight);
-        $this->image = $newImage;
-
-        return $this;
-    }
-
-    public function cropToHeight($height)
-    {
-        $actualWidth  = imagesx($this->image);
-        $actualHeight = imagesy($this->image);
-        $diff         = $actualHeight - $height;
-
-        $newImage = imagecreatetruecolor($actualWidth, $height);
-        $newImage = $this->makeTransparent($newImage);
-
-        imagecopyresampled($newImage, $this->image, 0, 0, 0, floor($diff / 2), $actualWidth, $height + $diff,
-            $actualWidth, $actualHeight);
-        $this->image = $newImage;
-
-        return $this;
-    }
-
-    public function setWatterMark($sText = '', $nPositionX = 0, $nPositionY = 0, $aColor = array(), $nSize = 40,
-                                  $nAngle = 0)
-    {
-        if (empty($aColor)) {
-            $aColor = $this->defaultWattermarkText;
-        }
-
-        if ($aColor['ALPHA'] > 0) {
-            $cTextColor = imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'],
-                $aColor['ALPHA']);
-        } else {
-            $cTextColor = imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']);
-        }
-
-        imagettftext($this->image, $nSize, $nAngle, $nPositionX, $nPositionY, $cTextColor, FONTS_DIR.'FreeSansBold.ttf',
-            $sText);
-
-        return $this;
-    }
-
-    public function saveAs($newName, $type = '')
-    {
-        $isSaved = $this->outputImage($newName, $type);
-
-        return $isSaved;
-    }
-
-    public function squareImage($nTop = 0, $nRight = 0, $nBottom = 0, $nLeft = 0, $aColor = array())
-    {
-        if (empty($aColor)) {
-            $aColor = $this->defaultSquareColor;
-        }
-
-        if ($aColor['ALPHA'] > 0) {
-            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom,
-                imagecolorallocatealpha($this->image, $aColor['R'], $aColor['G'], $aColor['B'], $aColor['ALPHA']));
-        } else {
-            imagefilledrectangle($this->image, $nRight, $nTop, $nLeft, $nBottom,
-                imagecolorallocate($this->image, $aColor['R'], $aColor['G'], $aColor['B']));
-        }
-
-        return $this;
-    }
-
-    private function readFile()
-    {
-        switch ($this->imageType) {
-            case 'IMAGETYPE_GIF':
-                $this->image = imagecreatefromgif($this->imageFile);
-                break;
-            case 'IMAGETYPE_JPEG':
-                $this->image = imagecreatefromjpeg($this->imageFile);
-                break;
-            case 'IMAGETYPE_PNG':
-                $this->image = imagecreatefrompng($this->imageFile);
-                break;
-            default:
-                $this->image = imagecreatefromstring(file_get_contents($this->imageFile));
-        }
-    }
-
-    private function outputImage($newImageName = null, $type = '')
-    {
-        $isShowed = false;
-
-        if (empty($type)) {
-            $type = $this->realProperties['type'];
-        }
-
-        switch ($type) {
-            case 1:
-                $isShowed = imagegif($this->image, $newImageName);
-                break;
-            case 2:
-                $isShowed = imagejpeg($this->image, $newImageName, $this->quaity);
-                break;
-            case 3:
-            default:
-                $isShowed = imagepng($this->image, $newImageName);
-            #$isShowed = imagepng($this->image, $newImageName, round($this->quaity / 10));
-        }
-
-        imagedestroy($this->image);
-
-        return $isShowed;
-    }
-
-    private function getImageProperties()
-    {
-        $properties = getimagesize($this->imageFile);
-
-        $this->realProperties = array(
-            'width'  => $properties[0],
-            'height' => $properties[1],
-            'type'   => $properties[2],
-            'string' => $properties[3],
-            'bits'   => $properties['bits'],
-            'mime'   => $properties['mime']
-        );
-
-        if (in_array($this->realProperties['type'], array_keys($this->imageTypes))) {
-            $this->imageType = $this->imageTypes[$this->realProperties['type']];
-        }
-
-        $this->exif = exif_read_data($this->imageFile);
-    }
-
-    private function isSupportedType()
-    {
-        $isSupported = in_array($this->imageType, array_keys($this->supportedTypes));
-
-        return $isSupported;
-    }
-
-    private function create()
-    {
-        $this->imageType      = 3;
-        $this->realProperties = array('width'  => $this->defaultWidth
-            , 'height' => $this->defaultHight
-            , 'type'   => $this->imageType
-            , 'string' => 'width="'.$this->defaultWidth.'" height="'.$this->defaultHight.'"'
-            , 'bits'   => 8
-            , 'mime'   => 'image/png'
-        );
-        $this->image          = imagecreate($this->defaultWidth, $this->defaultHight);
-        imagecolorallocate($this->image, 255, 255, 255, 0);
-    }
-
-    private function resize($width, $height)
-    {
-        $image       = imagecreatetruecolor($width, $height);
-        $image       = $this->makeTransparent($image);
-        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $this->realProperties['width'],
-            $this->realProperties['height']);
-        $this->image = $image;
-    }
-
-    private function makeTransparent($image)
-    {
-        if (($this->imageType == 'IMAGETYPE_GIF') || ($this->imageType == 'IMAGETYPE_PNG')) {
-            $trnprt_indx = imagecolortransparent($this->image);
-            if ($trnprt_indx >= 0) {
-                $trnprt_color = imagecolorsforindex($this->image, $trnprt_indx);
-                $trnprt_indx  = imagecolorallocate($image, $trnprt_color['red'], $trnprt_color['green'],
-                    $trnprt_color['blue']);
-                imagefill($image, 0, 0, $trnprt_indx);
-                imagecolortransparent($image, $trnprt_indx);
-            } elseif ($this->imageType == 'IMAGETYPE_PNG') {
-                imagealphablending($image, false);
-                $color = imagecolorallocatealpha($image, 0, 0, 0, 127);
-                imagefill($image, 0, 0, $color);
-                imagesavealpha($image, true);
-            }
-        }
-
-        return $image;
+        return $result;
     }
 
     public function setQuality($quality)
     {
-        $this->quaity = (int) $quality;
+        $this->quality = (int) $quality;
 
         return $this;
     }
 
     public function getQuality()
     {
-        return $this->quaity;
+        return $this->quality;
+    }
+
+    public function getExif()
+    {
+        return $this->exif;
     }
 
     public function rotate($dg)
     {
         if ($dg > 0 and $dg < 360) {
-            $bgColor     = imageColorAllocateAlpha($this->image, 0, 0, 0, 127);
-            $this->image = imagerotate($this->image, $dg, $bgColor);
+            $bgColor = imageColorAllocateAlpha($this->image, 0, 0, 0, 127);
+            $rotated = imagerotate($this->image, $dg, $bgColor);
+            if ($rotated !== false) {
+                imagedestroy($this->image);
+                $this->image = $rotated;
+            }
 
             imagealphablending($this->image, false);
             imagesavealpha($this->image, true);
-
-            $this->realProperties['width']  = imagesx($this->image);
-            $this->realProperties['height'] = imagesy($this->image);
         }
 
         return $this;
@@ -417,5 +150,311 @@ class Image
         }
 
         return $this;
+    }
+
+    public function autoCrop()
+    {
+        $cropped = imagecropauto($this->image, IMG_CROP_TRANSPARENT);
+        if ($cropped !== false) {
+            imagedestroy($this->image);
+            $this->image = $cropped;
+        }
+
+        return $this;
+    }
+
+    public function resizeTo($width, $height)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+        $ratioWidth  = $realWidth / $width;
+        $ratioHeight = $realHeight / $height;
+
+        if ($ratioHeight < $ratioWidth) {
+            $this->resizeByHeight($height);
+            $this->cropToWidth($width);
+        } else {
+            $this->resizeByWidth($width);
+            $this->cropToHeight($height);
+        }
+
+        return $this;
+    }
+
+    public function resizeToMax($width, $height)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+        if ($realHeight > $realWidth) {
+            $ratio     = ($height / $realHeight);
+            $newHeight = $height;
+            $newWidth  = floor($realWidth * $ratio);
+
+            if ($newWidth > $width) {
+                $ratio     = ($width / $newWidth);
+                $newWidth  = $width;
+                $newHeight = floor($newHeight * $ratio);
+            }
+        } else {
+            $ratio     = ($width / $realWidth);
+            $newWidth  = $width;
+            $newHeight = floor($realHeight * $ratio);
+
+            if ($newHeight > $height) {
+                $ratio     = ($height / $newHeight);
+                $newHeight = $height;
+                $newWidth  = floor($newWidth * $ratio);
+            }
+        }
+
+        $this->resize($newWidth, $newHeight);
+
+        return $this;
+    }
+
+    public function resizeByWidth($width)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+
+        if (strpos($width, '%') > 0) {
+            $newWidth = floor($realWidth * ((int) $width / 100));
+        } else {
+            $newWidth = (int) $width;
+        }
+
+        $ratio     = $newWidth / $realWidth;
+        $newHeight = floor($realHeight * $ratio);
+
+        $this->resize($newWidth, $newHeight);
+
+        return $this;
+    }
+
+    public function resizeByHeight($height)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+
+        if (strpos($height, '%') > 0) {
+            $newHeight = floor($realHeight * ((int) $height / 100));
+        } else {
+            $newHeight = (int) $height;
+        }
+
+        $ratio    = $newHeight / $realHeight;
+        $newWidth = floor($realWidth * $ratio);
+
+        $this->resize($newWidth, $newHeight);
+
+        return $this;
+    }
+
+    public function cropToWidth($width)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+        $diff   = $realWidth - $width;
+        $image  = $this->create($width, $realHeight, true);
+        $newPos = floor($diff / 2);
+
+        imagecopyresampled($image, $this->image, 0, 0, $newPos, 0, $width + $diff, $realHeight, $realWidth, $realHeight);
+
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function cropToHeight($height)
+    {
+        list($realWidth, $realHeight) = $this->getSize();
+        $diff   = $realHeight - $height;
+        $image  = $this->create($realWidth, $height, true);
+        $newPos = floor($diff / 2);
+
+        imagecopyresampled($image, $this->image, 0, 0, 0, $newPos, $realWidth, $height + $diff, $realWidth, $realHeight);
+
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function fitTo($width, $height)
+    {
+        $this->resizeToMax($width, $height);
+
+        list($realWidth, $realHeight) = $this->getSize();
+        $newY = ($height > $realHeight) ? floor(($height - $realHeight) / 2) : 0;
+        $newX = ($width > $realWidth) ? floor(($width - $realWidth) / 2) : 0;
+
+        $image = $this->create($width, $height, true);
+
+        imagecopymerge($image, $this->image, $newX, $newY, 0, 0, $realWidth, $realHeight, 100);
+
+        $this->image = $image;
+
+        return $this;
+    }
+
+    public function getWidth()
+    {
+        return imagesx($this->image);
+    }
+
+    public function getHeight()
+    {
+        return imagesy($this->image);
+    }
+
+    public function crop($posX, $posY, $width, $height)
+    {
+        $croped = imagecrop($this->image, ['x' => $posX, 'y' => $posY, 'width' => $width, 'height' => $height]);
+        if ($croped !== false) {
+            imagedestroy($this->image);
+            $this->image = $croped;
+        }
+
+        return $this;
+    }
+
+    public function setFont($font)
+    {
+        $this->font = $font;
+
+        return $this;
+    }
+
+    public function setWatterMark($text, $posX = 0, $posY = 0, $color = array(), $size = 40, $angle = 0)
+    {
+        if (empty($color)) {
+            $color = $this->color;
+        }
+
+        list($red, $green, $blue, $alpha) = $color;
+
+        if ($alpha > 0) {
+            $textColor = imagecolorallocatealpha($this->image, $red, $green, $blue, $alpha);
+        } else {
+            $textColor = imagecolorallocate($this->image, $red, $green, $blue);
+        }
+
+        imagettftext($this->image, $size, $angle, $posX, $posY, $textColor, $this->font, $text);
+
+        return $this;
+    }
+
+    public static function updateExtension($file, $type)
+    {
+        $path    = pathinfo($file);
+        $newName = '';
+
+        if (!empty($path['dirname']) and '.' !== $path['dirname']) {
+            $newName .= $path['dirname'].'/';
+        }
+
+        $newName .= $path['filename'];
+
+        switch ($type) {
+            case self::GIF:
+                $newName .= '.gif';
+                break;
+            case self::JPG:
+                $newName .= '.jpg';
+                break;
+            case self::PNG:
+                $newName .= '.png';
+                break;
+        }
+
+        return $newName;
+    }
+
+    private function getSize()
+    {
+        return array(imagesx($this->image), imagesy($this->image));
+    }
+
+    private function outputImage($file = null, $type = '')
+    {
+        $result = false;
+
+        if (empty($type)) {
+            $type = $this->type;
+        }
+
+        switch ($type) {
+            case self::GIF:
+                $result  = imagegif($this->image, $file);
+                break;
+            case self::JPG:
+                $result  = imagejpeg($this->image, $file, $this->quality);
+                break;
+            case self::PNG:
+                $quality = ($this->quality - 100) / 11.111111;
+                $quality = round(abs($quality));
+                $result  = imagepng($this->image, $file, $quality);
+        }
+
+        imagedestroy($this->image);
+
+        return $result;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    private function checkFile($file)
+    {
+        $result = false;
+
+        if (is_file($file) and is_readable($file) and in_array($this->getMime($file), $this->imageType)) {
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    private function getMime($file)
+    {
+        return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $file);
+    }
+
+    private function read($file)
+    {
+        $this->file = $file;
+        $this->type = $this->getMime($file);
+        $this->exif = exif_read_data($file);
+
+        switch ($this->type) {
+            case self::GIF:
+                $this->image = imagecreatefromgif($file);
+                break;
+            case self::JPG:
+                $this->image = imagecreatefromjpeg($file);
+                break;
+            case self::PNG:
+                $this->image = imagecreatefrompng($file);
+                break;
+        }
+    }
+
+    private function create($width, $height, $alpha = false)
+    {
+        if ($alpha) {
+            $image = imagecreatetruecolor($width, $height);
+            imagesavealpha($image, true);
+            $color = imagecolorallocatealpha($image, 0, 0, 0, 127);
+            imagefill($image, 0, 0, $color);
+        } else {
+            $image = imagecreate($width, $height);
+        }
+
+        return $image;
+    }
+
+    private function resize($width, $height)
+    {
+        $image = $this->create($width, $height, true);
+        list($realWidth, $realHeight) = $this->getSize();
+        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $realWidth, $realHeight);
+
+        $this->image = $image;
     }
 }
