@@ -110,10 +110,10 @@ class Image
 
     public function resizeToMax($width, $height)
     {
-        if ($this->realProperties['height'] > $this->realProperties['width']) {
-            $ratio     = ($height / $this->realProperties['height']);
+        if (imagesy($this->image) > imagesx($this->image)) {
+            $ratio     = ($height / imagesy($this->image));
             $newHeight = $height;
-            $newWidth  = floor($this->realProperties['width'] * $ratio);
+            $newWidth  = floor(imagesx($this->image) * $ratio);
 
             if ($newWidth > $width) {
                 $ratio     = ($width / $newWidth);
@@ -121,9 +121,9 @@ class Image
                 $newHeight = floor($newHeight * $ratio);
             }
         } else {
-            $ratio     = ($width / $this->realProperties['width']);
+            $ratio     = ($width / imagesx($this->image));
             $newWidth  = $width;
-            $newHeight = floor($this->realProperties['height'] * $ratio);
+            $newHeight = floor(imagesy($this->image) * $ratio);
 
             if ($newHeight > $height) {
                 $ratio     = ($height / $newHeight);
@@ -133,6 +133,35 @@ class Image
         }
 
         $this->resize($newWidth, $newHeight);
+
+        return $this;
+    }
+
+    public function fitTo($width, $height)
+    {
+        $this->resizeToMax($width, $height);
+
+        $srcWidth  = imagesx($this->image);
+        $srcHeight = imagesy($this->image);
+
+        $newImage = imagecreatetruecolor($width, $height);
+        imagesavealpha($newImage, true);
+        $color    = imagecolorallocatealpha($newImage, 0, 0, 0, 127);
+        imagefill($newImage, 0, 0, $color);
+
+        $newY = 0;
+        if ($height > imagesy($this->image)) {
+            $newY = floor(($height - imagesy($this->image)) / 2);
+        }
+
+        $newX = 0;
+        if ($width > imagesx($this->image)) {
+            $newX = floor(($width - imagesx($this->image)) / 2);
+        }
+
+        imagecopymerge($newImage, $this->image, $newX, $newY, 0, 0, $srcWidth, $srcHeight, 100);
+
+        $this->image = $newImage;
 
         return $this;
     }
@@ -263,7 +292,8 @@ class Image
                 break;
             case 3:
             default:
-                $isShowed = imagepng($this->image, $newImageName, round($this->quaity / 10));
+                $isShowed = imagepng($this->image, $newImageName);
+            #$isShowed = imagepng($this->image, $newImageName, round($this->quaity / 10));
         }
 
         imagedestroy($this->image);
@@ -309,7 +339,7 @@ class Image
             , 'mime'   => 'image/png'
         );
         $this->image          = imagecreate($this->defaultWidth, $this->defaultHight);
-        imagecolorallocate($this->image, 255, 255, 2550);
+        imagecolorallocate($this->image, 255, 255, 255, 0);
     }
 
     private function resize($width, $height)
