@@ -14,6 +14,8 @@
 
 namespace Luki;
 
+use Luki\Image\Filter\BasicInterface as FilterInterface;
+
 class Image
 {
     const GIF = 'image/gif';
@@ -419,6 +421,13 @@ class Image
     public function setInterpolation($method = '')
     {
         imagesetinterpolation($this->image, $method);
+
+        return $this;
+    }
+
+    public function filter(FilterInterface $filter)
+    {
+        $this->image = $filter->filter($this->image);
 
         return $this;
     }
