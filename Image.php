@@ -400,6 +400,22 @@ class Image
         return $newName;
     }
 
+    public function setResolution($resX, $resY = '')
+    {
+        if (empty($resY)) {
+            imageresolution($this->image, $resX);
+        } else {
+            imageresolution($this->image, $resX, $resY);
+        }
+
+        return $this;
+    }
+
+    public function getResolution()
+    {
+        return imageresolution($this->image);
+    }
+
     private function outputImage($file = null, $type = '')
     {
         $result = false;
