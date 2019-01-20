@@ -301,6 +301,11 @@ class Image
         return imagesy($this->image);
     }
 
+    public function getSize()
+    {
+        return array(imagesx($this->image), imagesy($this->image));
+    }
+
     public function crop($posX, $posY, $width, $height)
     {
         $croped = imagecrop($this->image, ['x' => $posX, 'y' => $posY, 'width' => $width, 'height' => $height]);
@@ -343,6 +348,32 @@ class Image
         return $this;
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function flipHorizontal()
+    {
+        imageflip($this->image, IMG_FLIP_HORIZONTAL);
+
+        return $this;
+    }
+
+    public function flipVertical()
+    {
+        imageflip($this->image, IMG_FLIP_VERTICAL);
+
+        return $this;
+    }
+
+    public function flipBoth()
+    {
+        imageflip($this->image, IMG_FLIP_BOTH);
+
+        return $this;
+    }
+
     public static function updateExtension($file, $type)
     {
         $path    = pathinfo($file);
@@ -369,11 +400,6 @@ class Image
         return $newName;
     }
 
-    private function getSize()
-    {
-        return array(imagesx($this->image), imagesy($this->image));
-    }
-
     private function outputImage($file = null, $type = '')
     {
         $result = false;
@@ -398,11 +424,6 @@ class Image
         imagedestroy($this->image);
 
         return $result;
-    }
-
-    public function getType()
-    {
-        return $this->type;
     }
 
     private function checkFile($file)
