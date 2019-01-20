@@ -15,6 +15,7 @@
 namespace Luki;
 
 use Luki\Image\Filter\BasicInterface as FilterInterface;
+use Luki\Image\Convolution\BasicInterface as ConvolutionInterface;
 
 class Image
 {
@@ -428,6 +429,13 @@ class Image
     public function filter(FilterInterface $filter)
     {
         $this->image = $filter->filter($this->image);
+
+        return $this;
+    }
+
+    public function convolution(ConvolutionInterface $convolution)
+    {
+        $this->image = $convolution->convolution($this->image);
 
         return $this;
     }
