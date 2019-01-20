@@ -319,6 +319,11 @@ class Image
         return $this;
     }
 
+    public function getFont()
+    {
+        return $this->font;
+    }
+
     public function setWatterMark($text, $posX = 0, $posY = 0, $color = array(), $size = 40, $angle = 0)
     {
         if (empty($color)) {
