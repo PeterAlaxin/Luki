@@ -416,6 +416,13 @@ class Image
         return imageresolution($this->image);
     }
 
+    public function setInterpolation($method = '')
+    {
+        imagesetinterpolation($this->image, $method);
+
+        return $this;
+    }
+
     private function outputImage($file = null, $type = '')
     {
         $result = false;
