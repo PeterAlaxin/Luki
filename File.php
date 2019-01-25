@@ -66,7 +66,7 @@ class File
     public static function createDir($structure, $mode = 0755)
     {
         $isCreated = false;
-        if (mkdir($structure, $mode, true)) {
+        if (!is_dir($structure) and mkdir($structure, $mode, true)) {
             $isCreated = true;
         }
 
