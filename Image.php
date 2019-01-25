@@ -486,13 +486,13 @@ class Image
     {
         $this->file = $file;
         $this->type = $this->getMime($file);
-        $this->exif = exif_read_data($file);
 
         switch ($this->type) {
             case self::GIF:
                 $this->image = imagecreatefromgif($file);
                 break;
             case self::JPG:
+                $this->exif  = exif_read_data($file);
                 $this->image = imagecreatefromjpeg($file);
                 break;
             case self::PNG:
