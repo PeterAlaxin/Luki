@@ -72,4 +72,15 @@ class File
 
         return $isCreated;
     }
+
+    public static function getSafeFilename($folder, $extension)
+    {
+        $name = Security::generatePassword(10, 2);
+
+        while (file_exists($folder.$name.'.'.$extension)) {
+            $name = Security::generatePassword(10, 2);
+        }
+
+        return $name.'.'.$extension;
+    }
 }
