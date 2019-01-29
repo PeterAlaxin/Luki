@@ -654,4 +654,13 @@ class Color
 
         return $scheme;
     }
+
+    public static function getRandomColor()
+    {
+        $r = rand(0, 255);
+        $g = rand(0, 255);
+        $b = rand(0, 255);
+
+        return self::rgb2hex($r, $g, $b);
+    }
 }
