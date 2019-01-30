@@ -347,4 +347,32 @@ class Date
 
         return $microTime;
     }
+
+    public static function getWeekNumber($date)
+    {
+        $date = new \DateTime($date);
+
+        return $date->format("W");
+    }
+
+    public static function isEvenWeek($date)
+    {
+        $week = self::getWeekNumber($date);
+
+        return ($week % 2 == 0);
+    }
+
+    public static function isOddWeek($date)
+    {
+        $week = self::getWeekNumber($date);
+
+        return ($week % 2 != 0);
+    }
+
+    public static function getDayInWeekNumber($date)
+    {
+        $date = new \DateTime($date);
+
+        return $date->format("w");
+    }
 }
