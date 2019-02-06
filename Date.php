@@ -310,42 +310,22 @@ class Date
 
     public static function DateTimeToFormat($dateTime, $format = null)
     {
-        $oldFormat = self::getFormat();
-        $microTime = self::DateTimeToMicrotime($dateTime);
         $date      = false;
+        $microTime = self::DateTimeToMicrotime($dateTime);
 
         if (is_null($format)) {
-            $format = $oldFormat;
+            $format = self::getFormat();
         }
-
-        if (false !== $microTime and self::setFormat($format)) {
-            $date = date(self::$format, $microTime);
+        if (false !== $microTime) {
+            $date = date($format, $microTime);
         }
-
-        self::setFormat($oldFormat);
 
         return $date;
     }
 
     public static function DateTimeToMicrotime($dateTime)
     {
-        $microTime = false;
-        $dateTime  = explode(' ', $dateTime);
-
-        if (1 === preg_match(self::$dateValidator, $dateTime[0])) {
-            $date = explode('-', $dateTime[0]);
-
-            if (!isset($dateTime[1])) {
-                $dateTime[1] = '00:00:00';
-            }
-
-            if (1 === preg_match(Time::$timeValidator, $dateTime[1])) {
-                $time      = explode(':', $dateTime[1]);
-                $microTime = mktime($time[0], $time['1'], $time[2], $date[1], $date[2], $date[0]);
-            }
-        }
-
-        return $microTime;
+        return strtotime($dateTime);
     }
 
     public static function getWeekNumber($date)
