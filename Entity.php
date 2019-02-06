@@ -270,7 +270,7 @@ class Entity
         $this->code .= Template::phpRow('$row = array();', 2);
         $this->code .= Template::phpRow('foreach($this->row as $key => $column) {', 2);
         $this->code .= Template::phpRow('$row[$key] = $column["ActualValue"];', 3);
-        $this->code .= Template::phpRow('};', 2);
+        $this->code .= Template::phpRow('}', 2);
         $this->code .= Template::phpRow('return $row;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
@@ -282,7 +282,7 @@ class Entity
         $this->code .= Template::phpRow('$row = array();', 2);
         $this->code .= Template::phpRow('foreach($this->row as $key => $column) {', 2);
         $this->code .= Template::phpRow('$row[$key] = $column["OriginalValue"];', 3);
-        $this->code .= Template::phpRow('};', 2);
+        $this->code .= Template::phpRow('}', 2);
         $this->code .= Template::phpRow('return $row;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
@@ -296,8 +296,8 @@ class Entity
         $this->code .= Template::phpRow('if($column["Changed"]) {', 3);
         $this->code .= Template::phpRow('$row[$key]["from"] = $column["OriginalValue"];', 4);
         $this->code .= Template::phpRow('$row[$key]["to"] = $column["ActualValue"];', 4);
-        $this->code .= Template::phpRow('};', 3);
-        $this->code .= Template::phpRow('};', 2);
+        $this->code .= Template::phpRow('}', 3);
+        $this->code .= Template::phpRow('}', 2);
         $this->code .= Template::phpRow('return $row;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
@@ -352,7 +352,7 @@ class Entity
         $this->code .= Template::phpRow('$changes = $this->getChanges();', 2);
         $this->code .= Template::phpRow('$data = array();', 2);
         $this->code .= Template::phpRow('foreach($changes as $column => $values) {', 2);
-        $this->code .= Template::phpRow('$data["$column"] = $values["to"];', 3);
+        $this->code .= Template::phpRow('$data[$column] = $values["to"];', 3);
         $this->code .= Template::phpRow('}', 2);
 
         foreach ($this->structure as $field) {
@@ -373,7 +373,7 @@ class Entity
         $this->code .= Template::phpRow('$this->row[$key]["Valid"] = false;', 3);
         $this->code .= Template::phpRow('$this->row[$key]["OriginalValue"] = $column["Default"];', 3);
         $this->code .= Template::phpRow('$this->row[$key]["ActualValue"] = $column["Default"];', 3);
-        $this->code .= Template::phpRow('};', 2);
+        $this->code .= Template::phpRow('}', 2);
         foreach ($this->structure as $field) {
             if ('id' === $field['Field']) {
                 $this->code .= Template::phpRow('$this->setId(0);', 2);
