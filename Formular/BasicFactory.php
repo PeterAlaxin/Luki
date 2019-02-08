@@ -137,7 +137,7 @@ abstract class BasicFactory implements BasicInterface
     public function setRequired()
     {
         $this->required               = true;
-        $this->attributes['required'] = 'required';
+        $this->attributes['required'] = '';
 
         return $this;
     }
@@ -183,6 +183,13 @@ abstract class BasicFactory implements BasicInterface
         );
 
         return $html;
+    }
+
+    public function setAutofocus()
+    {
+        $this->attributes['autofocus'] = '';
+
+        return $this;
     }
 
     private function _validate()
