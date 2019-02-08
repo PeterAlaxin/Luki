@@ -307,6 +307,11 @@ class Select
         $this->_addColumns($table, $columns);
     }
 
+    public function getFrom()
+    {
+        return $this->select['from'];
+    }
+
     private function finalizeSelect()
     {
         #<editor-fold defaultstate="collapsed" desc="Union">
