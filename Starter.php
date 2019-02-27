@@ -203,7 +203,6 @@ class Starter
             }
         } else {
             $database = Storage::Configuration()->getSection('database');
-
             if (!empty($database)) {
                 $adapterName = Data::findAdapter($database['adapter']);
                 $adapter     = new $adapterName($database);
