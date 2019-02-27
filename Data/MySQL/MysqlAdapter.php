@@ -107,4 +107,11 @@ class MysqlAdapter extends BasicAdapter
         $this->deleted            = mysql_affected_rows($this->connection);
         $this->allDeleted[$table] = $this->deleted;
     }
+
+    public function getError()
+    {
+        $error = mysql_error($this->connection);
+
+        return $error;
+    }
 }

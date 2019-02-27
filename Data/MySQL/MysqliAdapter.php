@@ -103,4 +103,11 @@ class MysqliAdapter extends BasicAdapter
         $this->deleted            = $this->mySql->affected_rows;
         $this->allDeleted[$table] = $this->deleted;
     }
+
+    public function getError()
+    {
+        $error = $this->mySql->error;
+
+        return $error;
+    }
 }

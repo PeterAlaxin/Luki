@@ -65,7 +65,7 @@ class Select
 
     public function __toString()
     {
-        $sql = $this->finalizeSelect();
+        $sql = str_replace(chr(13), '', $this->finalizeSelect());
 
         return $sql;
     }
