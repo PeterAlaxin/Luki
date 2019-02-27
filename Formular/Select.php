@@ -35,7 +35,9 @@ class Select extends BasicFactory
         $html = array(
             'label' => $this->prepareLabel(),
             'input' => $this->prepareInput(),
-            'value' => $this->getValue()
+            'value' => $this->getValue(),
+            'hint'  => $this->getHint(),
+            'name'  => $this->getName()
         );
 
         return $html;

@@ -27,8 +27,13 @@ class Checkbox extends BasicFactory
 
     public function setValue($value)
     {
-        $this->value = $value;
-        if (!empty($value)) {
+        if ('off' === $value or false === $value or 0 === $value or "0" === $value or null === $value) {
+            $this->value = 0;
+        } else {
+            $this->value = 1;
+        }
+
+        if ($this->value) {
             $this->setAttribute('checked', 'checked');
         }
         return $this;

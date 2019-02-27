@@ -27,6 +27,7 @@ abstract class BasicFactory implements BasicInterface
     private $validators = array();
     private $errors     = array();
     private $required   = false;
+    private $hint       = '';
 
     public function __construct($name, $label, $placeholder = '')
     {
@@ -134,6 +135,18 @@ abstract class BasicFactory implements BasicInterface
         return $this->label;
     }
 
+    public function setHint($hint)
+    {
+        $this->hint = $hint;
+
+        return $this;
+    }
+
+    public function getHint()
+    {
+        return $this->hint;
+    }
+
     public function setRequired()
     {
         $this->required               = true;
@@ -151,6 +164,9 @@ abstract class BasicFactory implements BasicInterface
 
     public function addValidator(\Luki\Validator\BasicFactory $validator)
     {
+        if (strpos(get_class($validator), 'NotBlank') > 0) {
+            $this->addToAttribute('required', '');
+        }
         $this->validators[] = $validator;
 
         return $this;
@@ -172,22 +188,37 @@ abstract class BasicFactory implements BasicInterface
     {
         $attributes = '';
         foreach ($this->getAttributes() as $attribute => $value) {
-            $attributes .= $attribute.'="'.$value.'" ';
+            if ('' == $value) {
+                $attributes .= $attribute.' ';
+            } else {
+                $attributes .= $attribute.'="'.$value.'" ';
+            }
         }
 
         $html = array(
-            'label' => '<label for="'.$this->getId().'">'.$this->getLabel().'</label>',
-            'input' => '<input '.$attributes.'>',
-            'value' => $this->getValue(),
-            'id'    => $this->id
+            'label'     => '<label for="'.$this->getId().'" class="control-label">'.$this->getLabel().'</label>',
+            'labelText' => $this->getLabel(),
+            'input'     => '<input '.$attributes.'>',
+            'value'     => $this->getValue(),
+            'id'        => $this->id,
+            'hint'      => $this->getHint(),
+            'type'      => $this->getType(),
+            'name'      => $this->getName()
         );
 
         return $html;
     }
 
-    public function setAutofocus()
+    public function disabled()
     {
-        $this->attributes['autofocus'] = '';
+        $this->attributes['disabled'] = 'disabled';
+
+        return $this;
+    }
+
+    public function readonly()
+    {
+        $this->attributes['readonly'] = 'readonly';
 
         return $this;
     }
@@ -197,9 +228,16 @@ abstract class BasicFactory implements BasicInterface
         $this->errors = array();
 
         foreach ($this->validators as $validator) {
-            if (!$validator->isValid($this->getValue())) {
+            if (!$validator->isValid($this->value)) {
                 $this->errors[] = $validator->getError();
             }
         }
+    }
+
+    public function setAutofocus()
+    {
+        $this->attributes['autofocus'] = '';
+
+        return $this;
     }
 }

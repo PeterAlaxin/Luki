@@ -14,20 +14,27 @@
 
 namespace Luki;
 
+use Luki\Formular\Hidden;
+use Luki\Security;
+use Luki\Storage;
+use Luki\Url;
+
 class Formular
 {
-    private $name         = '';
-    private $id           = '';
-    private $method       = 'post';
-    private $inputs       = array();
-    private $enctype      = 'application/x-www-form-urlencoded';
-    private $hasFocus     = true;
-    private $action       = '';
-    private $errors       = array();
-    private $autocomplete = 'on';
-    private $noValidate   = false;
-    private $target       = '_self';
-    private $class        = '';
+    private $name          = '';
+    private $id            = '';
+    private $method        = 'post';
+    private $inputs        = array();
+    private $enctype       = 'application/x-www-form-urlencoded';
+    private $hasFocus      = true;
+    private $action        = '';
+    private $errors        = array();
+    private $autocomplete  = 'on';
+    private $noValidate    = false;
+    private $target        = '_self';
+    private $class         = '';
+    private $tokenValidity = 300;
+    private $tokenName     = '';
 
     public function __construct($name)
     {
@@ -222,9 +229,11 @@ class Formular
     public function getFormular()
     {
         $formular = array(
-            'form'   => $this->getFormularHeader(),
-            'inputs' => $this->getInputs(),
-            'errors' => $this->getErrors());
+            'form'    => $this->getFormularHeader(),
+            'inputs'  => $this->getInputs(),
+            'errors'  => $this->getErrors(),
+            'timeout' => $this->getTokenValidity()
+        );
 
         return $formular;
     }
@@ -263,5 +272,70 @@ class Formular
         }
 
         return $return;
+    }
+
+    public function setTokenValidity($value = 600)
+    {
+        $this->tokenValidity = (int) $value;
+
+        return $this;
+    }
+
+    public function getTokenValidity()
+    {
+        return $this->tokenValidity;
+    }
+
+    public function addToken($data, $id = 0)
+    {
+        $this->tokenName = $this->name.'_'.$id.'_token';
+        $token           = new Hidden('__token', 'Secure Token');
+
+        if (empty($data['__token'])) {
+            $token->setValue($this->generateToken());
+        } else {
+            $token->setValue($data['__token']);
+        }
+        $this->addInput($token);
+
+        return $this;
+    }
+
+    public function verifyToken()
+    {
+        if (empty($this->inputs['__token'])) {
+            return true;
+        }
+
+        $tokenFromFromular = $this->inputs['__token']->getValue();
+        $tokenFromCache    = Storage::Cache()->Get($this->tokenName);
+        $isValid           = false;
+
+        if (Security::passwordVerify(Storage::Request()->getFullUrl(), $tokenFromFromular)) {
+            if ($tokenFromFromular === $tokenFromCache) {
+                $isValid = true;
+            }
+        } else {
+            Url::Reload('https://en.wikipedia.org/wiki/Cross-site_request_forgery');
+        }
+
+        $this->inputs['__token']->setValue($this->generateToken());
+
+        return $isValid;
+    }
+
+    private function generateToken()
+    {
+        $hash = Security::passwordHash(Storage::Request()->getFullUrl());
+        Storage::Cache()->Set($this->tokenName, $hash, $this->tokenValidity);
+
+        return $hash;
+    }
+
+    public function getToken()
+    {
+        $token = Storage::Cache()->Get($this->tokenName);
+
+        return $token;
     }
 }
