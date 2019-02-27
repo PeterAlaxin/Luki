@@ -98,6 +98,7 @@ class Entity
         $this->addFunctionFindFulltext();
         $this->addFunctionFindOneBy();
         $this->addFunctionFindAll();
+        $this->addFunctionSetRow();
         $this->addFunctionGetRow();
         $this->addFunctionGetOriginalRow();
         $this->addFunctionFillRow();
@@ -110,6 +111,7 @@ class Entity
         $this->addFunctionDelete();
         $this->addFunctionCount();
         $this->addFunctionCountAll();
+        $this->addFunctionIsEqual();
     }
 
     private function addFunctionConstruct()
@@ -390,12 +392,18 @@ class Entity
         $this->code .= Template::phpRow('public function insert() {');
         $this->code .= Template::phpRow('$data = array();', 2);
         $this->code .= Template::phpRow('foreach($this->row as $column => $values) {', 2);
-        $this->code .= Template::phpRow('$data["$column"] = $values["ActualValue"];', 3);
+        $this->code .= Template::phpRow('if($values["Changed"]) {', 3);
+        $this->code .= Template::phpRow('$data["$column"] = $values["ActualValue"];', 4);
+        $this->code .= Template::phpRow('}', 3);
         $this->code .= Template::phpRow('}', 2);
-        $this->code .= Template::phpRow('$this->data->Insert("'.$this->table.'", $data);', 2);
-        $this->code .= Template::phpRow('$id = $this->data->getLastID("'.$this->table.'");', 2);
-        $this->code .= Template::phpRow('$this->find($id);', 2);
-        $this->code .= Template::phpRow('return $this;', 2);
+        $this->code .= Template::phpRow('$id = false;', 2);
+        $this->code .= Template::phpRow('if($this->data->Insert("'.$this->table.'", $data)) {', 2);
+        $this->code .= Template::phpRow('$id = $this->data->getLastID("'.$this->table.'");', 3);
+        $this->code .= Template::phpRow('if(!empty($id)) {', 3);
+        $this->code .= Template::phpRow('$this->find($id);', 4);
+        $this->code .= Template::phpRow('}', 3);
+        $this->code .= Template::phpRow('}', 2);
+        $this->code .= Template::phpRow('return $id;', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
     }
@@ -531,6 +539,39 @@ class Entity
                 2);
         $this->code .= Template::phpRow('$counter = $this->data->Query($select)->Get("counter");', 2);
         $this->code .= Template::phpRow('return $counter;', 2);
+        $this->code .= Template::phpRow('}', 1);
+        $this->code .= Template::phpRow('', 0);
+    }
+
+    private function addFunctionIsEqual()
+    {
+        $this->code .= Template::phpRow('public function isEqual($data) {');
+        $this->code .= Template::phpRow('$keys = array_keys($this->row);', 2);
+        $this->code .= Template::phpRow('$equal = true;', 2);
+        $this->code .= Template::phpRow('foreach($data as $key => $value) {', 2);
+        $this->code .= Template::phpRow('if($key != "id" and in_array($key, $keys)) {', 3);
+        $this->code .= Template::phpRow('if($value != $this->row[$key]["ActualValue"]) {', 4);
+        $this->code .= Template::phpRow('$equal = false;', 4);
+        $this->code .= Template::phpRow('break;', 4);
+        $this->code .= Template::phpRow('}', 4);
+        $this->code .= Template::phpRow('}', 3);
+        $this->code .= Template::phpRow('}', 2);
+        $this->code .= Template::phpRow('return $equal;', 2);
+        $this->code .= Template::phpRow('}', 1);
+        $this->code .= Template::phpRow('', 0);
+    }
+
+    private function addFunctionSetRow()
+    {
+        $this->code .= Template::phpRow('public function setRow($data) {');
+        $this->code .= Template::phpRow('$keys = array_keys($this->row);', 2);
+        $this->code .= Template::phpRow('foreach($data as $key => $value) {', 2);
+        $this->code .= Template::phpRow('if($key != "id" and in_array($key, $keys) and $this->row[$key]["ActualValue"] != $value) {',
+                3);
+        $this->code .= Template::phpRow('$this->row[$key]["ActualValue"] = $value;', 4);
+        $this->code .= Template::phpRow('$this->row[$key]["Changed"] = true;', 4);
+        $this->code .= Template::phpRow('}', 3);
+        $this->code .= Template::phpRow('}', 2);
         $this->code .= Template::phpRow('}', 1);
         $this->code .= Template::phpRow('', 0);
     }
