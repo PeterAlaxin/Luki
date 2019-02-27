@@ -86,7 +86,8 @@ abstract class Model
     public function getEntity($table, BasicInterface $adapter)
     {
         $entityName = $table.'Entity';
-        $entityFile = Storage::dirEntity().'/'.$entityName.'.php';
+        $entityFile = Storage::dirEntity().$entityName.'.php';
+
         if (!is_file($entityFile)) {
             $newEntity = new Entity($table);
             $newEntity->setData($adapter)
