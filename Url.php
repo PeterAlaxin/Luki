@@ -50,19 +50,12 @@ class Url
 
         if (is_string($value)) {
             $link = mb_strtolower($value, 'UTF-8');
-            $link = html_entity_decode($link, ENT_QUOTES, 'UTF-8');
-            $link = preg_replace("/[^a-zA-Z0-9-._~\[\]@!$&'()*+=ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿĀāĂăĄąĆćĈĉĊċČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğĠġĢģĤĥĦħĨĩĪīĬĭĮįİıĲĳĴĵĶķĹĺĻļĽľĿŀŁłŃńŅņŇňŉŌōŎŏŐőŒœŔŕŖŗŘřŚśŜŝŞşŠšŢţŤťŦŧŨũŪūŬŭŮůŰűŲųŴŵŶŷŸŹźŻżŽžſƒƠơƯưǍǎǏǐǑǒǓǔǕǖǗǘǙǚǛǜǺǻǼǽǾǿ]/u",
-                '-', $link);
-            if (!$allowUnicode) {
-                $link = str_replace(self::$accentedChars, self::$cleanChars, $link);
-            }
-
             $link = str_replace('&', '-and-', $link);
-            $link = urlencode($link);
-            $link = str_replace('+', '-', $link);
-            $link = preg_replace('/--+/u', '-', $link);
-            $link = trim($link, '.-_');
-            $link = urldecode($link);
+            $link = preg_replace('~[^\pL\d]+~u', '-', $link);
+            $link = str_replace(self::$accentedChars, self::$cleanChars, $link);
+            $link = preg_replace('~[^-\w]+~', '', $link);
+            $link = trim($link, '-');
+            $link = preg_replace('~-+~', '-', $link);
         } elseif (is_array($value)) {
 
             foreach ($value as $linkPart) {
