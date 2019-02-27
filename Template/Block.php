@@ -27,7 +27,8 @@ class Block
     protected $operators          = array("(", ")", "==", "===", "!=", "<", ">", "<=", ">=", "+", "-", "or", "and");
     protected $logic              = array("is blank", "is not blank", "is constant", "is not constant", "is defined", "is not defined",
         "is even", "is not even", "is iterable", "is not iterable", "is null", "is not null", "is odd", "is not odd", "is sameas",
-        "is not sameas", "is divisible by", "is not divisible by");
+        "is not sameas", "is divisible by", "is not divisible by", 'is in', 'is not in');
+    protected $bool               = array('is true', 'is false');
 
     public function __construct($block)
     {
@@ -42,6 +43,7 @@ class Block
         $this->defineVariables();
         $this->setVariables();
         $this->forBlock();
+        $this->whileBlock();
         $this->ifBlock();
         $this->includeBlock();
         $this->renderBlock();
@@ -86,8 +88,9 @@ class Block
             $text = '<?php $this->aData["'.$match[1].'"] = ';
 
             $subMatches = array();
-            preg_match_all('/[a-zA-Z0-9_\."\'\(\),\|]*|\+|-|~|\*|\/|\(|\)/', $match[2], $subMatches, PREG_SET_ORDER);
-
+#            $regex = '/[a-zA-Z0-9_\.\"\'\(\),\|]*|\+|-|~|\*|\/|\(|\)/';
+            $regex      = '/("([^"]|"")*")|(\'([^\'\']|\'\')*\')|[a-zA-Z0-9_\.\"\'\(\),\|]*|\+|-|~|\*|\/|\(|\)/';
+            preg_match_all($regex, $match[2], $subMatches, PREG_SET_ORDER);
             foreach ($subMatches as $subMatch) {
                 if ('' === $subMatch[0]) {
                     continue;
@@ -206,37 +209,66 @@ class Block
     {
         $matches = array();
         preg_match_all('|{% if (.+) %}|U', $this->content, $matches, PREG_SET_ORDER);
-
         foreach ($matches as $match) {
-
-            $subMatches = array();
-            preg_match_all('/\(|\)|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|==|===|!=|\<|\>|\<=|\>=|".*"|[a-zA-Z0-9_\."\']*|\+|-/',
-                $match[1], $subMatches, PREG_SET_ORDER);
-            $condition  = '';
-
-            foreach ($subMatches as $subMatch) {
-                if (in_array($subMatch[0], $this->operators) or is_numeric($subMatch[0])) {
-                    $condition .= $subMatch[0];
-                } elseif (in_array($subMatch[0], $this->logic)) {
-                    $condition = $this->generateTest($match, $subMatch);
-                } elseif (empty($subMatch[0])) {
-                    $condition .= ' ';
-                } else {
-                    $condition .= $this->transformToVariable($subMatch[0], true);
-                }
-
-                if (strpos($subMatch[0], ' sameas') > 0 or
-                    strpos($subMatch[0], ' divisible by') > 0) {
-                    break;
-                }
-            }
-
-            $this->content = str_replace($match[0], Template::phpRow('<?php if('.trim($condition).') { ?>', 0, 0),
+            $condition     = $this->transformCondition($match);
+            $this->content = str_replace($match[0], Template::phpRow('<?php if ('.trim($condition).') { ?>', 0, 0),
                 $this->content);
+        }
+
+        preg_match_all('|{% elseif (.+) %}|U', $this->content, $matches, PREG_SET_ORDER);
+        foreach ($matches as $match) {
+            $condition     = $this->transformCondition($match);
+            $this->content = str_replace($match[0],
+                Template::phpRow('<?php } elseif ('.trim($condition).') { ?>', 0, 0), $this->content);
         }
 
         $this->content = str_replace('{% else %}', Template::phpRow('<?php } else { ?>', 0, 0), $this->content);
         $this->content = str_replace('{% endif %}', Template::phpRow('<?php } ?>', 0, 0), $this->content);
+    }
+
+    private function whileBlock()
+    {
+        $matches = array();
+        preg_match_all('|{% while (.+) %}|U', $this->content, $matches, PREG_SET_ORDER);
+
+        foreach ($matches as $match) {
+            $condition     = $this->transformCondition($match);
+            $this->content = str_replace($match[0], Template::phpRow('<?php while ('.trim($condition).') { ?>', 0, 0),
+                $this->content);
+        }
+
+        $this->content = str_replace('{% endwhile %}', Template::phpRow('<?php } ?>', 0, 0), $this->content);
+    }
+
+    private function transformCondition($match)
+    {
+        $subMatches = array();
+        preg_match_all('/\(|\)|is true|is false|is blank|is not blank|is constant|is not constant|is defined|is not defined|is even|is not even|is iterable|is not iterable|is null|is not null|is odd|is not odd|is sameas|is not sameas|is divisible by|is not divisible by|is in|is not in|==|===|!=|\<=|\>=|\<|\>|".*"|[a-zA-Z0-9_\."\']*|\+|-/',
+            $match[1], $subMatches, PREG_SET_ORDER);
+
+        $condition = '';
+
+        foreach ($subMatches as $subMatch) {
+            if (in_array($subMatch[0], $this->operators) or is_numeric($subMatch[0])) {
+                $condition .= $subMatch[0];
+            } elseif (in_array($subMatch[0], $this->logic)) {
+                $condition = $this->generateTest($match, $subMatch);
+            } elseif (in_array($subMatch[0], $this->bool)) {
+                $condition .= str_replace('is ', '== ', $subMatch[0]);
+            } elseif (empty($subMatch[0])) {
+                $condition .= ' ';
+            } else {
+                $condition .= $this->transformToVariable($subMatch[0], true);
+            }
+
+            if (strpos($subMatch[0], ' sameas') > 0 or
+                strpos($subMatch[0], ' divisible by') > 0 or
+                strpos($subMatch[0], ' in') > 0) {
+                break;
+            }
+        }
+
+        return $condition;
     }
 
     private function includeBlock()
@@ -383,6 +415,12 @@ class Block
                 $first      = $this->transformToVariable($conditions[0]);
                 $second     = str_replace(array("by(", ")"), array("", ""), $conditions[count($conditions) - 1]);
                 $condition  .= '$this->aTests["divisibleby"]->Is('.$first.', '.$second.')';
+                break;
+            case 'in':
+                $conditions = explode(' ', $match[1]);
+                $first      = $this->transformToVariable($conditions[0]);
+                $second     = $this->transformToVariable($conditions[3]);
+                $condition  .= 'in_array('.$first.', '.$second.')';
                 break;
         }
 

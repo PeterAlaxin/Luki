@@ -48,6 +48,10 @@ class Template
         $templateWithoutTemplate = preg_replace('/\/template/', '', $templateWithoutTwig);
         $class                   = ucwords(preg_replace('/\//', ' ', $templateWithoutTemplate));
 
+        if (empty($class)) {
+            throw new \Exception('Wrong template: '.$this->template);
+        }
+
         $this->class = implode('', array_slice(explode(' ', $class), -2));
 
         if (Storage::isProfiler()) {

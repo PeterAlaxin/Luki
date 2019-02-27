@@ -207,10 +207,10 @@ class Variable
                             $parameters     = preg_replace('/: /', ' => ', $parameters);
                             $parameters     = preg_replace('/[\]}]/', ')', $parameters);
                             $parameters     = $this->fixDataInArray($parameters);
-                            $formatedString = '$this->aFunctions["path"]->Get('.$matches[1].','.$parameters.')';
+                            $formatedString = '$this->aFunctions["path"]->Get('.$this->stringToVariable($matches[1]).','.$parameters.')';
                             break;
                         case 'PathWithoutArguments':
-                            $formatedString = '$this->aFunctions["path"]->Get('.$matches[1].')';
+                            $formatedString = '$this->aFunctions["path"]->Get('.$this->stringToVariable($matches[1]).')';
                             break;
                         case 'Concat':
                             $formatedString = '';
