@@ -20,6 +20,7 @@ class Profiler
     private $memory;
     private $isAjax   = false;
     private $debug    = array();
+    private $error;
 
     public function __construct($microTime, $memory)
     {
@@ -47,6 +48,7 @@ class Profiler
             $this->showData();
             $this->showCache();
             $this->showDebug();
+            $this->showError();
             $this->endProfiler();
         }
 
@@ -67,6 +69,11 @@ class Profiler
             'name'  => $name,
             'value' => $value
         );
+    }
+
+    public function setError($error)
+    {
+        $this->error = $error;
     }
 
     private function showRoute()
@@ -187,6 +194,50 @@ class Profiler
         $this->insideCell('Debug', count($this->debug).'x', $hidden);
     }
 
+    private function showError()
+    {
+        if (!empty($this->error)) {
+            $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            $hidden .= '<tr><td>'.$this->error->getMessage().'</td></tr>';
+            $hidden .= $this->readProgram($this->error->getFile(), $this->error->getLine());
+            foreach ($this->error->getTrace() as $data) {
+                $hidden .= $this->readProgram($data['file'], $data['line']);
+            }
+            $hidden   .= '</table>';
+            $messagge = $this->error->getMessage();
+        } else {
+            $hidden   = '';
+            $messagge = 'No error';
+        }
+
+        $this->insideCell('Error', $messagge, $hidden);
+    }
+
+    private function readProgram($file, $line)
+    {
+        $lineStart = max(0, $line - 3);
+        $lineEnd   = $lineStart + 6;
+        $source    = '<tr><td><b>'.$file.'</b><br /><br />';
+        $program   = fopen($file, 'r');
+        if ($program) {
+            $lineNo      = 1;
+            while (($programLine = fgets($program)) !== false) {
+                if ($lineNo >= $lineStart and $lineNo <= $lineEnd) {
+                    if ($lineNo == $line) {
+                        $source .= $lineNo.'. <code><b>'.str_replace(' ', '&nbsp;', $programLine).'</b></code><br />';
+                    } else {
+                        $source .= $lineNo.'. <code>'.str_replace(' ', '&nbsp;', $programLine).'</code><br />';
+                    }
+                }
+                $lineNo++;
+            }
+            fclose($program);
+        }
+        $source .= '</td></tr>';
+
+        return $source;
+    }
+
     private function showInfo()
     {
         $phpInfo = $this->getPhpInfo();
@@ -233,14 +284,16 @@ class Profiler
 
     private function startProfiler()
     {
-        echo '<div style="width: 100%; min-height: 20px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px; z-index: 999;" id="LukiProfiler">';
-        $this->insideCell('Luki', '3.0.1');
+        echo '<div style="width: 100%; height: 2px; outline: 1px solid #000; background-color: #ddd; color: #000; position: fixed; bottom: 0; left: 0; font-size: 13px; z-index: 10000;" id="LukiProfiler">';
+        $this->insideCell('Luki', '3.2.0');
+        $this->insideCell('PHP', (float) phpversion());
     }
 
     private function endProfiler()
     {
         echo '<span style="position: relative; top: 0; right: 5px; float: right; cursor: pointer;" onclick="var x=document.getElementById(\'LukiProfiler\'); x.style.display=\'none\';">X</span>';
         echo '</div>';
+        echo '<style>#LukiProfiler:hover {min-height: 35px;}<style>';
     }
 
     private function insideCell($title, $content, $hidden = null)
