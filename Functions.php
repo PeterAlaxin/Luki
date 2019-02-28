@@ -6,6 +6,10 @@ function default_exception_handler($e)
 {
     echo '<h2>Something is wrong!</h2>'."\n";
 
+    if (Storage::isLog()) {
+        Storage::Log()->Error($e->getMessage().' in '.$e->getFile().' on line '.$e->getLine());
+    }
+
     if (Storage::isProfiler()) {
         Storage::Profiler()->setError($e);
     }
