@@ -31,10 +31,12 @@ class Radio extends BasicFactory
     public function getHtml()
     {
         $html = array(
-            'inputs' => $this->prepareInputs(),
-            'value'  => $this->getValue(),
-            'hint'   => $this->getHint(),
-            'name'   => $this->getName()
+            'label'     => '<label for="'.$this->getId().'" class="control-label">'.$this->getLabel().'</label>',
+            'labelText' => $this->getLabel(),
+            'inputs'    => $this->prepareInputs(),
+            'value'     => $this->getValue(),
+            'hint'      => $this->getHint(),
+            'name'      => $this->getName()
         );
 
         return $html;
