@@ -18,12 +18,14 @@ use Luki\Config\BasicAdapter;
 
 class IniAdapter extends BasicAdapter
 {
+    private $folder;
 
     public function __construct($fileName, $allowCreate = false)
     {
         parent::__construct($fileName, $allowCreate);
 
-        $this->configuration = parse_ini_file($this->fileName, true);
+        $this->saveFolder();
+        $this->openFile();
     }
 
     public function saveConfiguration()
@@ -44,5 +46,26 @@ class IniAdapter extends BasicAdapter
         $isSaved = $this->saveToFile($content);
 
         return $isSaved;
+    }
+
+    private function saveFolder()
+    {
+        $info         = pathinfo($this->fileName);
+        $this->folder = $info['dirname'].'/';
+    }
+
+    private function openFile()
+    {
+        $ini = file_get_contents($this->fileName);
+        preg_match_all('/; import "(.+)"/', $ini, $match);
+
+        foreach ($match[1] as $key => $item) {
+            $file = $this->folder.$item;
+            if (is_file($file) and is_readable($file)) {
+                $ini = str_replace($match[0][$key], file_get_contents($file), $ini);
+            }
+        }
+
+        $this->configuration = parse_ini_string($ini, true);
     }
 }
