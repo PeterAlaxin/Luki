@@ -52,7 +52,7 @@ class Template
             throw new \Exception('Wrong template: '.$this->template);
         }
 
-        $this->class = implode('', array_slice(explode(' ', $class), -2));
+        $this->setClassName($class);
 
         if (Storage::isProfiler()) {
             Time::stopwatchStart('Luki_Template_'.$this->class);
@@ -62,6 +62,13 @@ class Template
         if (!is_file($this->newClass) or filectime($this->template) > filectime($this->newClass)) {
             $this->generateTemplate();
         }
+    }
+
+    private function setClassName($class)
+    {
+        $aTemplate   = explode('/', $this->template);
+        $position    = array_search('template', $aTemplate);
+        $this->class = implode('', array_slice(explode(' ', $class), -(count($aTemplate) - $position)));
     }
 
     public function __destruct()
