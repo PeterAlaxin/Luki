@@ -95,7 +95,7 @@ class Route
 
     public function create()
     {
-        $this->validator = str_replace('/', '\/*', $this->pattern);
+        $this->validator = str_replace('/', '\/', $this->pattern);
 
         foreach ($this->parameters as $parameter => $definition) {
             $this->validator = str_replace('{'.$parameter.'}', '('.$definition['validator'].'+)', $this->validator);
