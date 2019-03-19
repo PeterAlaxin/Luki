@@ -19,6 +19,10 @@ class Date
 
     public function Get($value, $format = '%d.%m.%Y', $timeZoneName = '')
     {
+        if (empty($value)) {
+            return '';
+        }
+
         if (empty($timeZoneName)) {
             $timeZoneName = date_default_timezone_get();
         }
