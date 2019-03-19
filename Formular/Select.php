@@ -102,6 +102,9 @@ class Select extends BasicFactory
 
     public function addValidator(\Luki\Validator\BasicFactory $validator)
     {
+        if (strpos(get_class($validator), 'NotBlank') > 0) {
+            $this->addToAttribute('required', '');
+        }
         $this->validators[] = $validator;
 
         return $this;
