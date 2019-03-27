@@ -73,6 +73,29 @@ class File
         return $isCreated;
     }
 
+    public static function deleteDir($dir)
+    {
+        $isDeleted = false;
+
+        if (is_dir($dir)) {
+            if (substr($dir, strlen($dir) - 1, 1) != '/') {
+                $dir .= '/';
+            }
+
+            $files = glob($dir.'*', GLOB_MARK);
+            foreach ($files as $file) {
+                if (is_dir($file)) {
+                    self::deleteDir($file);
+                } else {
+                    unlink($file);
+                }
+            }
+            $isDeleted = rmdir($dir);
+        }
+
+        return $isDeleted;
+    }
+
     public static function getSafeFilename($folder, $extension)
     {
         $name = Security::generatePassword(10, 2);
