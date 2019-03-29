@@ -112,18 +112,6 @@ class Select extends BasicFactory
 
     public function isValid()
     {
-        $this->_validate();
-
-        return empty($this->errors);
-    }
-
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    private function _validate()
-    {
         $this->errors = array();
 
         foreach ($this->validators as $validator) {
@@ -133,5 +121,12 @@ class Select extends BasicFactory
                 }
             }
         }
+
+        return empty($this->errors);
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
     }
 }

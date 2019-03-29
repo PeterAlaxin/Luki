@@ -31,11 +31,9 @@ class Checkbox extends BasicFactory
             $this->value = 0;
         } else {
             $this->value = 1;
-        }
-
-        if ($this->value) {
             $this->setAttribute('checked', 'checked');
         }
+
         return $this;
     }
 }

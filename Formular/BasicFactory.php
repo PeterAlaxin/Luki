@@ -18,16 +18,16 @@ use Luki\Formular\BasicInterface;
 
 abstract class BasicFactory implements BasicInterface
 {
-    private $name       = '';
-    private $id         = '';
-    private $type       = '';
-    private $value      = null;
+    public $value       = null;
     private $attributes = array();
-    private $label      = '';
-    private $validators = array();
     private $errors     = array();
-    private $required   = false;
     private $hint       = '';
+    private $id         = '';
+    private $label      = '';
+    private $name       = '';
+    private $required   = false;
+    private $type       = '';
+    private $validators = array();
 
     public function __construct($name, $label, $placeholder = '')
     {
@@ -174,7 +174,13 @@ abstract class BasicFactory implements BasicInterface
 
     public function isValid()
     {
-        $this->_validate();
+        $this->errors = array();
+
+        foreach ($this->validators as $validator) {
+            if (!$validator->isValid($this->value)) {
+                $this->errors[] = $validator->getError();
+            }
+        }
 
         return empty($this->errors);
     }
@@ -221,17 +227,6 @@ abstract class BasicFactory implements BasicInterface
         $this->attributes['readonly'] = 'readonly';
 
         return $this;
-    }
-
-    private function _validate()
-    {
-        $this->errors = array();
-
-        foreach ($this->validators as $validator) {
-            if (!$validator->isValid($this->value)) {
-                $this->errors[] = $validator->getError();
-            }
-        }
     }
 
     public function setAutofocus()
