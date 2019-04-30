@@ -24,6 +24,7 @@ abstract class BasicAdapter implements BasicInterface
     public $updated    = 0;
     public $allDeleted = array();
     public $deleted    = 0;
+    private $global    = '';
 
     public function Select()
     {
@@ -198,5 +199,20 @@ abstract class BasicAdapter implements BasicInterface
     public function rollback()
     {
         $this->Query('ROLLBACK;');
+    }
+
+    public function disableOnlyFullGroupBy()
+    {
+        $this->global = $this->Query('SELECT @@sql_mode AS global')->Get('global');
+        $this->Query('SET global sql_mode="'.str_replace('ONLY_FULL_GROUP_BY', '', $this->global).'";');
+        $this->Query('SET session sql_mode="'.str_replace('ONLY_FULL_GROUP_BY', '', $this->global).'";');
+    }
+
+    public function enableOnlyFullGroupBy()
+    {
+        if (!empty($this->global)) {
+            $this->Query('SET global sql_mode="'.$this->global.'";');
+            $this->Query('SET session sql_mode="'.$this->global.'";');
+        }
     }
 }
