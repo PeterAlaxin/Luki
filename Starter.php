@@ -18,6 +18,7 @@ use Luki\Cache;
 use Luki\Config;
 use Luki\Data;
 use Luki\Elasticsearch;
+use Luki\File;
 use Luki\Language;
 use Luki\Loader;
 use Luki\Log;
@@ -119,6 +120,11 @@ class Starter
     public static function initFolders()
     {
         foreach (Storage::Configuration()->getSection('folder') as $key => $path) {
+            if (!is_dir($path)) {
+                if (!File::createDir($path)) {
+                    exit('Missing folder '.$path);
+                }
+            }
             Storage::Set($key, $path);
         }
     }
@@ -275,7 +281,7 @@ class Starter
             $file  = Storage::Configuration()->getValue('router', 'definition');
             $class = 'Luki\Router';
         } else {
-            Exit('Missing definition for Routing or Dispatcher');
+            exit('Missing definition for Routing or Dispatcher');
         }
 
         $adapterName = Config::findAdapter($file);
