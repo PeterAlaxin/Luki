@@ -26,6 +26,7 @@ class Security
     private static $salt      = '';
     private static $algorithm = 'sha256';
     private static $key       = '';
+    private static $cipher    = 'aes-256-cbc';
 
     public function __destruct()
     {
@@ -147,22 +148,23 @@ class Security
         return self::$key;
     }
 
-    static function textEncrypt($text, $key1 = '', $key2 = '')
+    static function textEncrypt($text, $key1 = '')
     {
         $key1Final = empty($key1) ? self::getKey() : md5($key1);
-        $key2Final = empty($key2) ? md5(strrev($key1Final)) : md5($key2);
 
-        $encrypted = base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key1Final, $text, MCRYPT_MODE_CBC, $key2Final));
+        $ivlen = openssl_cipher_iv_length(self::$cipher);
+        $iv    = openssl_random_pseudo_bytes($ivlen);
 
-        return $encrypted;
+        $encrypted = openssl_encrypt($text, self::$cipher, $key1Final, 0, $iv);
+
+        return array($encrypted, bin2hex($iv));
     }
 
-    static function textDecrypt($text, $key1 = '', $key2 = '')
+    static function textDecrypt($text, $key1 = '', $iv)
     {
         $key1Final = empty($key1) ? self::getKey() : md5($key1);
-        $key2Final = empty($key2) ? md5(strrev($key1Final)) : md5($key2);
 
-        $decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key1Final, base64_decode($text), MCRYPT_MODE_CBC, $key2Final);
+        $decrypted = openssl_decrypt($text, self::$cipher, $key1Final, 0, hex2bin($iv));
 
         return $decrypted;
     }
