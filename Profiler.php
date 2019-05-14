@@ -144,10 +144,15 @@ class Profiler
             $datas  = $this->profiler['Data'];
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
             foreach ($datas as $data) {
-                $time   = $this->changeSecToMs($data['time']);
-                $times  += $time;
-                $hidden .= '<tr><td>&nbsp;'.$data['sql'].'&nbsp;</td>';
-                $hidden .= '<td>&nbsp;'.number_format($time, 2).'&nbsp;ms&nbsp;</td></tr>';
+                $time  = $this->changeSecToMs($data['time']);
+                $times += $time;
+                if ($time > 3) {
+                    $hidden .= '<tr><td style="color:red;">&nbsp;'.$data['sql'].'&nbsp;</td>';
+                    $hidden .= '<td style="color:red;">&nbsp;'.number_format($time, 2).'&nbsp;ms&nbsp;</td></tr>';
+                } ELSE {
+                    $hidden .= '<tr><td>&nbsp;'.$data['sql'].'&nbsp;</td>';
+                    $hidden .= '<td>&nbsp;'.number_format($time, 2).'&nbsp;ms&nbsp;</td></tr>';
+                }
             }
             $hidden .= '</table>';
         }
