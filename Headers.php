@@ -61,6 +61,11 @@ class Headers
         return $this;
     }
 
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
     public function setPublic()
     {
         $this->cachingDirective = 'public';
