@@ -41,6 +41,8 @@ class Image
 
     public function __destruct()
     {
+        imagedestroy($this->image);
+
         foreach ($this as &$value) {
             $value = null;
         }
@@ -51,6 +53,14 @@ class Image
         if ($this->checkFile($file)) {
             $this->read($file);
         }
+
+        return $this;
+    }
+
+    public function createFromString($data)
+    {
+        $this->image = imagecreatefromstring($data);
+        $this->type  = self::PNG;
 
         return $this;
     }
@@ -460,8 +470,6 @@ class Image
                 $quality = round(abs($quality));
                 $result  = imagepng($this->image, $file, $quality);
         }
-
-        imagedestroy($this->image);
 
         return $result;
     }
