@@ -18,6 +18,7 @@ use Luki\File;
 
 class Stream
 {
+    private static $contentDisposition = 'attachment';
     private static $mimeTypes = array(
         '323'     => 'text/h323',
         'acx'     => 'application/internet-property-stream',
@@ -232,6 +233,16 @@ class Stream
         }
     }
 
+    public static function setOutputScreen()
+    {
+        self::$contentDisposition = 'inline';
+    }
+
+    public static function setOutputFile()
+    {
+        self::$contentDisposition = 'attachment';
+    }
+
     public static function streamFile($file = null)
     {
         if (!empty($file) and is_file($file)) {
@@ -262,7 +273,7 @@ class Stream
 
         header('Content-type: '.$mimeType);
         if (!headers_sent()) {
-            header('Content-Disposition: attachment; filename="'.$file.'"');
+            header('Content-Disposition: '.self::$contentDisposition.'; filename="'.$file.'"');
             header('Content-Length: '.strlen($content));
             header('Expires: 0');
             header('Cache-Control: must-revalidate, post-check=0,pre-check=0');
