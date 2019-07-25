@@ -78,13 +78,13 @@ class Cache
 
         if (is_array($key)) {
             foreach ($key as $subKey => $subValue) {
-                $isSet = $this->cacheAdapter->Set($subKey, $subValue, $expiration);
+                $isSet = $this->cacheAdapter->Set($this->sanitizeKey($subKey), $subValue, $expiration);
                 if (!$isSet) {
                     break;
                 }
             }
         } else {
-            $isSet = $this->cacheAdapter->Set($key, $value, $expiration);
+            $isSet = $this->cacheAdapter->Set($this->sanitizeKey($key), $value, $expiration);
         }
 
         return $isSet;
@@ -95,7 +95,7 @@ class Cache
         if (!$this->useCache) {
             $value = null;
         } else {
-            $value = $this->cacheAdapter->Get($key);
+            $value = $this->cacheAdapter->Get($this->sanitizeKey($key));
         }
 
         return $value;
@@ -141,5 +141,14 @@ class Cache
     public function isPrivate()
     {
         return $this->isPrivate;
+    }
+
+    private function sanitizeKey($key)
+    {
+        if ($this->isPrivate) {
+            $key = $this->privateKey.'_'.$key;
+        }
+
+        return $key;
     }
 }
