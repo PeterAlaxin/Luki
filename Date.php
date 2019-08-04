@@ -209,79 +209,45 @@ class Date
         return $newDate;
     }
 
-    public static function diffDate($interval, $dateFrom, $dateTo, $usingTimestamps = false)
+    public static function diffDate($format, $dateFrom, $dateTo, $usingTimestamps = false)
     {
-        if (!$usingTimestamps) {
-            $dateFrom = strtotime($dateFrom, 0);
-            $dateTo   = strtotime($dateTo, 0);
+        if ($usingTimestamps) {
+            $dateFrom = date('Y-m-d H:i:s', $dateFrom);
+            $dateTo   = date('Y-m-d H:i:s', $dateTo);
         }
 
-        $difference = $dateTo - $dateFrom;
-        switch ($interval) {
-            case 'yyyy':
-                $yearsDifference = floor($difference / 31536000);
-                if (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom), date("n", $dateFrom),
-                        date("j", $dateFrom), date("Y", $dateFrom) + $yearsDifference) > $dateTo) {
-                    $yearsDifference--;
-                }
-                if (mktime(date("H", $dateTo), date("i", $dateTo), date("s", $dateTo), date("n", $dateTo),
-                        date("j", $dateTo), date("Y", $dateTo) - ($yearsDifference + 1)) > $dateFrom) {
-                    $yearsDifference++;
-                }
-                $dateDiff           = $yearsDifference;
-                unset($yearsDifference);
+        $interval = date_diff(date_create($dateFrom), date_create($dateTo));
+
+        switch ($format) {
+            case 'yyyy':  # Depricated
+            case 'y':
+                $dateDiff = $interval->y;
                 break;
             case "q":
-                $quartersDifference = floor($difference / 8035200);
-                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom),
-                    date("n", $dateFrom) + ($quartersDifference * 3), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
-                    $quartersDifference++;
-                }
-                $quartersDifference--;
-                $dateDiff         = $quartersDifference;
-                unset($quartersDifference);
+                $dateDiff = ($interval->y * 4) + ($interval->m / 3);
                 break;
             case "m":
-                $monthsDifference = floor($difference / 2678400);
-                while (mktime(date("H", $dateFrom), date("i", $dateFrom), date("s", $dateFrom),
-                    date("n", $dateFrom) + ($monthsDifference), date("j", $dateTo), date("Y", $dateFrom)) < $dateTo) {
-                    $monthsDifference++;
-                }
-                $monthsDifference--;
-                $dateDiff        = $monthsDifference;
-                unset($monthsDifference);
-                break;
-            case 'y':
-                $dateDiff        = date("z", $dateTo) - date("z", $dateFrom);
+                $dateDiff = ($interval->y * 12) + $interval->m;
                 break;
             case "d":
-                $dateDiff        = floor($difference / 86400);
+                $dateDiff = $interval->days;
                 break;
+            case "ww":  # Depricated
             case "w":
-                $daysDifference  = floor($difference / 86400);
-                $weeksDifference = floor($daysDifference / 7);
-                $firstDay        = date("w", $dateFrom);
-                $daysRemainder   = floor($daysDifference % 7);
-                $oddDays         = $firstDay + $daysRemainder;
-                if ($oddDays > 7) {
-                    $daysRemainder--;
-                }
-                if ($oddDays > 6) {
-                    $daysRemainder--;
-                }
-                $dateDiff = ($weeksDifference * 5) + $daysRemainder;
-                break;
-            case "ww":
-                $dateDiff = floor($difference / 604800);
+                $dateDiff = $interval->days / 7;
                 break;
             case "h":
-                $dateDiff = floor($difference / 3600);
+                $dateDiff = ($interval->days * 24) + $interval->h;
                 break;
-            case "n":
-                $dateDiff = floor($difference / 60);
+            case "n": # Depricated
+            case "i":
+                $dateDiff = ((($interval->days * 24) + $interval->h) * 60) + $interval->i;
+                break;
+            case "s":
+                $dateDiff = ((($interval->days * 24) + $interval->h) * 3600) + ($interval->i * 60) + $interval->s;
                 break;
             default:
-                $dateDiff = $difference;
+                $dateDiff = $interval->format($format);
                 break;
         }
 
