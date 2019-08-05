@@ -17,6 +17,7 @@ namespace Luki;
 class Math
 {
     private $result;
+    private $decimals;
 
     public function __construct()
     {
@@ -36,8 +37,8 @@ class Math
 
     public function reset()
     {
-        bcscale(2);
-        $this->result = bcadd(0, 0);
+        $this->decimals = 2;
+        $this->result   = bcadd(0, 0, $this->decimals);
 
         return $this;
     }
@@ -49,84 +50,84 @@ class Math
 
     public function setDecimals(int $decimals = 2)
     {
-        bcscale($decimals);
+        $this->decimals = $decimals;
 
         return $this;
     }
 
     public function add($value)
     {
-        $this->result = bcadd($this->result, $value);
+        $this->result = bcadd($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function sub($value)
     {
-        $this->result = bcsub($this->result, $value);
+        $this->result = bcsub($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function subX($value)
     {
-        $this->result = bcsub($value, $this->result);
+        $this->result = bcsub($value, $this->result, $this->decimals);
 
         return $this;
     }
 
     public function mul($value)
     {
-        $this->result = bcmul($this->result, $value);
+        $this->result = bcmul($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function div($value)
     {
-        $this->result = bcdiv($this->result, $value);
+        $this->result = bcdiv($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function divX($value)
     {
-        $this->result = bcdiv($value, $this->result);
+        $this->result = bcdiv($value, $this->result, $this->decimals);
 
         return $this;
     }
 
     public function mod($value)
     {
-        $this->result = bcmod($this->result, $value);
+        $this->result = bcmod($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function modX($value)
     {
-        $this->result = bcmod($value, $this->result);
+        $this->result = bcmod($value, $this->result, $this->decimals);
 
         return $this;
     }
 
     public function pow($value)
     {
-        $this->result = bcpow($this->result, $value);
+        $this->result = bcpow($this->result, $value, $this->decimals);
 
         return $this;
     }
 
     public function powX($value)
     {
-        $this->result = bcpow($value, $this->result);
+        $this->result = bcpow($value, $this->result, $this->decimals);
 
         return $this;
     }
 
     public function sqrt()
     {
-        $this->result = bcsqrt($this->result);
+        $this->result = bcsqrt($this->result, $this->decimals);
 
         return $this;
     }
