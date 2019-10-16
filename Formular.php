@@ -232,7 +232,8 @@ class Formular
             'form'    => $this->getFormularHeader(),
             'inputs'  => $this->getInputs(),
             'errors'  => $this->getErrors(),
-            'timeout' => $this->getTokenValidity()
+            'timeout' => $this->getTokenValidity(),
+            'action'  => $this->getAction()
         );
 
         return $formular;
