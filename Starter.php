@@ -298,8 +298,20 @@ class Starter
         if (!Storage::isDevelopment()) {
             if (!Storage::Configuration()->isValue('sanitize', 'definition') or 1 == Storage::Configuration()->getValue('sanitize',
                     'definition')) {
-                $search  = array('/\>[^\S ]+/s', '/[^\S ]+\</s', '/(\s)+/s');
-                $replace = array('>', '<', '\\1');
+                $search  = array(
+                    '/\>[^\S ]+/s',
+                    '/[^\S ]+\</s',
+                    '/(\s)+/s',
+                    '/<!--(.|\s)*?-->/',
+                    '/> </'
+                );
+                $replace = array(
+                    '>',
+                    '<',
+                    '\\1',
+                    '',
+                    '><',
+                );
                 $output  = preg_replace($search, $replace, $output);
             }
         }
