@@ -22,6 +22,7 @@ class Image
     const GIF = 'image/gif';
     const JPG = 'image/jpeg';
     const PNG = 'image/png';
+    const WEBP = 'image/webp';
 
     private $file;
     private $image;
@@ -29,7 +30,7 @@ class Image
     private $exif;
     private $font;
     private $quality   = 100;
-    private $imageType = array(self::GIF, self::JPG, self::PNG);
+    private $imageType = array(self::GIF, self::JPG, self::PNG, self::WEBP);
     private $color     = array(255, 255, 255, 80);
 
     function __construct($file = '')
@@ -85,6 +86,14 @@ class Image
     {
         $this->image = $this->create($width, $height);
         $this->type  = self::GIF;
+
+        return $this;
+    }
+
+    public function createWebp($width, $height)
+    {
+        $this->image = $this->create($width, $height, true);
+        $this->type  = self::WEBP;
 
         return $this;
     }
@@ -408,6 +417,9 @@ class Image
             case self::PNG:
                 $newName .= '.png';
                 break;
+            case self::WEBP:
+                $newName .= '.webp';
+                break;
         }
 
         return $newName;
@@ -469,6 +481,10 @@ class Image
                 $quality = ($this->quality - 100) / 11.111111;
                 $quality = round(abs($quality));
                 $result  = imagepng($this->image, $file, $quality);
+                break;
+            case self::WEBP:
+                $result  = imagewebp($this->image, $file, $this->quality);
+                break;
         }
 
         return $result;
@@ -505,6 +521,9 @@ class Image
                 break;
             case self::PNG:
                 $this->image = imagecreatefrompng($file);
+                break;
+            case self::WEBP:
+                $this->image = imagecreatefromwebp($file);
                 break;
         }
     }
