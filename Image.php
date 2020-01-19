@@ -176,7 +176,7 @@ class Image
 
     public function autoCrop()
     {
-        $cropped = imagecropauto($this->image, IMG_CROP_TRANSPARENT);
+        $cropped = imagecropauto($this->image, IMG_CROP_SIDES);
         if ($cropped !== false) {
             imagedestroy($this->image);
             $this->image = $cropped;
@@ -549,5 +549,5 @@ class Image
         imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $realWidth, $realHeight);
 
         $this->image = $image;
-    }
+    }    
 }
