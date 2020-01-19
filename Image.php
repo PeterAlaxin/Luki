@@ -455,6 +455,15 @@ class Image
         return $this;
     }
 
+    public function setType($type)
+    {
+        if(in_array($type, $this->imageType)) {
+            $this->type = $type;
+        }
+        
+        return $this;
+    }
+
     public function convolution(ConvolutionInterface $convolution)
     {
         $this->image = $convolution->convolution($this->image);
