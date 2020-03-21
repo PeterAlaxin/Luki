@@ -27,14 +27,14 @@ class Session
         }
     }
 
-    public static function Start($chacheType = 'nocache')
+    public static function Start($type = 'nocache', $lifetime = 0, $path = '/', $domain = null, $secure = false, $httponly = true)
     {
-        if (!in_array($chacheType, self::$limiters)) {
-            $chacheType = 'nocache';
+        if (!in_array($type, self::$limiters)) {
+            $type = 'nocache';
         }
 
-        session_cache_limiter($chacheType);
-        session_set_cookie_params(0, "/", null, false, true);
+        session_cache_limiter($type);
+        session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
 
         session_start();
         $sessionId = session_id();
@@ -66,14 +66,15 @@ class Session
 
     public static function Destroy()
     {
-        $isDestroyed   = false;
-        $sessionName   = session_name();
+        $isDestroyed = false;
+        $sessionName = session_name();
         $sessionCookie = session_get_cookie_params();
 
         self::Restart();
         if (session_destroy()) {
             setcookie(
-                $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'],
+                $sessionName, false, $sessionCookie['lifetime'],
+                $sessionCookie['path'], $sessionCookie['domain'],
                 $sessionCookie['secure']
             );
             $isDestroyed = true;
