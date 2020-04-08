@@ -18,7 +18,6 @@ use Luki\Formular\BasicFactory;
 
 class DateTime extends BasicFactory
 {
-    private $value = null;
 
     public function __construct($name, $label, $placeholder = '')
     {
