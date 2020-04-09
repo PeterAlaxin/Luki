@@ -17,16 +17,14 @@ namespace Luki;
 class Otp
 {
     private $map = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-        'N', 'O',
-        'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3', '4', '5',
-        '6', '7', '='];
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3',
+        '4', '5', '6', '7', '='];
     private $invertedMap = ['A' => '0', 'B' => '1', 'C' => '2', 'D' => '3', 'E' => '4',
-        'F' => '5', 'G' => '6',
-        'H' => '7', 'I' => '8', 'J' => '9', 'K' => '10', 'L' => '11', 'M' => '12',
-        'N' => '13', 'O' => '14', 'P' => '15', 'Q' => '16', 'R' => '17', 'S' => '18',
-        'T' => '19', 'U' => '20', 'V' => '21', 'W' => '22', 'X' => '23', 'Y' => '24',
-        'Z' => '25', '2' => '26', '3' => '27', '4' => '28', '5' => '29', '6' => '30',
-        '7' => '31'];
+        'F' => '5', 'G' => '6', 'H' => '7', 'I' => '8', 'J' => '9', 'K' => '10',
+        'L' => '11', 'M' => '12', 'N' => '13', 'O' => '14', 'P' => '15', 'Q' => '16',
+        'R' => '17', 'S' => '18', 'T' => '19', 'U' => '20', 'V' => '21', 'W' => '22',
+        'X' => '23', 'Y' => '24', 'Z' => '25', '2' => '26', '3' => '27', '4' => '28',
+        '5' => '29', '6' => '30', '7' => '31'];
     private $allowedValues = [6, 4, 3, 1, 0];
     private $secretKey = '';
     private $decodedSecretKey = '';
@@ -71,11 +69,11 @@ class Otp
         return $result;
     }
 
-    public function getBarCode($domain, $username = '')
+    public function getBarCode($appName, $userName = '')
     {
         $url = 'http://chart.apis.google.com/chart';
         $url = $url.'?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/';
-        $url = $url.rawurlencode($username).'%3Fsecret%3D'.$this->secretKey.'%26issuer%3D'.rawurlencode($domain);
+        $url = $url.rawurlencode($userName).'%3Fsecret%3D'.$this->secretKey.'%26issuer%3D'.rawurlencode($appName);
 
         return $url;
     }
