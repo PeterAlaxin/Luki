@@ -30,6 +30,7 @@ class Otp
     private $decodedSecretKey = '';
     private $hash;
     private $rangeInTime = 1;
+    private $size = 200;
 
     public function __construct($secretKey)
     {
@@ -69,13 +70,20 @@ class Otp
         return $result;
     }
 
-    public function getBarCode($appName, $userName = '')
+    public function getQRCode($appName, $userName = '')
     {
         $url = 'http://chart.apis.google.com/chart';
-        $url = $url.'?chs=200x200&chld=M|0&cht=qr&chl=otpauth://totp/';
+        $url = $url.'?chs='.$this->size.'x'.$this->size.'&chld=M|0&cht=qr&chl=otpauth://totp/';
         $url = $url.rawurlencode($userName).'%3Fsecret%3D'.$this->secretKey.'%26issuer%3D'.rawurlencode($appName);
 
         return $url;
+    }
+
+    public function setQRCodeSize($size)
+    {
+        $this->size = min(600, max(100, (int) $size));
+
+        return $this;
     }
 
     private function decode()
