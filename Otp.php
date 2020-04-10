@@ -35,7 +35,7 @@ class Otp
     public function __construct($secretKey)
     {
         $this->secretKey = $secretKey;
-        $this->decodedSecretKey = $this->decode();
+        $this->decodeSecretKey();
     }
 
     public function generateSecretKey($length = 16)
@@ -86,7 +86,7 @@ class Otp
         return $this;
     }
 
-    private function decode()
+    private function decodeSecretKey()
     {
         $paddingCharCount = substr_count($this->secretKey, $this->map[32]);
 
@@ -126,7 +126,7 @@ class Otp
             }
         }
 
-        return $binaryString;
+        $this->decodedSecretKey = $binaryString;
     }
 
     private function oathHotp($counter)
