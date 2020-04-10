@@ -80,11 +80,11 @@ class Otp
 
     public static function generateSecretKey($length = 16)
     {
-        $b32 = '1234567890QWERTYUIOPASDFGHJKLZXCVBNM';
+        $b32 = '234567QWERTYUIOPASDFGHJKLZXCVBNM';
         $key = '';
 
         for ($i = 0; $i < min(128, max(8, (int) $length)); $i++) {
-            $key .= $b32[rand(0, 35)];
+            $key .= $b32[rand(0, 31)];
         }
 
         return $key;
