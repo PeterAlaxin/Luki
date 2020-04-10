@@ -8,7 +8,7 @@
  * @license http://opensource.org/licenses/MIT The MIT License (MIT)
  *
  * @package Luki
- * @subpackage Geo
+ * @subpackage Security
  * @filesource
  */
 
