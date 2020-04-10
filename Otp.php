@@ -16,38 +16,37 @@ namespace Luki;
 
 class Otp
 {
-    private $map = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3',
-        '4', '5', '6', '7', '='];
+    private $decodedSecretKey = '';
+    private $hash;
     private $invertedMap = ['A' => '0', 'B' => '1', 'C' => '2', 'D' => '3', 'E' => '4',
         'F' => '5', 'G' => '6', 'H' => '7', 'I' => '8', 'J' => '9', 'K' => '10',
         'L' => '11', 'M' => '12', 'N' => '13', 'O' => '14', 'P' => '15', 'Q' => '16',
         'R' => '17', 'S' => '18', 'T' => '19', 'U' => '20', 'V' => '21', 'W' => '22',
         'X' => '23', 'Y' => '24', 'Z' => '25', '2' => '26', '3' => '27', '4' => '28',
         '5' => '29', '6' => '30', '7' => '31'];
-    private $allowedValues = [6, 4, 3, 1, 0];
-    private $secretKey = '';
-    private $decodedSecretKey = '';
-    private $hash;
+    private $map = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '2', '3',
+        '4', '5', '6', '7', '='];
     private $rangeInTime = 1;
+    private $secretKey = '';
     private $size = 200;
 
     public function __construct($secretKey)
     {
         $this->secretKey = $secretKey;
-        $this->decodeSecretKey();
+
+        try {
+            $this->decodeSecretKey();
+        } catch (\Exception $exception) {
+            exit($exception->getMessage());
+        }
     }
 
-    public function generateSecretKey($length = 16)
+    public function verify($code)
     {
-        $b32 = '234567QWERTYUIOPASDFGHJKLZXCVBNM';
-        $key = '';
+        $result = in_array((int) $code, $this->getTokens());
 
-        for ($i = 0; $i < $length; $i++) {
-            $key .= $b32[rand(0, 31)];
-        }
-
-        return $key;
+        return $result;
     }
 
     public function getTokens()
@@ -61,13 +60,6 @@ class Otp
         }
 
         return $tokens;
-    }
-
-    public function verify($code)
-    {
-        $result = in_array((int) $code, $this->getTokens());
-
-        return $result;
     }
 
     public function getQRCode($appName, $userName = '')
@@ -86,31 +78,31 @@ class Otp
         return $this;
     }
 
+    public static function generateSecretKey($length = 16)
+    {
+        $b32 = '1234567890QWERTYUIOPASDFGHJKLZXCVBNM';
+        $key = '';
+
+        for ($i = 0; $i < min(128, max(8, (int) $length)); $i++) {
+            $key .= $b32[rand(0, 35)];
+        }
+
+        return $key;
+    }
+
     private function decodeSecretKey()
     {
-        $paddingCharCount = substr_count($this->secretKey, $this->map[32]);
-
-        if (!in_array($paddingCharCount, $this->allowedValues)) {
-            return false;
+        if (!$this->checkSecretKey()) {
+            throw new \Exception('Wrong secret key! Generate new with generateSecretKey() method.');
         }
 
-        for ($i = 0; $i < 4; $i++) {
-            if ($paddingCharCount == $this->allowedValues[$i] and substr($this->secretKey,
-                    -($this->allowedValues[$i])) != str_repeat($this->map[32],
-                    $this->allowedValues[$i])) {
-                return false;
-            }
-        }
-
-        $secretKey = str_replace('=', '', $this->secretKey);
-        $secretKey = str_split($secretKey);
-        $binaryString = '';
+        $secretKey = str_split(str_replace('=', '', $this->secretKey));
 
         for ($i = 0; $i < count($secretKey); $i = $i + 8) {
             $x = '';
 
             if (!in_array($secretKey[$i], $this->map)) {
-                return false;
+                throw new \Exception('Wrong secret key! Generate new with generateSecretKey() method.');
             }
 
             for ($j = 0; $j < 8; $j++) {
@@ -121,12 +113,32 @@ class Otp
             $eightBits = str_split($x, 8);
 
             for ($z = 0; $z < count($eightBits); $z++) {
-                $binaryString .= (($y = chr(base_convert($eightBits[$z], 2, 10))) or ord($y)
-                    == 48 ) ? $y : "";
+                $this->decodedSecretKey .= (($y = chr(base_convert($eightBits[$z],
+                        2, 10))) or ord($y) == 48 ) ? $y : "";
+            }
+        }
+    }
+
+    private function checkSecretKey()
+    {
+        $result = true;
+        $allowedValues = [6, 4, 3, 1, 0];
+
+        $paddingCharCount = substr_count($this->secretKey, $this->map[32]);
+
+        if (!in_array($paddingCharCount, $allowedValues)) {
+            $result = false;
+        } else {
+            for ($i = 0; $i < 4; $i++) {
+                if ($paddingCharCount == $allowedValues[$i] and substr($this->secretKey,
+                        -(allowedValues[$i])) != str_repeat($this->map[32],
+                        $allowedValues[$i])) {
+                    $result = false;
+                }
             }
         }
 
-        $this->decodedSecretKey = $binaryString;
+        return $result;
     }
 
     private function oathHotp($counter)
