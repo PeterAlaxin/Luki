@@ -29,9 +29,9 @@ class Image
     private $type;
     private $exif;
     private $font;
-    private $quality   = 100;
+    private $quality = 100;
     private $imageType = array(self::GIF, self::JPG, self::PNG, self::WEBP);
-    private $color     = array(255, 255, 255, 80);
+    private $color = array(255, 255, 255, 80);
 
     function __construct($file = '')
     {
@@ -61,7 +61,7 @@ class Image
     public function createFromString($data)
     {
         $this->image = imagecreatefromstring($data);
-        $this->type  = self::PNG;
+        $this->type = self::PNG;
 
         return $this;
     }
@@ -69,7 +69,7 @@ class Image
     public function createPng($width, $height)
     {
         $this->image = $this->create($width, $height, true);
-        $this->type  = self::PNG;
+        $this->type = self::PNG;
 
         return $this;
     }
@@ -77,7 +77,7 @@ class Image
     public function createJpg($width, $height)
     {
         $this->image = $this->create($width, $height);
-        $this->type  = self::JPG;
+        $this->type = self::JPG;
 
         return $this;
     }
@@ -85,7 +85,7 @@ class Image
     public function createGif($width, $height)
     {
         $this->image = $this->create($width, $height);
-        $this->type  = self::GIF;
+        $this->type = self::GIF;
 
         return $this;
     }
@@ -93,7 +93,7 @@ class Image
     public function createWebp($width, $height)
     {
         $this->image = $this->create($width, $height, true);
-        $this->type  = self::WEBP;
+        $this->type = self::WEBP;
 
         return $this;
     }
@@ -188,7 +188,7 @@ class Image
     public function resizeTo($width, $height)
     {
         list($realWidth, $realHeight) = $this->getSize();
-        $ratioWidth  = $realWidth / $width;
+        $ratioWidth = $realWidth / $width;
         $ratioHeight = $realHeight / $height;
 
         if ($ratioHeight < $ratioWidth) {
@@ -206,24 +206,24 @@ class Image
     {
         list($realWidth, $realHeight) = $this->getSize();
         if ($realHeight > $realWidth) {
-            $ratio     = ($height / $realHeight);
+            $ratio = ($height / $realHeight);
             $newHeight = $height;
-            $newWidth  = floor($realWidth * $ratio);
+            $newWidth = floor($realWidth * $ratio);
 
             if ($newWidth > $width) {
-                $ratio     = ($width / $newWidth);
-                $newWidth  = $width;
+                $ratio = ($width / $newWidth);
+                $newWidth = $width;
                 $newHeight = floor($newHeight * $ratio);
             }
         } else {
-            $ratio     = ($width / $realWidth);
-            $newWidth  = $width;
+            $ratio = ($width / $realWidth);
+            $newWidth = $width;
             $newHeight = floor($realHeight * $ratio);
 
             if ($newHeight > $height) {
-                $ratio     = ($height / $newHeight);
+                $ratio = ($height / $newHeight);
                 $newHeight = $height;
-                $newWidth  = floor($newWidth * $ratio);
+                $newWidth = floor($newWidth * $ratio);
             }
         }
 
@@ -242,7 +242,7 @@ class Image
             $newWidth = (int) $width;
         }
 
-        $ratio     = $newWidth / $realWidth;
+        $ratio = $newWidth / $realWidth;
         $newHeight = floor($realHeight * $ratio);
 
         $this->resize($newWidth, $newHeight);
@@ -260,7 +260,7 @@ class Image
             $newHeight = (int) $height;
         }
 
-        $ratio    = $newHeight / $realHeight;
+        $ratio = $newHeight / $realHeight;
         $newWidth = floor($realWidth * $ratio);
 
         $this->resize($newWidth, $newHeight);
@@ -271,11 +271,12 @@ class Image
     public function cropToWidth($width)
     {
         list($realWidth, $realHeight) = $this->getSize();
-        $diff   = $realWidth - $width;
-        $image  = $this->create($width, $realHeight, true);
+        $diff = $realWidth - $width;
+        $image = $this->create($width, $realHeight, true);
         $newPos = floor($diff / 2);
 
-        imagecopyresampled($image, $this->image, 0, 0, $newPos, 0, $width + $diff, $realHeight, $realWidth, $realHeight);
+        imagecopyresampled($image, $this->image, 0, 0, $newPos, 0,
+            $width + $diff, $realHeight, $realWidth, $realHeight);
 
         $this->image = $image;
 
@@ -285,11 +286,12 @@ class Image
     public function cropToHeight($height)
     {
         list($realWidth, $realHeight) = $this->getSize();
-        $diff   = $realHeight - $height;
-        $image  = $this->create($realWidth, $height, true);
+        $diff = $realHeight - $height;
+        $image = $this->create($realWidth, $height, true);
         $newPos = floor($diff / 2);
 
-        imagecopyresampled($image, $this->image, 0, 0, 0, $newPos, $realWidth, $height + $diff, $realWidth, $realHeight);
+        imagecopyresampled($image, $this->image, 0, 0, 0, $newPos, $realWidth,
+            $height + $diff, $realWidth, $realHeight);
 
         $this->image = $image;
 
@@ -306,7 +308,8 @@ class Image
 
         $image = $this->create($width, $height, true);
 
-        imagecopymerge($image, $this->image, $newX, $newY, 0, 0, $realWidth, $realHeight, 100);
+        imagecopymerge($image, $this->image, $newX, $newY, 0, 0, $realWidth,
+            $realHeight, 100);
 
         $this->image = $image;
 
@@ -330,7 +333,8 @@ class Image
 
     public function crop($posX, $posY, $width, $height)
     {
-        $croped = imagecrop($this->image, ['x' => $posX, 'y' => $posY, 'width' => $width, 'height' => $height]);
+        $croped = imagecrop($this->image,
+            ['x' => $posX, 'y' => $posY, 'width' => $width, 'height' => $height]);
         if ($croped !== false) {
             imagedestroy($this->image);
             $this->image = $croped;
@@ -351,7 +355,8 @@ class Image
         return $this->font;
     }
 
-    public function setWatterMark($text, $posX = 0, $posY = 0, $color = array(), $size = 40, $angle = 0)
+    public function setWatterMark($text, $posX = 0, $posY = 0, $color = array(),
+                                  $size = 40, $angle = 0)
     {
         if (empty($color)) {
             $color = $this->color;
@@ -360,12 +365,14 @@ class Image
         list($red, $green, $blue, $alpha) = $color;
 
         if ($alpha > 0) {
-            $textColor = imagecolorallocatealpha($this->image, $red, $green, $blue, $alpha);
+            $textColor = imagecolorallocatealpha($this->image, $red, $green,
+                $blue, $alpha);
         } else {
             $textColor = imagecolorallocate($this->image, $red, $green, $blue);
         }
 
-        imagettftext($this->image, $size, $angle, $posX, $posY, $textColor, $this->font, $text);
+        imagettftext($this->image, $size, $angle, $posX, $posY, $textColor,
+            $this->font, $text);
 
         return $this;
     }
@@ -398,7 +405,7 @@ class Image
 
     public static function updateExtension($file, $type)
     {
-        $path    = pathinfo($file);
+        $path = pathinfo($file);
         $newName = '';
 
         if (!empty($path['dirname']) and '.' !== $path['dirname']) {
@@ -457,10 +464,10 @@ class Image
 
     public function setType($type)
     {
-        if(in_array($type, $this->imageType)) {
+        if (in_array($type, $this->imageType)) {
             $this->type = $type;
         }
-        
+
         return $this;
     }
 
@@ -481,18 +488,18 @@ class Image
 
         switch ($type) {
             case self::GIF:
-                $result  = imagegif($this->image, $file);
+                $result = imagegif($this->image, $file);
                 break;
             case self::JPG:
-                $result  = imagejpeg($this->image, $file, $this->quality);
+                $result = imagejpeg($this->image, $file, $this->quality);
                 break;
             case self::PNG:
                 $quality = ($this->quality - 100) / 11.111111;
                 $quality = round(abs($quality));
-                $result  = imagepng($this->image, $file, $quality);
+                $result = imagepng($this->image, $file, $quality);
                 break;
             case self::WEBP:
-                $result  = imagewebp($this->image, $file, $this->quality);
+                $result = imagewebp($this->image, $file, $this->quality);
                 break;
         }
 
@@ -503,7 +510,8 @@ class Image
     {
         $result = false;
 
-        if (is_file($file) and is_readable($file) and in_array($this->getMime($file), $this->imageType)) {
+        if (is_file($file) and is_readable($file) and in_array($this->getMime($file),
+                $this->imageType)) {
             $result = true;
         }
 
@@ -525,7 +533,7 @@ class Image
                 $this->image = imagecreatefromgif($file);
                 break;
             case self::JPG:
-                $this->exif  = exif_read_data($file);
+                $this->exif = exif_read_data($file);
                 $this->image = imagecreatefromjpeg($file);
                 break;
             case self::PNG:
@@ -555,8 +563,25 @@ class Image
     {
         $image = $this->create($width, $height, true);
         list($realWidth, $realHeight) = $this->getSize();
-        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height, $realWidth, $realHeight);
+        imagecopyresampled($image, $this->image, 0, 0, 0, 0, $width, $height,
+            $realWidth, $realHeight);
 
         $this->image = $image;
-    }    
+    }
+
+    public function getSource()
+    {
+        return $this->image;
+    }
+
+    public function merge($src, $posX, $posY, $src_w, $src_h, $pct)
+    {
+        $cut = imagecreatetruecolor($src_w, $src_h);
+        imagecopy($cut, $this->image, 0, 0, $posX, $posY, $src_w, $src_h);
+        imagecopy($cut, $src, 0, 0, $src_x, $src_y, $src_w, $src_h);
+        imagecopymerge($this->image, $cut, $posX, $posY, 0, 0, $src_w, $src_h,
+            $pct);
+
+        return $this;
+    }
 }
