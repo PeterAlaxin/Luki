@@ -244,7 +244,7 @@ class Starter
         $server  = Storage::Configuration()->getValue('server', 'definition');
 
         if (!empty($session)) {
-            Session::Start($session, 0, $server, $server);
+            Session::Start($session, 0, $server);
         }
     }
 
