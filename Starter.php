@@ -240,10 +240,11 @@ class Starter
 
     public static function initSession()
     {
-        $sessionType = Storage::Configuration()->getValue('session', 'definition');
+        $session = Storage::Configuration()->getValue('session', 'definition');
+        $server  = Storage::Configuration()->getValue('server', 'definition');
 
-        if (!empty($sessionType)) {
-            Session::Start($sessionType);
+        if (!empty($session)) {
+            Session::Start($session, 0, $server, $server);
         }
     }
 
@@ -296,8 +297,7 @@ class Starter
     public static function sanitizeOutput($output)
     {
         if (!Storage::isDevelopment()) {
-            if (!Storage::Configuration()->isValue('sanitize', 'definition') or 1 == Storage::Configuration()->getValue('sanitize',
-                    'definition')) {
+            if (!Storage::Configuration()->isValue('sanitize', 'definition') or 1 == Storage::Configuration()->getValue('sanitize', 'definition')) {
                 $search  = array(
                     '/\>[^\S ]+/s',
                     '/[^\S ]+\</s',
