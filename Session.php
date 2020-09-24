@@ -37,6 +37,7 @@ class Session
         session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
 
         session_start();
+        setcookie(session_name(), session_id(), $lifetime);
         $sessionId = session_id();
 
         if (Storage::isProfiler()) {
@@ -55,6 +56,7 @@ class Session
         $sessionIds = array('old' => session_id());
 
         session_regenerate_id(true);
+        setcookie(session_name(), session_id(), 0);
         $sessionIds['new'] = session_id();
 
         if (Storage::isProfiler()) {
@@ -66,16 +68,14 @@ class Session
 
     public static function Destroy()
     {
-        $isDestroyed = false;
-        $sessionName = session_name();
+        $isDestroyed   = false;
+        $sessionName   = session_name();
         $sessionCookie = session_get_cookie_params();
 
         self::Restart();
         if (session_destroy()) {
             setcookie(
-                $sessionName, false, $sessionCookie['lifetime'],
-                $sessionCookie['path'], $sessionCookie['domain'],
-                $sessionCookie['secure']
+                $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'], $sessionCookie['secure']
             );
             $isDestroyed = true;
 
