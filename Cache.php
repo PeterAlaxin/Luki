@@ -103,7 +103,7 @@ class Cache
 
     public function Delete($key)
     {
-        $isDeleted = $this->cacheAdapter->Delete($key);
+        $isDeleted = $this->cacheAdapter->Delete($this->sanitizeKey($key));
 
         return $isDeleted;
     }
@@ -115,7 +115,7 @@ class Cache
 
     public function Has($key)
     {
-        $has = $this->cacheAdapter->Has($key);
+        $has = $this->cacheAdapter->Has($this->sanitizeKey($key));
 
         return $has;
     }
