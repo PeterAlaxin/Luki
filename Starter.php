@@ -241,10 +241,16 @@ class Starter
     public static function initSession()
     {
         $session = Storage::Configuration()->getValue('session', 'definition');
-        $server  = Storage::Configuration()->getValue('server', 'definition');
 
         if (!empty($session)) {
-            Session::Start($session, 0, $server);
+            $sessionName = Storage::Configuration()->getValue('sessionName', 'definition');
+            if (!empty($sessionName)) {
+                session_name($sessionName);
+            }
+
+            $server = Storage::Configuration()->getValue('server', 'definition');
+            $parse  = parse_url($server);
+            Session::Start($session, 0, '/', $parse['host']);
         }
     }
 

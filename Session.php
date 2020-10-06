@@ -68,20 +68,11 @@ class Session
 
     public static function Destroy()
     {
-        $isDestroyed   = false;
-        $sessionName   = session_name();
-        $sessionCookie = session_get_cookie_params();
+        $params      = session_get_cookie_params();
+        $isDestroyed = session_destroy();
 
-        self::Restart();
-        if (session_destroy()) {
-            setcookie(
-                $sessionName, false, $sessionCookie['lifetime'], $sessionCookie['path'], $sessionCookie['domain'], $sessionCookie['secure']
-            );
-            $isDestroyed = true;
-
-            if (Storage::isProfiler()) {
-                Storage::Profiler()->Add('Session', session_id());
-            }
+        if ($isDestroyed) {
+            setcookie(session_name(), '', 0, $params['path'], $params['domain'], $params['secure'], isset($params['httponly']));
         }
 
         return $isDestroyed;
