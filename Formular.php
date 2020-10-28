@@ -163,6 +163,15 @@ class Formular
         return $this->class;
     }
 
+    public function addInputs($inputs)
+    {
+        foreach ($inputs as $input) {
+            $this->addInput($input);
+        }
+
+        return $this;
+    }
+
     public function addInput($input)
     {
         $this->inputs[$input->getName()] = $input;
