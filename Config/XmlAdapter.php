@@ -18,14 +18,15 @@ use Luki\Config\BasicAdapter;
 
 class XmlAdapter extends BasicAdapter
 {
+    private $xml;
 
     public function __construct($fileName, $allowCreate = false)
     {
         parent::__construct($fileName, $allowCreate);
 
         libxml_use_internal_errors(true);
-        $xml                 = simplexml_load_file($this->fileName, 'SimpleXMLElement', LIBXML_NOERROR);
-        $this->configuration = json_decode(json_encode($xml), true);
+        $this->xml           = simplexml_load_file($this->fileName, 'SimpleXMLElement', LIBXML_NOERROR);
+        $this->configuration = json_decode(json_encode($this->xml), true);
     }
 
     public function saveConfiguration()
@@ -49,5 +50,16 @@ class XmlAdapter extends BasicAdapter
         $isSaved = $this->saveToFile($content->saveXML());
 
         return $isSaved;
+    }
+
+    public function getAttributes($section, $node, $key)
+    {
+        $attributes = [];
+
+        foreach ($this->xml->$section->$node[$key]->attributes() as $name => $value) {
+            $attributes[$name] = (string) $value;
+        }
+
+        return $attributes;
     }
 }
