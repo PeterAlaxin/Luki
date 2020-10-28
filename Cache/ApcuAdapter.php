@@ -81,7 +81,7 @@ class ApcuAdapter extends BasicAdapter implements BasicInterface
 
     public function Clear()
     {
-        foreach (new \APCUIterator('user') as $item) {
+        foreach (new \APCUIterator () as $item) {
             $this->Delete($item[key]);
         }
     }
