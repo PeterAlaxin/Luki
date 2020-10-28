@@ -56,6 +56,8 @@ class Request
         $this->get    = new GetAdapter();
         $this->post   = new PostAdapter();
         $this->server = new ServerAdapter();
+
+        $this->getFullUrl();
     }
 
     public function __destruct()

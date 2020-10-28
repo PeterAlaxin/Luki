@@ -132,7 +132,6 @@ class Starter
     public static function initRequest()
     {
         Storage::Set('Request', new Request());
-        Storage::Request()->getFullUrl();
     }
 
     public static function initProfiler($microTime, $memory)
