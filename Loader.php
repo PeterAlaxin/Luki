@@ -18,7 +18,7 @@ use Luki\Exception\LoaderException;
 
 class Loader
 {
-    const CLASS_NOT_EXISTS = 'Class "%s" not exists!';
+    const CLASS_NOT_EXISTS = 'Class "%s" does not exists!';
 
     private static $paths = array();
 
