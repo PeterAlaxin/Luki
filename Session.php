@@ -27,13 +27,13 @@ class Session
         }
     }
 
-    public static function Start($type = 'nocache', $lifetime = 0, $path = '/', $domain = null, $secure = false, $httponly = true)
+    public static function Start($limiter = 'nocache', $lifetime = 0, $path = '/', $domain = null, $secure = false, $httponly = true)
     {
-        if (!in_array($type, self::$limiters)) {
-            $type = 'nocache';
+        if (!in_array($limiter, self::$limiters)) {
+            $limiter = 'nocache';
         }
 
-        session_cache_limiter($type);
+        session_cache_limiter($limiter);
         session_set_cookie_params($lifetime, $path, $domain, $secure, $httponly);
 
         session_start();
