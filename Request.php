@@ -34,6 +34,7 @@ class Request
     private $crumbCount     = null;
     private $fullUrl        = null;
     private $httpHost       = null;
+    private $httpReferer    = null;
     private $httpUserAgent  = null;
     private $languages      = null;
     private $pathInfo       = null;
@@ -76,6 +77,7 @@ class Request
         $this->crumbCount     = null;
         $this->fullUrl        = null;
         $this->httpHost       = null;
+        $this->httpReferer    = null;
         $this->httpUserAgent  = null;
         $this->languages      = null;
         $this->pathInfo       = null;
@@ -164,6 +166,15 @@ class Request
         }
 
         return $this->httpHost;
+    }
+
+    public function getReferer()
+    {
+        if (is_null($this->httpReferer)) {
+            $this->httpReferer = $this->server->get('HTTP_REFERER');
+        }
+
+        return $this->httpReferer;
     }
 
     public function getUserAgent()
