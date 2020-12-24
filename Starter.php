@@ -218,26 +218,54 @@ class Starter
 
     public static function initTemplate()
     {
-        $path = Storage::Configuration()->getValue('twigPath', 'definition');
+        if (!empty(Storage::dirTwig())) {
+            $path = Storage::dirTwig();
+        } else {
+            $path = Storage::Configuration()->getValue('twigPath', 'definition');
+        }
+
         Template::setPath($path);
     }
 
     public static function initLog()
     {
-        $logDefinition = Storage::Configuration()->getSection('log');
+        $log = Storage::Configuration()->getSection('log');
 
-        if (!empty($logDefinition)) {
-            $formatName = Log::findFormat($logDefinition['format']);
+        if (!empty($log)) {
+            $dir      = empty($log['dir']) ? Storage::dirLog() : $log['dir'];
+            $filename = $dir.'/'.strftime($log['name'], strtotime('now'));
+
+            $formatName = Log::findFormat($log['format']);
             $format     = new $formatName();
-            $filename   = $logDefinition['dir'].'/'.strftime($logDefinition['name'], strtotime('now'));
-            $writerName = Log::findWriter($logDefinition['writer']);
+
+            $writerName = Log::findWriter($log['writer']);
             $writer     = new $writerName($filename);
+
             Storage::Set('Log', new Log($format, $writer));
-            Storage::Set('LogRedirect', !empty($logDefinition['logRedirect']));
+            Storage::Set('LogRedirect', !empty($log['logRedirect']));
         }
     }
 
     public static function initSession()
+    {
+        if (Storage::Configuration()->isSection('session')) {
+            self::newInitSession();
+        } else {
+            self::oldInitSession();
+        }
+    }
+
+    private static function newInitSession()
+    {
+        $session = Storage::Configuration()->getSection('session');
+        $server  = Storage::Configuration()->getValue('server', 'definition');
+        $parse   = parse_url($server);
+
+        session_name($session['name']);
+        Session::Start($session['limiter'], $session['lifetime'], '/', $parse['host'], $session['secure'], $session['httponly']);
+    }
+
+    private static function oldInitSession()
     {
         $session = Storage::Configuration()->getValue('session', 'definition');
 
