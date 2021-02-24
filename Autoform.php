@@ -183,11 +183,14 @@ class Autoform
     private function setType($text)
     {
         $this->parenthesis = strpos($text, '(');
+        $space = strpos($text, ' ');
 
-        if ($this->parenthesis === false) {
+        if ($this->parenthesis === false and $space === false) {
             $this->type = $text;
-        } else {
+        } elseif($this->parenthesis > 0) {
             $this->type = substr($text, 0, $this->parenthesis);
+        } elseif($space > 0) {
+            $this->type = substr($text, 0, $space);
         }
     }
 
@@ -210,6 +213,8 @@ class Autoform
                 $this->size = 16777215;
             } else if ('longtext' == $this->type or 'longblob' == $this->type) {
                 $this->size = 4294967295;
+            } else if ('tinyint' == $this->type) {
+                $this->size = 1;
             } else {
                 $this->size = 0;
             }
