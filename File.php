@@ -56,8 +56,8 @@ class File
         $hash = hash('sha256', $id);
         $dir  = '';
 
-        for ($i = 0; $i < $level; $i++) {
-            $dir .= ord(substr($hash, $i, 1)).DIRECTORY_SEPARATOR;
+        for ($i = 0; $i < $level; $i ++) {
+            $dir .= ord(substr($hash, $i, 1)) . DIRECTORY_SEPARATOR;
         }
 
         return $dir;
@@ -66,7 +66,7 @@ class File
     public static function createDir($structure, $mode = 0755)
     {
         $isCreated = false;
-        if (!is_dir($structure) and mkdir($structure, $mode, true)) {
+        if ( ! is_dir($structure) and mkdir($structure, $mode, true)) {
             $isCreated = true;
         }
 
@@ -82,7 +82,7 @@ class File
                 $dir .= '/';
             }
 
-            $files = glob($dir.'*', GLOB_MARK);
+            $files = glob($dir . '*', GLOB_MARK);
             foreach ($files as $file) {
                 if (is_dir($file)) {
                     self::deleteDir($file);
@@ -100,10 +100,27 @@ class File
     {
         $name = Security::generatePassword(10, 2);
 
-        while (file_exists($folder.$name.'.'.$extension)) {
+        while (file_exists($folder . $name . '.' . $extension)) {
             $name = Security::generatePassword(10, 2);
         }
 
-        return $name.'.'.$extension;
+        return $name . '.' . $extension;
+    }
+
+    public function getExtension($file)
+    {
+        $extension = '';
+
+        if (is_file($file)) {
+            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        } else {
+            $path   = explode('.', $file);
+            $length = count($path);
+            if ($length > 1) {
+                $extension = $path[$length - 1];
+            }
+        }
+
+        return $extension;
     }
 }
