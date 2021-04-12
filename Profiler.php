@@ -16,6 +16,7 @@ namespace Luki;
 
 class Profiler
 {
+
     private $profiler = array();
     private $memory;
     private $isAjax   = false;
@@ -26,7 +27,7 @@ class Profiler
     {
         $this->isAjax = Storage::Request()->isAjax();
 
-        if (!$this->isAjax) {
+        if ( ! $this->isAjax) {
             Time::stopwatchStart('Luki_Profiler_PageTimer', $microTime);
             $this->memory = $memory;
         }
@@ -34,13 +35,13 @@ class Profiler
 
     public function __destruct()
     {
-        if (!$this->isAjax) {
+        if ( ! $this->isAjax) {
             $time   = Time::getStopwatch('Luki_Profiler_PageTimer');
             $memory = memory_get_usage();
 
             $this->startProfiler();
             #$this->showInfo();
-            $this->insideCell('Page time', $this->changeSecToMs($time).' ms');
+            $this->insideCell('Page time', $this->changeSecToMs($time) . ' ms');
             $this->showMemory($memory);
             $this->showRoute();
             $this->showSession();
@@ -48,6 +49,7 @@ class Profiler
             $this->showData();
             $this->showCache();
             $this->showDebug();
+            $this->showConstants();
             $this->showError();
             $this->endProfiler();
         }
@@ -78,7 +80,7 @@ class Profiler
 
     private function showRoute()
     {
-        if (!empty($this->profiler['Route'])) {
+        if ( ! empty($this->profiler['Route'])) {
             $this->insideCell('Route', $this->profiler['Route'][0]);
         }
     }
@@ -88,14 +90,14 @@ class Profiler
         $memory      = $memory - $this->memory;
         $peak        = memory_get_peak_usage();
         $unit        = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
-        $totalMemory = @round($memory / pow(1024, ($i           = floor(log($memory, 1024)))), 2).' '.$unit[$i];
-        $peakMemory  = @round($peak / pow(1024, ($i           = floor(log($peak, 1024)))), 2).' '.$unit[$i];
-        $this->insideCell('Memory', $totalMemory.' ('.$peakMemory.')');
+        $totalMemory = @round($memory / pow(1024, ($i           = floor(log($memory, 1024)))), 2) . ' ' . $unit[$i];
+        $peakMemory  = @round($peak / pow(1024, ($i           = floor(log($peak, 1024)))), 2) . ' ' . $unit[$i];
+        $this->insideCell('Memory', $totalMemory . ' (' . $peakMemory . ')');
     }
 
     private function showSession()
     {
-        if (!empty($this->profiler['Session'])) {
+        if ( ! empty($this->profiler['Session'])) {
             $sessions = $this->profiler['Session'];
             $hidden   = '<table>';
             foreach ($sessions as $key => $session) {
@@ -107,32 +109,32 @@ class Profiler
                     $hidden .= 'Change:';
                 }
 
-                $hidden .= '</td><td>'.$session.'</td></tr>';
+                $hidden .= '</td><td>' . $session . '</td></tr>';
             }
             $hidden .= '</table>';
         }
 
-        $this->insideCell('Session', count($sessions).'x', $hidden);
+        $this->insideCell('Session', count($sessions) . 'x', $hidden);
     }
 
     private function showTemplate()
     {
         $times = 0;
 
-        if (!empty($this->profiler['Template'])) {
+        if ( ! empty($this->profiler['Template'])) {
             $templates = $this->profiler['Template'];
             $hidden    = '<table>';
             foreach ($templates as $template) {
                 $time   = $this->changeSecToMs($template['time']);
                 $times  += $time;
-                $hidden .= '<tr><td>&nbsp;'.$template['name'].':&nbsp;</td>';
-                $hidden .= '<td>&nbsp;'.$time.'&nbsp;ms&nbsp;</td></tr>';
+                $hidden .= '<tr><td>&nbsp;' . $template['name'] . ':&nbsp;</td>';
+                $hidden .= '<td>&nbsp;' . $time . '&nbsp;ms&nbsp;</td></tr>';
             }
             $hidden .= '</table>';
         }
 
-        if (!empty($templates)) {
-            $this->insideCell('Template', count($templates).'x ('.$times.' ms)', $hidden);
+        if ( ! empty($templates)) {
+            $this->insideCell('Template', count($templates) . 'x (' . $times . ' ms)', $hidden);
         }
     }
 
@@ -140,33 +142,33 @@ class Profiler
     {
         $times = 0;
 
-        if (!empty($this->profiler['Data'])) {
+        if ( ! empty($this->profiler['Data'])) {
             $datas  = $this->profiler['Data'];
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
             foreach ($datas as $data) {
                 $time  = $this->changeSecToMs($data['time']);
                 $times += $time;
                 if ($time > 3) {
-                    $hidden .= '<tr><td style="color:red;">&nbsp;'.$data['sql'].'&nbsp;</td>';
-                    $hidden .= '<td style="color:red;">&nbsp;'.number_format($time, 2).'&nbsp;ms&nbsp;</td></tr>';
+                    $hidden .= '<tr><td style="color:red;">&nbsp;' . $data['sql'] . '&nbsp;</td>';
+                    $hidden .= '<td style="color:red;">&nbsp;' . number_format($time, 2) . '&nbsp;ms&nbsp;</td></tr>';
                 } ELSE {
-                    $hidden .= '<tr><td>&nbsp;'.$data['sql'].'&nbsp;</td>';
-                    $hidden .= '<td>&nbsp;'.number_format($time, 2).'&nbsp;ms&nbsp;</td></tr>';
+                    $hidden .= '<tr><td>&nbsp;' . $data['sql'] . '&nbsp;</td>';
+                    $hidden .= '<td>&nbsp;' . number_format($time, 2) . '&nbsp;ms&nbsp;</td></tr>';
                 }
             }
             $hidden .= '</table>';
         }
 
-        $this->insideCell('Data', count($datas).'x ('.$times.' ms)', $hidden);
+        $this->insideCell('Data', count($datas) . 'x (' . $times . ' ms)', $hidden);
     }
 
     private function showCache()
     {
-        if (!empty($this->profiler['Cache'])) {
+        if ( ! empty($this->profiler['Cache'])) {
             $datas  = $this->profiler['Cache'];
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
             foreach ($datas as $data) {
-                $hidden .= '<tr><td>&nbsp;'.$data['type'].'&nbsp;</td><td>&nbsp;'.$data['key'].'&nbsp;</td></tr>';
+                $hidden .= '<tr><td>&nbsp;' . $data['type'] . '&nbsp;</td><td>&nbsp;' . $data['key'] . '&nbsp;</td></tr>';
             }
             $hidden .= '</table>';
         } else {
@@ -174,21 +176,21 @@ class Profiler
             $hidden = '';
         }
 
-        $this->insideCell('Cache', count($datas).'x', $hidden);
+        $this->insideCell('Cache', count($datas) . 'x', $hidden);
     }
 
     private function showDebug()
     {
-        if (!empty($this->debug)) {
+        if ( ! empty($this->debug)) {
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
             foreach ($this->debug as $data) {
                 if ($data['fnc'] == 'echo') {
-                    $hidden .= '<tr><td>&nbsp;'.$data['name'].'&nbsp;</td><td>&nbsp;'.$data['value'].'&nbsp;</td></tr>';
+                    $hidden .= '<tr><td>&nbsp;' . $data['name'] . '&nbsp;</td><td>&nbsp;' . $data['value'] . '&nbsp;</td></tr>';
                 } else {
                     ob_start();
                     var_dump($data['value']);
                     $result = ob_get_clean();
-                    $hidden .= '<tr><td>&nbsp;'.$data['name'].'&nbsp;</td><td><pre>'.$result.'</pre></td></tr>';
+                    $hidden .= '<tr><td>&nbsp;' . $data['name'] . '&nbsp;</td><td><pre>' . $result . '</pre></td></tr>';
                 }
             }
             $hidden .= '</table>';
@@ -196,14 +198,31 @@ class Profiler
             $hidden = '';
         }
 
-        $this->insideCell('Debug', count($this->debug).'x', $hidden);
+        $this->insideCell('Debug', count($this->debug) . 'x', $hidden);
+    }
+
+    private function showConstants()
+    {
+        $constants = get_defined_constants(true)['user'];
+
+        if ( ! empty($constants)) {
+            $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
+            foreach ($constants as $key => $val) {
+                $hidden .= '<tr><td>&nbsp;' . $key . '&nbsp;</td><td>&nbsp;' . $val . '&nbsp;</td></tr>';
+            }
+            $hidden .= '</table>';
+        } else {
+            $hidden = '';
+        }
+
+        $this->insideCell('Constants', count($constants) . 'x', $hidden);
     }
 
     private function showError()
     {
-        if (!empty($this->error)) {
+        if ( ! empty($this->error)) {
             $hidden = '<table border="1" cellspacing="0" cellpadding="3">';
-            $hidden .= '<tr><td>'.$this->error->getMessage().'</td></tr>';
+            $hidden .= '<tr><td>' . $this->error->getMessage() . '</td></tr>';
             $hidden .= $this->readProgram($this->error->getFile(), $this->error->getLine());
             foreach ($this->error->getTrace() as $data) {
                 $hidden .= $this->readProgram($data['file'], $data['line']);
@@ -222,19 +241,19 @@ class Profiler
     {
         $lineStart = max(0, $line - 3);
         $lineEnd   = $lineStart + 6;
-        $source    = '<tr><td><b>'.$file.'</b><br /><br />';
+        $source    = '<tr><td><b>' . $file . '</b><br /><br />';
         $program   = fopen($file, 'r');
         if ($program) {
             $lineNo      = 1;
             while (($programLine = fgets($program)) !== false) {
                 if ($lineNo >= $lineStart and $lineNo <= $lineEnd) {
                     if ($lineNo == $line) {
-                        $source .= $lineNo.'. <code><b>'.str_replace(' ', '&nbsp;', $programLine).'</b></code><br />';
+                        $source .= $lineNo . '. <code><b>' . str_replace(' ', '&nbsp;', $programLine) . '</b></code><br />';
                     } else {
-                        $source .= $lineNo.'. <code>'.str_replace(' ', '&nbsp;', $programLine).'</code><br />';
+                        $source .= $lineNo . '. <code>' . str_replace(' ', '&nbsp;', $programLine) . '</code><br />';
                     }
                 }
-                $lineNo++;
+                $lineNo ++;
             }
             fclose($program);
         }
@@ -248,14 +267,14 @@ class Profiler
         $phpInfo = $this->getPhpInfo();
         $hidden  = '<table border="1" cellspacing="0" cellpadding="3" style="width: 1024px;"><tr><td style="padding: 10px;">';
         foreach ($phpInfo as $name => $section) {
-            $hidden .= '<h2>'.$name.'</h2><table border="1" cellspacing="0" cellpadding="5" style="width: 1024px;">';
+            $hidden .= '<h2>' . $name . '</h2><table border="1" cellspacing="0" cellpadding="5" style="width: 1024px;">';
             foreach ($section as $key => $val) {
                 if (is_array($val)) {
-                    $hidden .= '<tr><td style="width: 33%; font-weight: bold;">'.$key.'</td><td style="width: 33%; word-wrap: break-word;">'.$val[0].'</td><td style="width: 33%; word-wrap: break-word;">'.$val[1].'</td></tr>';
+                    $hidden .= '<tr><td style="width: 33%; font-weight: bold;">' . $key . '</td><td style="width: 33%; word-wrap: break-word;">' . $val[0] . '</td><td style="width: 33%; word-wrap: break-word;">' . $val[1] . '</td></tr>';
                 } elseif (is_string($key)) {
-                    $hidden .= '<tr><td style="width: 33%; font-weight: bold;">'.$key.'</td><td colspan="2" style="word-wrap: break-word;">'.$val.'</td></tr>';
+                    $hidden .= '<tr><td style="width: 33%; font-weight: bold;">' . $key . '</td><td colspan="2" style="word-wrap: break-word;">' . $val . '</td></tr>';
                 } else {
-                    $hidden .= '<tr><td colspan="3" style="word-wrap: break-word;">'.$val.'</td></tr>';
+                    $hidden .= '<tr><td colspan="3" style="word-wrap: break-word;">' . $val . '</td></tr>';
                 }
             }
             $hidden .= '</table>';
@@ -305,15 +324,15 @@ class Profiler
     {
         echo '<div style="padding: 10px 5px; float: left; border-right: 1px solid #000; text-align: center;';
 
-        if (!empty($hidden) and true) {
+        if ( ! empty($hidden) and true) {
             $random = str_shuffle('acdefghijklmnopqrstuvwxz');
-            echo 'cursor:pointer;" onClick="var el = document.getElementById(\''.$random.'\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
-            echo '<div class="subProfiler" id="'.$random.'" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee; max-height: 300px; overflow: auto;"><b>'.$title.'</b><br />'.$hidden.'</div>';
+            echo 'cursor:pointer;" onClick="var el = document.getElementById(\'' . $random . '\'); if(el.style.display == \'none\') { var elements = document.getElementsByClassName(\'subProfiler\'); for (var i = 0; i < elements.length; i++) { elements[i].style.display = \'none\'; } el.style.display = \'block\'; } else { el.style.display = \'none\'; }">';
+            echo '<div class="subProfiler" id="' . $random . '" style="border: 1px solid green; position: fixed; bottom: 36px; left: 0; padding: 5px; width: 100%; display: none;text-align: left; background-color: #eee; max-height: 300px; overflow: auto;"><b>' . $title . '</b><br />' . $hidden . '</div>';
         } else {
             echo '">';
         }
 
-        echo '<b>'.$title.':</b>&nbsp;';
+        echo '<b>' . $title . ':</b>&nbsp;';
         echo $content;
         echo '&nbsp;</div>';
     }
