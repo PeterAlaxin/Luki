@@ -52,13 +52,13 @@ class Date
         if ($timestamp >= strtotime('+7 day 00:00')) {
             $text = strftime('%e. %B %G', $timestamp);
         } elseif ($timestamp >= strtotime('+2 day 00:00')) {
-            $text = $this->translate('Next ').strftime('%A, %k:%M', $timestamp);
+            $text = $this->translate('Next ') . strftime('%A, %k:%M', $timestamp);
         } elseif ($timestamp >= strtotime('tomorrow 00:00')) {
-            $text = $this->translate('Tomorrow at ').strftime('%k:%M', $timestamp);
+            $text = $this->translate('Tomorrow at ') . strftime('%k:%M', $timestamp);
         } elseif ($timestamp >= strtotime('today 00:00')) {
             $text = strftime('%k:%M', $timestamp);
         } elseif ($timestamp >= strtotime('yesterday 00:00')) {
-            $text = $this->translate('Yesterday at ').strftime('%k:%M', $timestamp);
+            $text = $this->translate('Yesterday at ') . strftime('%k:%M', $timestamp);
         } elseif ($timestamp >= strtotime('-6 day 00:00')) {
             $text = strftime('%A, %k:%M', $timestamp);
         } else {
@@ -70,7 +70,7 @@ class Date
 
     private function translate($text)
     {
-        if (0 === strpos(setlocale(LC_ALL, '0'), 'sk_SK')) {
+        if (0 === strpos(setlocale(LC_ALL, 0), 'sk_SK')) {
             $tran = $this->translateToSlovak($text);
         } else {
             $tran = $text;
