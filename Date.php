@@ -18,6 +18,7 @@ use Luki\Time;
 
 class Date
 {
+
     public static $format        = 'Y-m-d';
     public static $dateValidator = '/^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$/';
 
@@ -201,7 +202,7 @@ class Date
                 $newDelimiter = '.';
             }
 
-            if (!is_null($oldDelimiter)) {
+            if ( ! is_null($oldDelimiter)) {
                 $newDate = implode($newDelimiter, array_reverse(explode($oldDelimiter, $date)));
             }
         }
@@ -320,5 +321,12 @@ class Date
         $date = new \DateTime($date);
 
         return $date->format("w");
+    }
+
+    public static function isBetween($from, $to, $date = null)
+    {
+        $now  = $date ?? $date = date('Y-m-d H:i:s');
+
+        return ($from <= $now and $now <= $to);
     }
 }
