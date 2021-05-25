@@ -82,8 +82,8 @@ class Language
 
         if (is_file($file)) {
             $adapter = new $adapterName($file);
-        } elseif (is_file($this->languagesPath.PATH_SEPARATOR.$file)) {
-            $adapter = new $adapterName($this->languagesPath.PATH_SEPARATOR.$file);
+        } elseif (is_file($this->languagesPath.DIRECTORY_SEPARATOR.$file)) {
+            $adapter = new $adapterName($this->languagesPath.DIRECTORY_SEPARATOR.$file);
         }
 
         $this->languages[$name] = new Config($adapter);
