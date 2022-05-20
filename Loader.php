@@ -102,6 +102,19 @@ class Loader
             }
 
             if (!$isFound) {
+                $classFile = str_replace('_', DIRECTORY_SEPARATOR, $class).'.php';
+
+                foreach (self::$paths as $path) {
+                    $fileWithPath = $path.$classFile;
+    
+                    if (is_file($fileWithPath) and include_once($fileWithPath)) {
+                        $isFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$isFound) {
                 throw new LoaderException(sprintf(self::CLASS_NOT_EXISTS, $class));
             }
         } catch (\Exception $exception) {

@@ -201,4 +201,76 @@ class Security
 
         return $score;
     }
+
+    public static function uuidV3($namespace, $name) {
+        if(!self::uuidIsValid($namespace)) {
+            return false;
+        }
+    
+        $hex = str_replace(['-','{','}'], '', $namespace);
+        $str = '';
+    
+        for($i = 0; $i < strlen($hex); $i+=2) {
+            $str .= chr(hexdec($hex[$i].$hex[$i+1]));
+        }
+    
+        $hash = md5($str . $name);
+
+        $par1 = substr($hash, 0, 8);
+        $par2 = substr($hash, 8, 4);
+        $par3 = (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x3000;
+        $par4 = (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000;
+        $par5 = substr($hash, 20, 12);
+
+        $result = sprintf('%08s-%04s-%04x-%04x-%12s', $par1, $par2, $par3, $par4, $par5);
+
+        return $result;
+      }
+    
+      public static function uuidV4() {
+          $par1 = mt_rand(0, 0xffff);
+          $par2 = mt_rand(0, 0xffff);
+          $par3 = mt_rand(0, 0xffff);
+          $par4 =  mt_rand(0, 0x0fff) | 0x4000;
+          $par5 = mt_rand(0, 0x3fff) | 0x8000;
+          $par6 = mt_rand(0, 0xffff);
+          $par7 = mt_rand(0, 0xffff);
+          $par8 = mt_rand(0, 0xffff);
+
+          $result = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', $par1, $par2, $par3, $par4, $par5, $par6, $par7, $par8);
+
+          return $result;
+      }
+    
+      public static function uuidV5($namespace, $name) {
+        if(!self::uuidIsValid($namespace)) {
+            return false;
+        }
+    
+        $hex = str_replace(array('-','{','}'), '', $namespace);
+        $str = '';
+    
+        for($i = 0; $i < strlen($hex); $i+=2) {
+            $str .= chr(hexdec($hex[$i].$hex[$i+1]));
+        }
+    
+        $hash = sha1($str . $name);
+
+        $par1 = substr($hash, 0, 8);
+        $par2 = substr($hash, 8, 4);
+        $par3 = (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000;
+        $par4 = (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000;
+        $par5 = substr($hash, 20, 12);
+
+        $result = sprintf('%08s-%04s-%04x-%04x-%12s', $par1, $par2, $par3, $par4, $par5);
+
+        return $result;
+      }
+    
+      public static function uuidIsValid($uuid) {
+          $match = preg_match('/^\{?[0-9a-f]{8}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{4}\-?[0-9a-f]{12}\}?$/i', $uuid);
+          $isValid = ($match === 1);
+
+          return $isValid;
+      }        
 }

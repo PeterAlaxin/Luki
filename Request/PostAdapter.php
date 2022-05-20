@@ -22,7 +22,8 @@ class postAdapter extends BasicAdapter
 
     public function __construct()
     {
-        if (empty($_FILES) and ! empty($_POST)) {
+
+        if (empty($_FILES) and ! empty($_POST) AND strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
             $_SESSION['__post__'] = $_POST;
             Url::Reload($_SERVER['REQUEST_URI']);
         }

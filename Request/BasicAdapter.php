@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Basic request adapter
  *
@@ -30,9 +31,9 @@ abstract class BasicAdapter
         if (!empty($inputs) and is_array($inputs)) {
             foreach ($inputs as $key => $input) {
                 if (!is_array($input)) {
-                    if (get_magic_quotes_gpc()) {
-                        $input = stripslashes($input);
-                    }
+                    #if (get_magic_quotes_gpc()) {
+                    #$input = stripslashes($input);
+                    #}
 
                     #$input = htmlspecialchars($input, ENT_QUOTES);
                     #$input = htmlspecialchars_decode(htmlspecialchars($input, ENT_NOQUOTES | ENT_IGNORE, 'UTF-8'), ENT_NOQUOTES);
